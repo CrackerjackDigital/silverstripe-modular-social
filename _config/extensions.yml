@@ -1,0 +1,60 @@
+---
+Name: app-social-config
+---
+ApproveableExtension:
+  approveable_mode: 0     # set automatic approval on all models that don't override in their own config.
+
+# models and their controllers
+SocialModel:
+  extensions:
+    - ActionButtonsExtension
+    - ActionLinksExtension
+    - CreateableExtension
+    - ViewableExtension
+    - EditableExtension
+    - HistoricalExtension
+
+SocialModel_Controller:
+  extensions:
+    - ActionLinksExtension
+    - UIModalProviderExtension
+    - CreateableExtension
+    - EditableExtension
+    - ListableExtension
+    - ViewableExtension
+
+SocialRelationship:
+  extensions:
+    - HistoricalExtension
+
+SocialType:
+  extensions:
+    - ApproveableExtension
+
+# Forum:
+#  extensions:
+#    - FollowableExtension
+
+# Forum_:
+#  extensions:
+#    - FollowableExtension
+#    - ListableExtension
+#    - LikeableExtension
+#
+# Member:
+#  extensions:
+#    - ApproveableExtension
+#    - ConfirmableExtension
+#
+# Member_:
+#  extensions:
+#    - UploadableExtension
+#    - ViewableSubContentExtension
+#    - FollowableExtension
+#    - LikeableExtension
+#    - PreferenceExtension
+#    - SearchableExtension
+#    - NewsFeedExtension
+#    - RegisterableExtension
+#    - PostableExtension
+#    - ConfirmableExtension

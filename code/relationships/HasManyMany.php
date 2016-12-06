@@ -8,7 +8,7 @@ use DataObject;
 use FieldList;
 use FormField;
 use Modular\Object;
-use Modular\Types\SocialActionType;
+use Modular\Types\SocialAction;
 use SS_List;
 
 /**
@@ -141,7 +141,7 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 	}
 
 	/**
-	 * Add search fields for Organisations if Organisation is in the csvWhat array/string. This is called as
+	 * Add search fields for Organisations if SocialOrganisation is in the csvWhat array/string. This is called as
 	 * an extend e.g. by SearchableExtension.
 	 *
 	 * @param FieldList    $fields
@@ -203,7 +203,7 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 				: [$this->getActionName()];
 
 			// get action type records which are children of the passed in code.
-			$actionTypeIDs = SocialActionType::get_by_parent($parentActionCodes)->column('ID');
+			$actionTypeIDs = SocialAction::get_by_parent($parentActionCodes)->column('ID');
 
 			// for each of the action names append records which match the current action type
 			foreach ($actionNames as $actionName) {
@@ -316,13 +316,12 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 
 		$instance = DataObject::get_by_id($otherClassName, $instanceID);
 		if ($instance) {
-			$actionType = $this->getAllowedActionTypes('Organisation')
+			$actionType = $this->getAllowedActionTypes('SocialOrganisation')
 				->filter([
 					'Code' => $actionCode,
 				])->first();
 
 			if ($actionType) {
-				$x = $this()->class . $otherClassName . 'ActionType';
 				$actionClassName = $this->getActionName();
 				$actionFieldName = 'From' . $this()->class . 'ID';
 
@@ -387,7 +386,7 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 			'AllowedFrom' => $this()->class,
 			'AllowedTo'   => $foreignClass,
 		];
-		return SocialActionType::get()->filter($filters);
+		return SocialAction::get()->filter($filters);
 	}
 
 	/**
@@ -408,7 +407,7 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 			$actionClassName = $this->getOtherClassName();
 
 			if ($actionCodes && $this()->isInDB()) {
-				$actions = SocialActionType::get_heirarchy($this(), $actionClassName, $actionCodes);
+				$actions = SocialAction::get_heirarchy($this(), $actionClassName, $actionCodes);
 
 				if ($actions->count()) {
 					return $this()->$actionName()->filter('ActionID', $actions->column('ID'));

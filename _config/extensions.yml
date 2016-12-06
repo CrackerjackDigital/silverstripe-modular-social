@@ -1,35 +1,62 @@
 ---
-Name: app-social-config
+Name: modular-social-config
 ---
-ApproveableExtension:
+\Modular\Actions\Approveable:
   approveable_mode: 0     # set automatic approval on all models that don't override in their own config.
 
+## silverstripe models
+Member:
+  extensions:
+    - Modular\Extensions\UI\SocialActionButtons
+    - Modular\Extensions\Model\SocialMember
+    - Modular\Extensions\Model\Historical
+
 # models and their controllers
-SocialModel:
+Modular\Models\SocialModel:
   extensions:
-    - ActionButtonsExtension
-    - ActionLinksExtension
-    - CreateableExtension
-    - ViewableExtension
-    - EditableExtension
-    - HistoricalExtension
+    - Modular\Extensions\UI\SocialActionButtons
+    - Modular\Extensions\Model\Historical
 
-SocialModel_Controller:
+Modular\Types\SocialType:
   extensions:
-    - ActionLinksExtension
-    - UIModalProviderExtension
-    - CreateableExtension
-    - EditableExtension
-    - ListableExtension
-    - ViewableExtension
+    - Modular\Extensions\Model\Historical
 
-SocialRelationship:
+Modular\Controllers\SocialModel_Controller:
   extensions:
-    - HistoricalExtension
+    - Modular\Extensions\UI\SocialActionLinks
+    - Modular\Extensions\UI\SocialModalProvider
+    - Modular\Extensions\Controller\SocialController
+    - Modular\Actions\CreateableExtension
+    - Modular\Actions\ListableExtension
+    - Modular\Actions\ViewableExtension
+    - Modular\Actions\EditableExtension
 
-SocialType:
+Modular\Edges\Social:
   extensions:
-    - ApproveableExtension
+    - Modular\Extensions\Model\SocialModel
+    - Modular\Extensions\Model\Historical
+
+Modular\Types\SocialAction:
+  extensions:
+    - Modular\Extensions\Model\Historical
+
+Modular\Models\Recipient:
+  has_one:
+    Notification: Modular\Models\SocialNotification
+
+Modular\Controllers\SocialOrganisation_Controller:
+  extensions:
+    - HasImagesExtension
+    - HasCoverImageExtension
+    - HasLogoExtension
+    - HasGalleryExtension
+    - HasContactInfoExtension
+    - HasOrganisationCategoriesExtension
+
+Modular\Controllers\SocialPost_Controller:
+  extensions:
+    - HasImagesExtension
+
 
 # Forum:
 #  extensions:
@@ -43,7 +70,7 @@ SocialType:
 #
 # Member:
 #  extensions:
-#    - ApproveableExtension
+#    - \Modular\Actions\Approveable
 #    - ConfirmableExtension
 #
 # Member_:

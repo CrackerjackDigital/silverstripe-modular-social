@@ -1,8 +1,14 @@
 <?php
-
 namespace Modular\Actions;
 
-class Confirmable extends SocialAction {
+use Controller;
+use EmailNotifier;
+use Member;
+use Modular\Edges\MemberMember;
+use Modular\Extensions\Controller\SocialAction;
+use SS_HTTPRequest;
+
+class Confirmable extends SocialAction  {
 	use \Modular\enabler;
 
 	const Action                     = 'confirm';
@@ -36,7 +42,7 @@ class Confirmable extends SocialAction {
 	}
 
 	public function Confirmed() {
-		return \MemberMemberAction::to(
+		return MemberMember::to(
 			$this(),
 			'CRT'
 		)->first();
@@ -54,9 +60,9 @@ class Confirmable extends SocialAction {
 	 */
 	public function checkPermissions($fromModel, $toModel, $actionTypeCode) {
 		if ($confirmed = !static::enabled()) {
-			$registrants = \MemberMemberRelationship::to($toModel, 'REG');
+			$registrants = MemberMember::to($toModel, 'REG');
 
-			/** @var ConfirmableExtension $registrant */
+			/** @var Confirmable $registrant */
 			foreach ($registrants as $registrant) {
 				if (!$confirmed = $registrant->isConfirmed()) {
 					break;
@@ -64,7 +70,7 @@ class Confirmable extends SocialAction {
 			}
 		}
 		if (!$confirmed) {
-			Controller::curr()->httpError('403', "Sorry, the registrant has not yet confirmed their account");
+			\Controller::curr()->httpError('403', "Sorry, the registrant has not yet confirmed their account");
 		}
 		return $confirmed;
 	}
@@ -75,7 +81,7 @@ class Confirmable extends SocialAction {
 	public function confirm(SS_HTTPRequest $request) {
 		$token = $request->Param('Token');
 		if (isset($token) && !empty($token)) {
-			/** @var Member|ConfirmableExtension $member */
+			/** @var Member|Confirmable $member */
 			$reenable = Approveable::disable();
 			$member = Member::get()->filter([self::ConfirmationTokenFieldName => $token])->first();
 			Approveable::enable($reenable);

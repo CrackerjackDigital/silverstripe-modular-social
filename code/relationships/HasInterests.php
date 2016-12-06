@@ -3,7 +3,7 @@ use Modular\Relationships\SocialHasMany;
 
 class HasInterestsExtension extends SocialHasMany {
 
-	protected static $other_class = 'InterestType';
+	protected static $other_class = 'SocialInterestType';
 
 	protected static $other_field = 'ToInterestTypeID';
 
@@ -42,7 +42,7 @@ class HasInterestsExtension extends SocialHasMany {
 	/**
 	 * Returns InterestTypes owner is related to.
 	 *
-	 * @return DataList|ArrayList of InterestType records
+	 * @return DataList|ArrayList of SocialInterestType records
 	 */
 	public function Interests() {
 		return parent::getRelated();

@@ -69,7 +69,7 @@ class HasPostsExtension extends SocialHasManyMany {
 	/**
 	 * Relate a Post to this object by supplied action.
 	 *
-	 * Creates a action class object if Instane and ActionType records
+	 * Creates a action class object if Instane and SocialAction records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int $postID

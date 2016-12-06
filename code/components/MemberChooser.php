@@ -22,7 +22,7 @@ class MemberChooserField extends \Modular\UI\Component {
 	}
 
 	/**
-	 * If model passed in is an Organisation then update this field from model fields.
+	 * If model passed in is an SocialOrganisation then update this field from model fields.
 	 *
 	 * @param DataObject $model
 	 * @param FieldList $fields

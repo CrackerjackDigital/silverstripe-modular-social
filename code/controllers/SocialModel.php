@@ -6,8 +6,6 @@ use Config;
 use DataObject;
 use FieldList;
 use Member;
-use Modular\Actions\Preference;
-use Modular\Extensions\Model\SocialModelMember;
 use Modular\Forms\SocialForm;
 use Modular\Interfaces\SocialModelController;
 use Modular\json;
@@ -18,9 +16,9 @@ use Session;
 /**
  * Base controller for SocialModel derived classes.
  *
- * ActionType methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
+ * SocialAction methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
  */
-class SocialModel extends GraphNode implements SocialModelController , \MosaicFormControllerInterface {
+class SocialModel_Controller extends GraphNode_Controller implements SocialModelController , \MosaicFormControllerInterface {
 	use json;
 
 	// what url's this controller handles. Added to by extensions such as Editable.

@@ -7,7 +7,7 @@ use Modular\Interfaces\ModelWriteHandlers;
  */
 
 class SocialHasMany extends \Modular\ModelExtension implements ModelWriteHandlers  {
-	// foreign class should be set in implementation, e.g. 'InterestType'
+	// foreign class should be set in implementation, e.g. 'SocialInterestType'
 	protected static $other_class;
 
 	// name of field in other class we link to e.g. 'ToInterestTypeID'

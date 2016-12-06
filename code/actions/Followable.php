@@ -7,11 +7,11 @@
  */
 namespace Modular\Actions;
 
-use Modular\Types\SocialActionType;
-use \Modular\Extensions\Controller\SocialAction;
+use Controller;
+use Modular\Extensions\Controller\SocialAction;
 
 class Followable extends SocialAction {
-    const ActionTypeCode = 'FOL';
+    const ActionCode = 'FOL';
     const Action = 'follow';
 
     private static $url_handlers = [
@@ -32,7 +32,7 @@ class Followable extends SocialAction {
      * @return bool
      */
     public function canFollow($source = null) {
-        return parent::canDoIt(self::ActionTypeCode, $source);
+        return parent::canDoIt(self::ActionCode, $source);
     }
     /**
      * Return boolean to indicate if the action for this extension has been taken, or null if not the action
@@ -42,28 +42,28 @@ class Followable extends SocialAction {
      * @return bool|mixed
      */
     public function actionTaken($action) {
-        return ($action === self::ActionTypeCode) && self::isFollowed();
+        return ($action === self::ActionCode) && self::isFollowed();
     }
 
     /**
-     * Member follows this->owner object, add a relationship from Member with type self::$actionTypeCode
+     * Member follows this->owner object, add a relationship from Member with type self::$ActionCode
      */
     public function follow() {
-        parent::makeRelationship(self::ActionTypeCode);
+        parent::makeRelationship(self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
     /**
-     * Member unfollows this->owner object, remove all self::$actionTypeCode relationships between them
+     * Member unfollows this->owner object, remove all self::$ActionCode relationships between them
      * @param null $mmeberID
      */
     public function unfollow() {
-        parent::breakRelationship(self::ActionTypeCode);
+        parent::breakRelationship(self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
     public function isFollowed() {
-        return parent::checkRelationship(self::ActionTypeCode);
+        return parent::checkRelationship(self::ActionCode);
     }
 
     /**

@@ -4,8 +4,8 @@ namespace Modular\Edges;
 /**
  * ActionType record between an organisation and an organisation.
  */
-class OrganisationOrganisation extends SocialEdge {
-	const FromModelClass = 'Organisation';
-	const ToModelClass = 'Organisation';
+class OrganisationOrganisation extends SocialRelationship {
+	const FromModelClass = 'Modular\Models\SocialOrganisation';
+	const ToModelClass = 'Modular\Models\SocialOrganisation';
 
 }

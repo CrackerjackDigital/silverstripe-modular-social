@@ -6,7 +6,7 @@ use FieldList;
 use Modular\Forms\SocialForm;
 use SS_HTTPRequest;
 
-class PostReply_Controller extends SocialModel {
+class SocialPostReply_Controller extends SocialModel_Controller {
 	private static $model_class = 'PostReply';
 
 	private static $allowed_actions = [

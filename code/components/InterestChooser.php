@@ -7,7 +7,7 @@ class InterestChooserField extends \Modular\UI\Component {
 	protected static $value_seperator = ',';
 
 	public function __construct($selectedInterests = null, $allInterests = null) {
-		$allInterests = $allInterests ?: InterestType::get()->sort('Title')->map()->toArray();
+		$allInterests = $allInterests ?: SocialInterestType::get()->sort('Title')->map()->toArray();
 
 		list($fieldName, $fieldLabel) = self::get_field_config();
 
@@ -20,7 +20,7 @@ class InterestChooserField extends \Modular\UI\Component {
 	}
 
 	/**
-	 * If model passed in is an Organisation then update this field from model fields.
+	 * If model passed in is an SocialOrganisation then update this field from model fields.
 	 *
 	 * @param DataObject $model
 	 * @param FieldList $fields
@@ -50,11 +50,11 @@ class InterestChooserField extends \Modular\UI\Component {
 	/**
 	 * Given a list of CSV interests, return an array of IDs.
 	 * @param $sentValue
-	 * @return DataList of InterestType .
+	 * @return DataList of SocialInterestType .
 	 */
 	public static function decode($sentValue) {
 		$titles = explode(self::tag_seperator(), $sentValue);
-		return InterestType::get()
+		return SocialInterestType::get()
 			->filter('Title', $titles)
 			->column('ID');
 	}

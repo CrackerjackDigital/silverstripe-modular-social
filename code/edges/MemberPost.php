@@ -1,8 +1,8 @@
 <?php
 namespace Modular\Edges;
 
-class MemberPost extends SocialEdge {
+class MemberPost extends SocialRelationship {
 	const FromModelClass = 'Member';
-	const ToModelClass = 'Post';
+	const ToModelClass = 'Modular\Models\SocialPost';
 
 }

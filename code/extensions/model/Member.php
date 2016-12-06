@@ -2,15 +2,22 @@
 namespace Modular\Extensions\Model;
 
 use ArrayData;
+use ConfirmedPasswordField;
+use DataObject;
+use FieldList;
 use Member;
+use Modular\Actions\Approveable;
 use Modular\Actions\Createable;
+use Modular\Actions\Editable;
 use Modular\Actions\Registerable;
-use Modular\Interfaces\SocialModel;
+use OrganisationChooserField;
+use OrganisationTypesChooser;
+use ValidationResult;
 
 /**
  * Adds fields, relationships and functionality to the SilverStripe framework Member object.
  */
-class SocialModelMember extends SocialModel implements SocialModel {
+class SocialMember extends SocialModel  {
 	const GuestMemberField = 'GuestMemberFlag';
 	const GuestMemberYes   = 1;
 
@@ -24,10 +31,10 @@ class SocialModelMember extends SocialModel implements SocialModel {
 	];
 	private static $has_one = [
 		'ProfileImage'   => 'Image',
-		'MembershipType' => 'MembershipType',
+		'SocialMembershipType' => 'SocialMembershipType',
 	];
 	private static $belongs_many_many = [
-		'NotifyRelationshipTypes' => 'ActionType',
+		'NotifyRelationshipTypes' => '\Modular\Types\SocialAction',
 	];
 	private static $has_many = [
 		'RelatedMembers'       => 'MemberMemberRelationship.FromMember',
@@ -39,29 +46,29 @@ class SocialModelMember extends SocialModel implements SocialModel {
 	];
 	// fields to show by action.
 	private static $fields_for_mode = [
-		Registerable::Action => [
+		\Modular\Actions\Registerable::Action => [
 			'FirstName'        => true,
 			'Surname'          => true,
 			'Email'            => ['EmailField', true],
 			'MembershipTypeID' => ['Select2Field', true],
-			// Organisation chooser gets added by updateFieldsForMode
+			// SocialOrganisation chooser gets added by updateFieldsForMode
 		],
-		Createable::Action   => [
+		\Modular\Actions\Createable::Action   => [
 			'FirstName'        => true,
 			'Surname'          => true,
 			'Email'            => ['EmailField', true],
 			'Phone'            => true,
 			'MembershipTypeID' => ['Select2Field', true],
-			// Organisation chooser gets added by updateFieldsForMode
+			// SocialOrganisation chooser gets added by updateFieldsForMode
 		],
-		Editable::Action     => [
+		\Modular\Actions\Editable::Action     => [
 			'FirstName' => true,
 			'Surname'   => true,
 			'Email'     => ['EmailField', true],
 			'Phone'     => true,
 			'Bio'       => ['TextareaField', true],
 		],
-		Viewable::Action     => [
+		\Modular\Actions\Viewable::Action     => [
 			'FirstName'        => false,
 			'Surname'          => false,
 			'Email'            => false,
@@ -70,7 +77,7 @@ class SocialModelMember extends SocialModel implements SocialModel {
 			'Interests'        => false,
 			'MembershipTypeID' => false,
 		],
-		Listable::Action     => [
+		\Modular\Actions\Listable::Action     => [
 			'FirstName'    => false,
 			'Surname'      => false,
 			'Email'        => ['EmailField', false],
@@ -79,7 +86,7 @@ class SocialModelMember extends SocialModel implements SocialModel {
 			'ProfileImage' => 'ImageField',
 			'Interests'    => false,
 		],
-		Searchable::Action   => [
+		\Modular\Actions\Searchable::Action   => [
 			'FirstName'        => false,
 			'Surname'          => false,
 			'MembershipTypeID' => 'Select2Field',
@@ -171,7 +178,7 @@ class SocialModelMember extends SocialModel implements SocialModel {
 				Registerable::Action,
 			])
 			) {
-				if ($this()->hasExtension('ApproveableExtension')) {
+				if ($this()->hasExtension('\Modular\Actions\Approveable')) {
 					$fields->push(
 						$field = new ConfirmedPasswordField('Password', 'Password')
 					);
@@ -235,7 +242,7 @@ class SocialModelMember extends SocialModel implements SocialModel {
 	 **/
 	public function MemberOrganisation() {
 		$org = $this()->RelatedOrganisations()
-			->filter(['ActionType.Code' => ['MJO', 'MRO', 'MEM', 'MCO']])
+			->filter(['Type.Code' => ['MJO', 'MRO', 'MEM', 'MCO']])
 			->first();
 
 		if ($org) {
@@ -247,12 +254,12 @@ class SocialModelMember extends SocialModel implements SocialModel {
 
 	/**
 	 *
-	 * Get member's created Organisation
+	 * Get member's created SocialOrganisation
 	 *
 	 **/
 	public function MemberCreatedOrganisation() {
 		$org = $this->owner->RelatedOrganisations()
-			->filter(['ActionType.Code' => ['MCO', 'MRO']])
+			->filter(['Type.Code' => ['MCO', 'MRO']])
 			->first();
 		if ($org) {
 			return $org->ToOrganisation();

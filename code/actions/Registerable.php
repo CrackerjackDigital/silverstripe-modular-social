@@ -134,7 +134,7 @@ class Registerable extends Createable implements ModelWriteHandlers  {
 					|| $request->postVar(OrganisationChooserField::IDFieldName))
 				) {
 
-					throw new ValidationException("Please choose an already registered Organisation or create a new one");
+					throw new ValidationException("Please choose an already registered SocialOrganisation or create a new one");
 				}
 				if (!$request->postVar('MembershipTypeID')) {
 					throw new ValidationException("Please choose a membership type");
@@ -223,7 +223,7 @@ class Registerable extends Createable implements ModelWriteHandlers  {
 				if ($request->postVar(OrganisationChooserField::CreateNewFieldName)) {
 
 					// redirect to the register link on the model.
-					$result = $this()->redirect(singleton('Organisation')->ActionLink('register'));
+					$result = $this()->redirect(singleton('SocialOrganisation')->ActionLink('register'));
 
 				} else {
 
@@ -252,7 +252,7 @@ class Registerable extends Createable implements ModelWriteHandlers  {
 				);
 			}
 
-			// handle what happens after Organisation registration
+			// handle what happens after SocialOrganisation registration
 			if ($model instanceof Organisation) {
 				/** @var Organisation $organisation */
 				$organisation = $model;

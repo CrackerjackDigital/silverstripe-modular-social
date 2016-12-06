@@ -5,19 +5,19 @@ use Application;
 use DataObject;
 use Member;
 use Modular\config;
-use Modular\Edges\SocialEdge as Edge;
+use Modular\Edges\SocialRelationship as Edge;
 use Modular\json;
-use Modular\Types\SocialActionType;
+use Modular\Types\SocialAction;
 use Modular\Controllers\GraphNode;
 
 /**
  * Base extension for Controller extensions. Adds some usefull functionality.
  *
- * ActionType extensions such as Viewable, Listable, Postable etc should derive
+ * SocialAction extensions such as Viewable, Listable, Postable etc should derive
  * from this.
  *
  */
-class SocialController extends GraphNode {
+class SocialController extends \Modular\Extensions\Controller\GraphNode {
 	use config;
 	use json;
 
@@ -72,7 +72,7 @@ class SocialController extends GraphNode {
 			$isCreator = $actionClassName::get()->filter([
 				$actionClassName::from_field_name() => $id,
 				$actionClassName::to_field_name()   => $id,
-				'ActionType.Code'                   => 'CRT',
+				'Type.Code'                   => 'CRT',
 			])->count();
 
 			if ($isCreator) {
@@ -80,7 +80,7 @@ class SocialController extends GraphNode {
 			}
 
 		}
-		$canDoIt = SocialActionType::check_permission(
+		$canDoIt = SocialAction::check_permission(
 			$actionCodes,
 			$this()->getModelID()
 				? $this()->getModelInstance($action)
@@ -96,7 +96,7 @@ class SocialController extends GraphNode {
 
 	/**
 	 * Helper function will return a model of $modelClass with ID $id if $mode
-	 * is same as the derived classes static::ActionType.
+	 * is same as the derived classes static::SocialAction.
 	 *
 	 * @param      $modelClass
 	 * @param      $id
@@ -119,7 +119,7 @@ class SocialController extends GraphNode {
 	}
 
 	/**
-	 * If mode matches derived classes ActionType then return a new Model of class
+	 * If mode matches derived classes SocialAction then return a new Model of class
 	 * $modelClass.
 	 *
 	 * @param $modelClass
@@ -153,7 +153,7 @@ class SocialController extends GraphNode {
 	}
 
 	protected function checkPermission($actionCode) {
-		return SocialActionType::check_permission(
+		return SocialAction::check_permission(
 			$actionCode,
 			$this()->getModelInstance(null)
 		);

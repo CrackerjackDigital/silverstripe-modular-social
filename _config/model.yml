@@ -1,0 +1,67 @@
+---
+Name: modular-social-model
+---
+Member:
+  extensions:
+    - Modular\Actions\Approveable
+    - Modular\Actions\Confirmable
+    - HasOrganisationsExtension
+    - HasForumsExtension
+    - HasContactsExtension
+    - HasFavouritesExtension
+    - HasPostsExtension
+    - HasForumTopicsExtension
+    - HasImagesExtension
+    - HasProfilePictureExtension
+    - HasRssFeedsExtension
+
+# edges
+Modular\Edges\Social:
+  extensions:
+    - Modular\Fields\Description
+    - Modular\Fields\HiddenSort
+    - Modular\Fields\ModelTag
+
+# base models
+Modular\Models\SocialModel:
+  extensions:
+    - Modular\Fields\Title
+    - Modular\Fields\Description
+    - Modular\Fields\HiddenSort
+
+# base types
+Modular\Types\SocialType:
+  extensions:
+    - Modular\Fields\Title
+    - Modular\Fields\Code
+    - Modular\Fields\Description
+    - Modular\Fields\ModelTag
+    - Modular\Fields\SystemData
+    - Modular\Fields\HiddenSort
+
+# social models
+Modular\Models\SocialForum:
+  extensions:
+    - HasForumTopicsExtension
+
+Modular\Models\SocialForumTopic:
+  extensions:
+    - HasPostsExtension
+    - HasFilesExtension
+
+Modular\Modeuls\SocialPostModel:
+  extensions:
+    - HasImagesExtension
+
+RssFeedModel:
+  extensions:
+    - HasLogoExtension
+
+OrganisationModel:
+  extensions:
+    - HasForumsExtension
+    - HasImagesExtension
+    - HasOrganisationProductsAndServicesExtension
+    - HasLogoExtension
+    - HasCoverImageExtension
+    - HasGalleryExtension

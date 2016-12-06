@@ -6,7 +6,7 @@ use Modular\Relationships\SocialHasManyMany;
  * Support functions for Classes which has_many MemberOrganisationAction.
  */
 class HasOrganisationsExtension extends SocialHasManyMany {
-	const RelatedClassName = 'Organisation';
+	const RelatedClassName = 'SocialOrganisation';
 	const ActionName = 'RelatedOrganisations';
 	const OtherKeyField = 'ToOrganisationID';
 
@@ -60,7 +60,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	/**
 	 * Relate an organisation to this object by supplied action.
 	 *
-	 * Creates a MemberOrganisationAction object if Organisation and ActionType records
+	 * Creates a MemberOrganisationAction object if SocialOrganisation and SocialAction records
 	 * exits for supplied parameters and adds it to RelatedOrganisations collection.
 	 *
 	 * @param int $organisationID
@@ -122,7 +122,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	}
 
 	/**
-	 * Provide a modal dialog for managing the action between extended model and Organisation.
+	 * Provide a modal dialog for managing the action between extended model and SocialOrganisation.
 	 *
 	 * E.g. for Registering a new company
 	 *

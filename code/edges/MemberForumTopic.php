@@ -1,8 +1,8 @@
 <?php
 namespace Modular\Edges;
 
-class MemberForumTopic extends SocialEdge {
+class MemberForumTopic extends SocialRelationship {
 	const FromModelClass = 'Member';
-	const ToModelClass   = 'ForumTopic';
+	const ToModelClass   = 'Modular\Models\SocialForumTopic';
 
 }

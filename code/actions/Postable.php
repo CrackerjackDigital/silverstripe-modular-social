@@ -41,7 +41,7 @@ class Postable extends SocialAction {
 					->imagesOnly()
 			);
 			if (Member::currentUser()->MemberCreatedOrganisation()) {
-				$fieldList->push(DropdownField::create("PostAs", _t('PostableWidget.PostAsLabel', 'Post As'))->setSource(array("Individual" => "My Personal Post", 'Organisation' => "My Organisation Post")));
+				$fieldList->push(DropdownField::create("PostAs", _t('PostableWidget.PostAsLabel', 'Post As'))->setSource(array("Individual" => "My Personal Post", 'SocialOrganisation' => "My SocialOrganisation Post")));
 			}
 
 			$actionList = new FieldList(
@@ -108,7 +108,7 @@ class Postable extends SocialAction {
 					$post,
 					'MCP'
 				);
-				if ($request->postVar('PostAs') == "Organisation") {
+				if ($request->postVar('PostAs') == "SocialOrganisation") {
 					SocialRelationship::make(
 						Member::currentUser()->MemberCreatedOrganisation(),
 						$post,

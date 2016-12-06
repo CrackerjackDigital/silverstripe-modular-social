@@ -5,7 +5,7 @@ class OrganisationChooserField extends \Modular\UI\Component {
 
 	protected static $field_name = self::IDFieldName;
 
-	protected static $field_label = 'Already Registered Organisation';
+	protected static $field_label = 'Already Registered SocialOrganisation';
 
 	protected static $value_seperator = ',';
 
@@ -31,16 +31,16 @@ class OrganisationChooserField extends \Modular\UI\Component {
 				_t('OrganisationChooserField.CreateNewLabel', 'Create new organisation')
 			),
 		]);
-		$dropdown->setDataModel('Organisation');
+		$dropdown->setDataModel('SocialOrganisation');
 		$dropdown->setEmptyString('');
 		$dropdown->setAttribute('placeholder', 'Choose an organisation')->setAttribute('data-placeholder', 'Choose an organisation');
-		$checkbox->setDataModel('Organisation');
+		$checkbox->setDataModel('SocialOrganisation');
 
 		parent::__construct($fields);
 	}
 
 	/**
-	 * If model passed in is an Organisation then update this field from model fields.
+	 * If model passed in is an SocialOrganisation then update this field from model fields.
 	 *
 	 * @param DataObject $model
 	 * @param FieldList $fields

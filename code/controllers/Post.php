@@ -4,13 +4,13 @@ namespace Modular\Controllers;
 use Member;
 use Modular\Actions\Approveable;
 use Modular\Forms\SocialForm;
-use PostReply;
+use Modular\Models\SocialPostReply;
 
-class Post_Controller extends SocialModel {
+class SocialPost_Controller extends SocialModel_Controller {
 	private static $model_class = 'Post';
 
 	// type of approval needed to view.
-	private static $approveable_mode = Approveable::ApprovalManual;
+	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;
 
 	private static $allowed_actions = [
 		'post_reply',
@@ -45,14 +45,14 @@ class Post_Controller extends SocialModel {
 			return 0;
 		}
 
-		$PostReply = PostReply::create();
+		$PostReply = SocialPostReply::create();
 		$PostReply->Body = $reply;
 		$PostReply->PostID = $parent_id;
 		$PostReply->MemberID = Member::currentUserID();
 		$PostReply->write();
 
 		//refresh all replies buy fetching new ones
-		$PostReplies = PostReply::get()->filter(['PostID' => $parent_id]);
+		$PostReplies = SocialPostReply::get()->filter(['PostID' => $parent_id]);
 		if ($this->request->isAjax()) {
 			return $this->renderWith(['PostReplyList'], compact('PostReplies'));
 		}

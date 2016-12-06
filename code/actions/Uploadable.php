@@ -8,10 +8,15 @@
  */
 namespace Modular\Actions;
 
+use DataObject;
 use \Modular\Extensions\Controller\SocialAction;
+use Modular\Interfaces\ModelWriteHandlers;
+use Modular\Interfaces\SocialModelProvider;
+use SS_HTTPRequest;
+use SS_List;
 
 class Uploadable extends SocialAction
- implements ModelWriteHandlers, SocialModelProviderInterface {
+ implements ModelWriteHandlers , SocialModelProvider {
 	const ActionTypeCode = 'UPL';
 	const Action = 'upload';
 
@@ -113,7 +118,7 @@ class Uploadable extends SocialAction
 	 * @param $id
 	 * @param $mode
 	 *
-	 * @return SocialModelInterface|null
+	 * @return \DataObject
 	 */
 	public function provideModel($modelClass, $id, $mode) {
 		if ($mode === static::Action) {

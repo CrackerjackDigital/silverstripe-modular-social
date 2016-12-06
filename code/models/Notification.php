@@ -1,8 +1,8 @@
 <?php
-use Modular\Models\SocialModel;
+use Modular\Models;
 
 /**
  * Extend Modular Notification model with SocialModel fields and functions.
  */
-class NotificationModel extends Modular\Models\Notification {
+class SocialNotification extends Modular\Models\Notification {
 }

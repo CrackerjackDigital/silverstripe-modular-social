@@ -1,7 +1,4 @@
 <?php
-/**
- * ApproveableExtension
- */
 namespace Modular\Actions;
 
 use ArrayList;
@@ -14,26 +11,24 @@ use FieldList;
 use LeftAndMain;
 use Member;
 use Modular\Application;
-use Modular\config;
-use Modular\Edges\SocialEdge;
+use Modular\Edges\SocialRelationship;
 use Modular\emailer;
 use Modular\enabler;
-use Modular\Extensions\Model\SocialModelMember;
+use Modular\Extensions\Model\SocialMember;
+use Modular\Extensions\Model\SocialModel;
 use Modular\notifies;
-use Modular\Types\SocialActionType;
+use Modular\Types\SocialAction;
 use OptionsetField;
 use Permission;
 use SQLQuery;
 use SS_Datetime;
-use \Modular\Extensions\Controller\SocialAction;
 
-class Approveable extends SocialAction {
-	use config;
+class Approveable extends SocialModel {
 	use emailer;
 	use enabler;
 	use notifies;
 
-	const ActionTypeCode = 'APP';
+	const ActionCode = 'APP';
 	const Action = 'approve';
 
 	// this config field will hold the approval mode, e.g. Automatic, Required etc, Extensions don't have a config
@@ -56,8 +51,8 @@ class Approveable extends SocialAction {
 
 	const PermissionPrefix = 'CAN_APPROVE_';
 
-	private static $approveable_mode = self::ApprovalManual;
-	private static $approveable_field_name = self::FieldName;
+	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;
+	private static $approveable_field_name = \Modular\Actions\Approveable::FieldName;
 
 	private static $enabled = true;
 
@@ -97,7 +92,7 @@ class Approveable extends SocialAction {
 	 * @return bool
 	 */
 	public function canApprove($source = null) {
-		return parent::canDoIt(self::ActionTypeCode, $source);
+		return parent::canDoIt(self::ActionCode, $source);
 	}
 
 	/**
@@ -190,7 +185,7 @@ class Approveable extends SocialAction {
 		if ($this() instanceof \Member) {
 			$initiator = $this()->Email;
 		} else {
-			$initiator = SocialModelMember::current_or_guest()->Email;
+			$initiator = SocialMember::current_or_guest()->Email;
 		}
 
 		$this->notify(
@@ -250,7 +245,7 @@ class Approveable extends SocialAction {
 
 		// TODO work out where we store approvers/emails
 		$this->notify(
-			SocialModelMember::current_or_guest()->Email,             // sender is whoever is approving
+			SocialMember::current_or_guest()->Email,             // sender is whoever is approving
 			$initiator,                         // recipient
 			$subject,
 			$message,
@@ -277,15 +272,15 @@ class Approveable extends SocialAction {
 		/** @var string|SocialAction $relationshipClassName */
 
 		// first find the names of the SocialModel classes which link to the extended model, e.g. 'MemberOrganisationRelationship'
-		if ($relationshipClassNames = SocialAction::implementors($fromModelClass, $this()->ClassName)) {
+		if ($relationshipClassNames = SocialRelationship::implementors($fromModelClass, $this()->ClassName)) {
 			foreach ($relationshipClassNames as $relationshipClassName) {
 				// find the RelationshipTypes which deal with actions between the found relationships models
-				$relationshipTypes = SocialActionType::get_for_models(
+				$relationshipTypes = SocialAction::get_for_models(
 					$relationshipClassName::from_class_name(),
 					$relationshipClassName::to_class_name(),
 					$forActions
 				);
-				/** @var SocialActionType $relationshipType */
+				/** @var SocialAction $relationshipType */
 				foreach ($relationshipTypes as $relationshipType) {
 					$approvers->merge($relationshipType->NotificationRecipients());
 				}
@@ -334,7 +329,7 @@ class Approveable extends SocialAction {
 	 * @return CompositeField
 	 */
 	public function ApproveableWidget() {
-		$permissionCode = SocialActionType::make_permission_code(
+		$permissionCode = SocialAction::make_permission_code(
 			self::PermissionPrefix,
 			$this()
 		);
@@ -354,7 +349,7 @@ class Approveable extends SocialAction {
 			'ApproveableApproved',
 			new OptionsetField('ApproveableApproved', 'Approved', [self::ApprovedValue, self::DeclinedValue])
 		);
-		if (!SocialActionType::check_permission(self::ActionTypeCode, $this())) {
+		if (!SocialAction::check_permission(self::ActionCode, $this())) {
 			$composite = $composite->performReadonlyTransformation();
 		}
 		$composite->addExtraClass('approveable-widget');
@@ -376,7 +371,7 @@ class Approveable extends SocialAction {
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
 		if (Controller::curr() instanceof LeftAndMain) {
-			if (SocialActionType::check_permission('APP', $this->getModelClass())) {
+			if (SocialAction::check_permission('APP', $this->getModelClass())) {
 				// remove db and instance fields as will be replaced by ApprovableWidget. We also need to append
 				// 'ID' to has_one field names.
 

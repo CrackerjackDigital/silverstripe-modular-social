@@ -1,5 +1,5 @@
 <?php
-namespace Modular\Extensions\Controller;
+namespace Modular\Extensions\UI;
 use ArrayData;
 
 /**
@@ -8,7 +8,7 @@ use ArrayData;
  * permissions of the logged-in user.
  */
 
-class ActionLinks extends ActionMenu {
+class SocialActionLinks extends SocialActionMenu {
     const MenuClass = 'action-links';
     const FilterField = 'ShowInActionLinks';
 

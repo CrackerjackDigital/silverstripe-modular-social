@@ -8,11 +8,11 @@ use Member;
 use Modular\Actions\Approveable;
 use Modular\Forms\SocialForm;
 
-class Member_Controller extends SocialModel {
+class SocialMember_Controller extends SocialModel_Controller  {
 	private static $model_class = 'Member';
 
 	// type of approval needed to view.
-	private static $approveable_mode = Approveable::ApprovalManual;
+	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;
 
 	private static $allowed_actions = [
 	];

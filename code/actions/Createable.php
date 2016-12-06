@@ -5,9 +5,11 @@ use DataObject;
 use Director;
 use Exception;
 use File;
+use FormAction;
 use Image;
-use Modular\Extensions\Model\SocialModelMember;
+use Modular\Edges\MemberMember;
 use Modular\Extensions\Controller\SocialAction;
+use Modular\Extensions\Model\SocialMember;
 use Modular\Interfaces\ModelWriteHandlers;
 use Modular\Interfaces\SocialModelProvider;
 use Session;
@@ -209,7 +211,7 @@ class Createable extends SocialAction
 			 * TODO:
 			 * - Needs tidy up
 			 **/
-			if ($model->ClassName == "Member" || $model->ClassName == "Organisation") {
+			if ($model->ClassName == "Member" || $model->ClassName == "SocialOrganisation") {
 				Session::setFormMessage(
 					$formName,
 					_t('Createable.SavedMessage', 'Created'),
@@ -248,11 +250,11 @@ class Createable extends SocialAction
 	 */
 	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
 		if ($mode === static::Action) {
-			$member = SocialModelMember::current_or_guest();
+			$member = SocialMember::current_or_guest();
 
 			Confirmable::disable();
 			Approveable::disable();
-			\MemberMemberAction::make($member, $model, static::ActionTypeCode);
+			MemberMember::make($member, $model, static::ActionTypeCode);
 			Approveable::enable();
 			Confirmable::enable();
 

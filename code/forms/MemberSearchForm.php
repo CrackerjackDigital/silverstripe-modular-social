@@ -23,9 +23,9 @@ class MemberSearchForm extends SocialForm {
 		$fields = FieldList::create(
 
 			TextField::create('MemberName', 'Member Name')->setAttribute('placeholder', 'Enter Member Name'),
-			Select2Field::create("OrganisationID", "Organisation")
+			Select2Field::create("OrganisationID", "SocialOrganisation")
 				->setSource(Organisation::get()->map("ID", "Title"))
-				->setEmptyString("Please Select Organisation")
+				->setEmptyString("Please Select SocialOrganisation")
 		);
 
 		$actions = FieldList::create(
@@ -48,7 +48,7 @@ class MemberSearchForm extends SocialForm {
 		$Organisation_id = $request->getVar('OrganisationID');
 		$Results = null;
 
-		//Organisation name filter
+		//SocialOrganisation name filter
 		if ($Organisation_id) {
 			$org = Organisation::get()->byID($Organisation_id);
 			//search on members, if name is empty, we'll just return all the members

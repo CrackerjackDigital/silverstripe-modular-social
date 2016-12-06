@@ -1,25 +1,22 @@
 <?php
-/**
- * User: wakes
- * Date: 18/12/14
- * Time: 2:18 PM
- */
+namespace Modular\Types;
 
 /**
- * OrganisationSubType
- * @method OrganisationType OrganisationType
- * @method SS_List Organisations
+ * SocialOrganisationSubType
+ * @method SocialOrganisationType SocialOrganisationType
+ * @method \SS_List Organisations
+ * @method SocialOrganisationType OrganisationType
  */
-class OrganisationSubType extends SocialType {
+class SocialOrganisationSubType extends SocialType {
 	private static $has_one = [
-		'OrganisationType' => 'OrganisationType',
+		'OrganisationType' => 'SocialOrganisationType',
 	];
 	private static $belongs_many_many = [
-		'Organisations' => 'Organisation',
+		'Organisations' => 'SocialOrganisation',
 	];
-	private static $singular_name = 'Organisation Sub-type';
+	private static $singular_name = 'SocialOrganisation Sub-type';
 
-	private static $plural_name = 'Organisation Sub-types';
+	private static $plural_name = 'SocialOrganisation Sub-types';
 
 	public function OrganisationTypeTitle() {
 		return $this->OrganisationType() ? $this->OrganisationType()->Title : '~';

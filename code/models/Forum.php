@@ -1,52 +1,48 @@
 <?php
-use Modular\Actions\Createable;
-use Modular\Actions\Editable;
-use Modular\Actions\Listable;
-use Modular\Actions\Viewable;
-use Modular\Models\SocialModel;
+namespace Modular\Models;
 
 /**
  * A forum public model.
  */
-class Forum extends SocialModel implements SocialModelInterface {
+class SocialForum extends SocialModel {
 	private static $singular_name = 'Forum';
 
 	private static $route_part = 'forum';
 
 	private static $has_many = [
-		'ForumTopics' => 'ForumTopic',
+		'ForumTopics' => 'SocialForumTopic',
 		'RelatedMembers' => 'MemberForumAction.ToForum',
 	];
 
 	private static $fields_for_mode = [
-		Listable::Action => [
+		\Modular\Actions\Listable::Action => [
 			'Title' => true,
 			'Replies' => 'ReadonlyField',
 			'Views' => 'ReadonlyField',
 			'StartedBy' => 'ReadonlyField',
 			'LastPost' => 'ReadonlyField',
 		],
-		Viewable::Action => [
+		\Modular\Actions\Viewable::Action => [
 			'Title' => true,
 		],
-		Editable::Action => [
+		\Modular\Actions\Editable::Action => [
 			'Title' => true,
 			'Description' => true,
 		],
-		Createable::Action => [
+		\Modular\Actions\Createable::Action => [
 			'Title' => true,
 			'Description' => true,
 		],
 	];
 
 	public function StartedBy() {
-		if ($created = $this->RelatedMembers()->filter('ActionType.Code', 'MCF')->first()) {
+		if ($created = $this->RelatedMembers()->filter('Type.Code', 'MCF')->first()) {
 			return $created->FromMember()->Title;
 		}
 	}
 
 	public function Replies() {
-		return Post::get()
+		return SocialPost::get()
 			->leftJoin('ForumTopic', 'Post.ForumTopicID = ForumTopic.ID')
 			->filter('ForumTopic.ForumID', $this->ID)
 			->count();

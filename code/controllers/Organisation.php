@@ -9,12 +9,15 @@ use FieldList;
 use Image;
 use Member;
 use MemberOrganisationAction;
+use Modular\Edges\MemberOrganisation;
+use Modular\Edges\OrganisationContactInfo;
+use Modular\Models\SocialContactInfo;
 use Organisation;
 use OrganisationContactInfoAction;
-use OrganisationSubType;
+use SocialOrganisationSubType;
 
-class Organisation_Controller extends SocialModel {
-	private static $model_class = 'Organisation';
+class SocialOrganisation_Controller extends SocialModel_Controller {
+	private static $model_class = 'SocialOrganisation';
 
 	private static $file_upload_path = [
 		'Logo' => 'organisations/profile/images',
@@ -76,7 +79,7 @@ class Organisation_Controller extends SocialModel {
 
 	/**
 	 *
-	 * Organisation creationg form
+	 * SocialOrganisation creationg form
 	 *
 	 **/
 	public function OrganisationCreate() {
@@ -94,7 +97,7 @@ class Organisation_Controller extends SocialModel {
 	 */
 	public function afterCreate($request, $model, $mode) {
 		if ($model) {
-			MemberOrganisationAction::make(
+			MemberOrganisation::make(
 				Member::currentUser(), $model, ['CRT', 'EDT']
 			);
 		}
@@ -119,7 +122,7 @@ class Organisation_Controller extends SocialModel {
 
 	public function decorateFields(FieldList $fields, $mode) {
 		if ($field = $fields->fieldByName('Title')) {
-			$field->setAttribute('placeholder', _t('Organisation.TitlePlaceholder', 'Organisation/Company name'));
+			$field->setAttribute('placeholder', _t('SocialOrganisation.TitlePlaceholder', 'SocialOrganisation/Company name'));
 		}
 		if ($field = $fields->fieldByName('Description')) {
 			$field->setAttribute("data-ballon-show", "true")
@@ -129,7 +132,7 @@ class Organisation_Controller extends SocialModel {
 	}
 
 	/**
-	 * Returns the 'Organisation listings' and 'Advanced search' tabs.
+	 * Returns the 'SocialOrganisation listings' and 'Advanced search' tabs.
 	 *
 	 * @return ArrayList
 	 */
@@ -137,7 +140,7 @@ class Organisation_Controller extends SocialModel {
 		return new ArrayList([
 			[
 				'ID'    => 'allOrganisations',
-				'Title' => _t('Groups.AllOrganisationsTabLabel', 'Organisation Listings'),
+				'Title' => _t('Groups.AllOrganisationsTabLabel', 'SocialOrganisation Listings'),
 			],
 			[
 				'ID'    => 'AdvancedSearch',
@@ -163,7 +166,7 @@ class Organisation_Controller extends SocialModel {
 
 	/**
 	 *
-	 * Organisation location mobile view
+	 * SocialOrganisation location mobile view
 	 *
 	 */
 	public function LocationInfo($location = null) {
@@ -172,7 +175,7 @@ class Organisation_Controller extends SocialModel {
 
 			$location = (int) $request->Param("SubID");
 		}
-		$contact = ContactInfo::get()->byID($location);
+		$contact = SocialContactInfo::get()->byID($location);
 		if ($contact) {
 			return $contact;
 		} else {
@@ -188,15 +191,15 @@ class Organisation_Controller extends SocialModel {
 			return $this->redirectBack();
 		}
 
-		$action = OrganisationContactInfoAction::get()->filter(['FromOrganisationID' => $id, 'ToContactInfoID' => $contactid])->first();
+		$action = OrganisationContactInfo::get()->filter(['FromOrganisationID' => $id, 'ToContactInfoID' => $contactid])->first();
 		if (!$action) {
 			return $this()->httpError(404);
 		}
 
-		$contact = ContactInfo::get()->byID($contactid);
+		$contact = SocialContactInfo::get()->byID($contactid);
 		$contact->delete();
 		$action->delete();
-		$this->setSessionMessage("Organisation location removed");
+		$this->setSessionMessage("SocialOrganisation location removed");
 		return $this->redirectBack();
 	}
 
@@ -217,7 +220,7 @@ class Organisation_Controller extends SocialModel {
 		$model->CoverImageID = $image_id;
 		$model->write();
 
-		$this->setSessionMessage("Organisation cover image changed. You can now set the focus area.");
+		$this->setSessionMessage("SocialOrganisation cover image changed. You can now set the focus area.");
 		return $this->redirect('/organisation/' . $id . '/view-content/cover');
 	}
 
@@ -295,7 +298,7 @@ class Organisation_Controller extends SocialModel {
 			return $this->redirectBack();
 		}
 
-		$orgSubType = OrganisationSubType::get()->byID($type_id);
+		$orgSubType = SocialOrganisationSubType::get()->byID($type_id);
 
 		if ($orgSubType) {
 			$id = $this->getModelID();
@@ -304,7 +307,7 @@ class Organisation_Controller extends SocialModel {
 			$model->write();
 		}
 
-		$this->setSessionMessage("Organisation type removed.");
+		$this->setSessionMessage("SocialOrganisation type removed.");
 		return $this->redirectBack();
 	}
 

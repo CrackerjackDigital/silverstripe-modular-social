@@ -7,7 +7,7 @@ class ProductAndServiceChooserField extends \Modular\UI\Component {
 	protected static $value_seperator = ',';
 
 	public function __construct($selectedProductAndServices = null, $allProductAndServices = null) {
-		$allProductAndServices = $allProductAndServices ?: OrganisationProductAndServiceType::get()->sort('Title')->map()->toArray();
+		$allProductAndServices = $allProductAndServices ?: SocialOrganisationProductAndServiceType::get()->sort('Title')->map()->toArray();
 
 		list($fieldName, $fieldLabel) = self::get_field_config();
 
@@ -21,7 +21,7 @@ class ProductAndServiceChooserField extends \Modular\UI\Component {
 	}
 
 	/**
-	 * If model passed in is an Organisation then update this field from model fields.
+	 * If model passed in is an SocialOrganisation then update this field from model fields.
 	 *
 	 * @param DataObject $model
 	 * @param FieldList $fields
@@ -51,11 +51,11 @@ class ProductAndServiceChooserField extends \Modular\UI\Component {
 	/**
 	 * Given a list of CSV interests, return an array of IDs.
 	 * @param $sentValue
-	 * @return DataList of OrganisationProductAndServiceType .
+	 * @return DataList of SocialOrganisationProductAndServiceType .
 	 */
 	public static function decode($sentValue) {
 		$titles = explode(self::tag_seperator(), $sentValue);
-		return OrganisationProductAndServiceType::get()
+		return SocialOrganisationProductAndServiceType::get()
 			->filter('Title', $titles)
 			->column('ID');
 	}

@@ -1,18 +1,17 @@
 <?php
-/**
- * OrganisationType
- * @method DataList OrganisationSubTypes()
- */
-class OrganisationType extends SocialType {
-	private static $db = [
-		'Fred' => 'Boolean'
-	];
+namespace Modular\Types;
+use Modular\Models\SocialOrganisation;
 
+/**
+ * SocialOrganisationType
+ * @method \DataList OrganisationSubTypes()
+ */
+class SocialOrganisationType extends SocialType {
 	private static $has_many = [
-		'OrganisationSubTypes' => 'OrganisationSubType',
+		'OrganisationSubTypes' => 'SocialOrganisationSubType',
 	];
-	private static $singular_name = 'Organisation Type';
-	private static $plural_name = 'Organisation Types';
+	private static $singular_name = 'SocialOrganisation Type';
+	private static $plural_name = 'SocialOrganisation Types';
 
 	/**
 	 *
@@ -31,12 +30,13 @@ class OrganisationType extends SocialType {
 	public function Organisations() {
 		$subTypes = $this->OrganisationSubTypes();
 		$orgs = [];
+		/** @var SocialOrganisationSubType $subType */
 		foreach ($subTypes as $subType) {
 			foreach ($subType->Organisations() as $org) {
 				$orgs[] = $org->ID;
 			}
 		}
-		return Organisation::get()->filter(["ID" => $orgs]);
+		return SocialOrganisation::get()->filter(["ID" => $orgs]);
 	}
 
 	public function OrganisationTypeTitle() {

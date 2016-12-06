@@ -2,10 +2,10 @@
 namespace Modular\Edges;
 
 /**
- * ActionType between a Organisation and Contact Info
+ * ActionType between a SocialOrganisation and Contact Info
  */
-class OrganisationContactInfo extends SocialEdge  {
-	const FromModelClass = 'Organisation';
-	const ToModelClass = 'ContactInfo';
+class OrganisationContactInfo extends SocialRelationship  {
+	const FromModelClass = 'Modular\Models\SocialOrganisation';
+	const ToModelClass = 'Modular\Models\SocialContactInfo';
 
 }

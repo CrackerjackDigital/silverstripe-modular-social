@@ -4,14 +4,14 @@ class OrganisationTypesChooser extends \Modular\UI\Component {
 	const IDFieldName = 'OrganisationSubTypeID';
 
 	protected static $field_name = self::IDFieldName;
-	protected static $field_label = 'Choose Organisation Type & Sub-Types';
+	protected static $field_label = 'Choose SocialOrganisation Type & Sub-Types';
 
-	public function __construct($organisationSubTypeID = null, $placeholder = 'Choose Organisation Type & Sub-Types') {
+	public function __construct($organisationSubTypeID = null, $placeholder = 'Choose SocialOrganisation Type & Sub-Types') {
 		list($fieldName, $fieldLabel) = self::get_field_config();
 
 		$tree = [];
 
-		foreach (OrganisationType::get() as $orgType) {
+		foreach (SocialOrganisationType::get() as $orgType) {
 			$tree[$orgType->Title] = [];
 
 			foreach ($orgType->OrganisationSubTypes() as $subType) {
@@ -49,9 +49,9 @@ class OrganisationTypesChooser extends \Modular\UI\Component {
 
 	public function getOrganisationTypeID() {
 		if ($subTypeID = $this->getOrganisationSubTypeID()) {
-			$subType = OrganisationSubType::get()->byID($subTypeID);
+			$subType = SocialOrganisationSubType::get()->byID($subTypeID);
 			if ($subType) {
-				$type = OrganisationType::get()->byID($subType->OrganisationTypeID);
+				$type = SocialOrganisationType::get()->byID($subType->OrganisationTypeID);
 				if ($type) {
 					return $type->ID;
 				}
@@ -64,7 +64,7 @@ class OrganisationTypesChooser extends \Modular\UI\Component {
 	}
 
 	public function setOrganisationTypeID($value) {
-		// do nowt, this is gotten from the SubTypeID by OrganisationType action.
+		// do nowt, this is gotten from the SubTypeID by SocialOrganisationType action.
 		return $this;
 	}
 

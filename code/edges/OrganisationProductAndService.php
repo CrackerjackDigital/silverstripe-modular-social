@@ -2,10 +2,10 @@
 namespace Modular\Edges;
 
 /**
- * ActionType between a Member and an OrganisationProductAndServiceType.
+ * ActionType between a Member and an SocialOrganisationProductAndServiceType.
  */
-class OrganisationProductAndService extends SocialEdge  {
-	const FromModelClass = 'Organisation';
-	const ToModelClass   = 'OrganisationProductAndServiceType';
+class OrganisationProductAndService extends SocialRelationship  {
+	const FromModelClass = 'Modular\Models\SocialOrganisation';
+	const ToModelClass   = 'Modular\Models\SocialOrganisationProductAndServiceType';
 
 }

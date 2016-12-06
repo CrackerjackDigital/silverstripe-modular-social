@@ -8,11 +8,11 @@ use Modular\Actions\Approveable;
 use Modular\Forms\SocialForm;
 use Post;
 
-class ForumTopic_Controller extends SocialModel {
+class SocialForumTopic_Controller extends SocialModel_Controller {
 	private static $model_class = 'ForumTopic';
 
 	// type of approval needed to view.
-	private static $approveable_mode = Approveable::ApprovalManual;
+	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;
 
 	public function init() {
 		$this->AuthenticateUser();

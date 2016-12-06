@@ -10,7 +10,7 @@ use TextField;
 
 /**
  *
- * Organisation contact info editing form
+ * SocialOrganisation contact info editing form
  *
  **/
 

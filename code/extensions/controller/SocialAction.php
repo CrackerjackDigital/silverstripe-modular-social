@@ -3,7 +3,7 @@ namespace Modular\Extensions\Controller;
 
 use DataObject;
 use Modular\Actions\Editable;
-use Modular\Extensions\Model\SocialModelMember;
+use Modular\Extensions\Model\SocialMember;
 use Modular\Interfaces\SocialModel;
 use Modular\Interfaces\SocialModelProvider;
 use ValidationException;
@@ -17,7 +17,7 @@ abstract class SocialAction extends SocialController
 	const ActionCode        = '';
 	const Action            = '';
 	const MemberClassName   = 'Member';
-	const ActionClassSuffix = 'ActionType';
+	const ActionClassSuffix = 'SocialAction';
 
 	/**
 	 * Provider the model $modelClass for a particular mode. Generally the passed in mode is compared to an internal
@@ -30,8 +30,8 @@ abstract class SocialAction extends SocialController
 	 *
 	 * @return SocialModel|DataObject|null
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === static::Action) {
+	public function provideModel($modelClass, $id, $action, $createIfNotFound = false) {
+		if ($action === static::Action) {
 			if ($id) {
 				return SocialModel::get($modelClass)->byID($id);
 			}
@@ -39,7 +39,7 @@ abstract class SocialAction extends SocialController
 	}
 
 	/**
-	 * Build the name of the ActionType between 'Member' and the owner model, e.g 'MemberOrganisationAction'
+	 * Build the name of the SocialAction between 'Member' and the owner model, e.g 'MemberOrganisationAction'
 	 *
 	 * @return string
 	 */
@@ -60,13 +60,13 @@ abstract class SocialAction extends SocialController
 	 * @throws ValidationException
 	 */
 	protected function makeAction($actionCode, array $extraData = []) {
-		/** @var \Modular\Edges\SocialEdge|string $className */
+		/** @var \Modular\Edges\SocialRelationship|string $className */
 		$className = $this->getActionClassName();
 
 		// TODO set mode on all extensions, e.g. 'follow'
 		/** @var SocialModel $action */
 		$action = $className::make(
-			SocialModelMember::current_or_guest(),
+			SocialMember::current_or_guest(),
 			$this()->getModelInstance(Editable::Action),
 			$actionCode
 		);
@@ -89,7 +89,7 @@ abstract class SocialAction extends SocialController
 		// TODO set mode on all extensions, e.g. 'follow'
 
 		$className::remove(
-			SocialModelMember::current_or_guest(),
+			SocialMember::current_or_guest(),
 			$this()->getModelInstance(Editable::Action),
 			$actionCode
 		);
@@ -108,7 +108,7 @@ abstract class SocialAction extends SocialController
 		$className = $this->getActionClassName();
 
 		return $className::has_related(
-			SocialModelMember::current_or_guest(),
+			SocialMember::current_or_guest(),
 			$this()->getModelInstance(null),
 			$actionCode
 		);

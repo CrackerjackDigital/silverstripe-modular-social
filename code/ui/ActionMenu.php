@@ -1,17 +1,18 @@
 <?php
-namespace Modular\Extensions\Controller;
+namespace Modular\Extensions\UI;
 use ArrayData;
 use ArrayList;
-use CreateableExtension;
 use DataObject;
-use SocialMember;
-use Modular\Types\SocialActionType;
+use Modular\Actions\Createable;
+use Modular\Extensions\Controller\SocialController;
+use Modular\Extensions\Model\SocialMember;
+use Modular\Types\SocialAction;
 
 /**
  * Base class for menus which display a list of available and permitted actions such as Like, Follow, Edit etc
  */
 
-abstract class ActionMenu extends SocialController {
+abstract class SocialActionMenu extends SocialController  {
 	// override in concrete class with e.g. 'action-links'
 	const MenuClass = '';
 	// used to filter e.g. ShowInActionLinks or ShowInActionButtons.
@@ -21,7 +22,7 @@ abstract class ActionMenu extends SocialController {
 		$member = SocialMember::current_or_guest();
 
 		// get the list of all possible actions between the two objects (no permission checks)
-		$possibleActions = SocialActionType::get_possible_actions(
+		$possibleActions = SocialAction::get_possible_actions(
 			$member,
 			$model,
 			$restrictTo
@@ -30,17 +31,17 @@ abstract class ActionMenu extends SocialController {
 		]);
 
 		$actions = new ArrayList();
-		/** @var SocialActionType $actionRelationshipType */
+		/** @var SocialAction $actionRelationshipType */
 		foreach ($possibleActions as $actionRelationshipType) {
 			// for each possible action check we can apply it against the model instance.
 			// so e.g. for action 'EDT' we can only do if current member has action 'CRT' or 'EDT' (or admin) or
 			// action 'FOL'
 			$requirementTally = [];
 
-			$createRelationshipType = SocialActionType::get_heirarchy(
+			$createRelationshipType = SocialAction::get_heirarchy(
 				$member,
 				$model,
-				CreateableExtension::RelationshipCode
+				Createable::ActionCode
 			)->first();
 
 			if ($createRelationshipType) {
@@ -59,7 +60,7 @@ abstract class ActionMenu extends SocialController {
 				}
 			}
 
-			if (SocialActionType::check_permission($actionRelationshipType->Code, $model, $member)) {
+			if (SocialAction::check_permission($actionRelationshipType->Code, $model, $member)) {
 
 				// if the model was created by the currently logged in person then don't show the action
 
@@ -71,7 +72,7 @@ abstract class ActionMenu extends SocialController {
 				);
 				$singularName = $model->singular_name();
 
-				$singularName = str_replace("Organisation", "Us", $singularName);
+				$singularName = str_replace("SocialOrganisation", "Us", $singularName);
 				if ($previous) {
 
 					// push action as reverse action as last action of type exists

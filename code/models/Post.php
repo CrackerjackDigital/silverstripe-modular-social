@@ -1,26 +1,32 @@
 <?php
-use Modular\Models\SocialModel;
+namespace Modular\Models;
 
-class Post extends SocialModel implements FeedMeItemModelInterface {
-	private static $approveable_mode = Approveable::ApprovalAutomatic;
+use DOMDocument;
+use DOMXPath;
+use FeedMeFeedInterface;
+use MakeItLink;
+use Member;
+
+class SocialPost extends SocialModel implements \FeedMeItemModelInterface {
+	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalAutomatic;
 
 	private static $db = [
-		'Body' => 'Text',
-		'PostAs' => 'Enum("Individual,Organisation","Individual")',
-		FeedMeItemModel::ExternalIDFieldName => FeedMeItemModel::ExternalIDFieldType,
-		FeedMeItemModel::LastPublishedFieldName => FeedMeItemModel::LastPublishedFieldType,
-		FeedMeItemModel::LinkFieldName => FeedMeItemModel::LinkFieldType,
-		"PostContentLink" => "Text",
-		"PostContentLinkTitle" => "Varchar(200)",
-		"PostContentLinkText" => "Text",
+		'Body'                       => 'Text',
+		'PostAs'                     => 'Enum("Individual,SocialOrganisation","Individual")',
+		self::ExternalIDFieldName    => self::ExternalIDFieldType,
+		self::LastPublishedFieldName => self::LastPublishedFieldType,
+		self::LinkFieldName          => self::LinkFieldType,
+		"PostContentLink"            => "Text",
+		"PostContentLinkTitle"       => "Varchar(200)",
+		"PostContentLinkText"        => "Text",
 	];
 	private static $has_one = [
 		'ForumTopic' => 'ForumTopic', // traditional SS has_many from ForumTopic
 	];
 	private static $has_many = [
-		'RelatedMembers' => 'MemberPostAction.ToPost',
+		'RelatedMembers'      => 'MemberPostAction.ToPost',
 		'RelatedOrganisation' => 'OrganisationPostAction.ToPost',
-		'PostReplies' => 'PostReply',
+		'PostReplies'         => 'PostReply',
 	];
 	private static $singular_name = 'Post';
 
@@ -28,31 +34,31 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 
 	private static $fields_for_mode = [
 		'list' => [
-			'Images' => 'HasImagesField',
-			'Title' => true,
-			'Body' => true,
-			'PostedBy' => true,
+			'Images'     => 'HasImagesField',
+			'Title'      => true,
+			'Body'       => true,
+			'PostedBy'   => true,
 			'LastEdited' => true,
 		],
 		'view' => [
-			'Title' => true,
-			'Body' => true,
-			'PostedBy' => true,
+			'Title'      => true,
+			'Body'       => true,
+			'PostedBy'   => true,
 			'LastEdited' => true,
-			'Images' => 'HasImagesField',
+			'Images'     => 'HasImagesField',
 		],
 		'edit' => [
-			'PostAs' => true,
-			'Body' => true,
+			'PostAs'         => true,
+			'Body'           => true,
 			'AttachedImages' => 'ImageEditField',
-			'AttachImages' => 'FileAttachmentField',
+			'AttachImages'   => 'FileAttachmentField',
 		],
 	];
 	private static $summary_fields = [
-		'Title' => 'Title',
+		'Title'        => 'Title',
 		// 'PostedBy.Title' => 'Posted by',
 		'Images.Count' => 'Images',
-		'SourceTitle' => 'Source',
+		'SourceTitle'  => 'Source',
 	];
 
 	public function onBeforeWrite() {
@@ -85,7 +91,7 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 		foreach ($metas as $meta) {
 			$property = $meta->getAttribute('property');
 			$content = $meta->getAttribute('content');
-			$rmetas[$property] = $content;
+			$rmetas[ $property ] = $content;
 		}
 		if (isset($rmetas['og:title'])) {
 			$this->PostContentLinkTitle = $rmetas['og:title'];
@@ -98,14 +104,14 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 	public function PostedBy() {
 		if ($this->PostAs == "Individual") {
 			$creator = $this->RelatedMembers()
-				->filter('ActionType.Code', 'MCP')
+				->filter('Type.Code', 'MCP')
 				->first();
 			if ($creator) {
 				return $creator->FromMember();
 			};
-		} else if ($this->PostAs == "Organisation") {
+		} else if ($this->PostAs == "SocialOrganisation") {
 			$creator = $this->RelatedOrganisation()
-				->filter('ActionType.Code', 'OCP')
+				->filter('Type.Code', 'OCP')
 				->first();
 			if ($creator) {
 				return $creator->FromOrganisation();
@@ -122,6 +128,7 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 
 	/**
 	 * Convenience method to get the Feed for this item.
+	 *
 	 * @return FeedMeFeedInterface
 	 */
 	public function RssFeed() {
@@ -168,7 +175,7 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 	}
 
 	public function canEdit($member = null) {
-		$StartedByObj = $this->RelatedMembers()->filter(['ActionType.Code' => 'MCP'])->first();
+		$StartedByObj = $this->RelatedMembers()->filter(['Type.Code' => 'MCP'])->first();
 		if ($StartedByObj) {
 			$ForumTopicOwner = $StartedByObj->FromMemberID;
 			if ($ForumTopicOwner == Member::currentUserID()) {
@@ -177,7 +184,8 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 				return false;
 			}
 
-		}return false;
+		}
+		return false;
 	}
 
 	/**
@@ -215,9 +223,11 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 	 *
 	 */
 	public function isLinkImage($url) {
-		$params = array('http' => array(
-			'method' => 'HEAD',
-		));
+		$params = array(
+			'http' => array(
+				'method' => 'HEAD',
+			),
+		);
 		$ctx = stream_context_create($params);
 		$fp = @fopen($url, 'rb', false, $ctx);
 		if (!$fp) {
@@ -234,7 +244,7 @@ class Post extends SocialModel implements FeedMeItemModelInterface {
 		$wrapper_data = $meta["wrapper_data"];
 		if (is_array($wrapper_data)) {
 			foreach (array_keys($wrapper_data) as $hh) {
-				if (substr($wrapper_data[$hh], 0, 19) == "Content-Type: image") // strlen("Content-Type: image") == 19
+				if (substr($wrapper_data[ $hh ], 0, 19) == "Content-Type: image") // strlen("Content-Type: image") == 19
 				{
 					fclose($fp);
 					return true;

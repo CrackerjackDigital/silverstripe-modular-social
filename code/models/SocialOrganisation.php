@@ -1,15 +1,21 @@
 <?php
-use Modular\Actions\Createable;
-use Modular\Actions\Editable;
-use Modular\Actions\Listable;
-use Modular\Actions\Registerable;
-use Modular\Actions\Viewable;
-use Modular\Models\SocialModel as SocialModel;
+namespace Modular\Models;
+
+use ArrayData;
+use CompaniesEntityDetails;
+use Member;
+use Modular\Types\SocialOrganisationSubType;
+use Modular\Types\SocialOrganisationType;
+use Permission;
+use ValidationException;
+use ValidationResult;
 
 /**
- * An Organisation public model.
+ * An SocialOrganisation public model.
+ * @method SocialOrganisationSubType OrganisationSubType()
+ * @method \SS_List OrganisationSubTypes()
  */
-class Organisation extends SocialModel {
+class SocialOrganisation extends SocialModel {
 	private static $db = [
 		'Street'                 => 'Varchar(255)',
 		'Suburb'                 => 'Varchar(255)',
@@ -23,7 +29,7 @@ class Organisation extends SocialModel {
 	];
 	private static $has_one = [
 		"FeaturedImage"       => "Image",
-		"OrganisationSubType" => "OrganisationSubType",
+		"OrganisationSubType" => "SocialOrganisationSubType",
 	];
 	private static $has_many = [
 		'RelatedMembers'             => 'MemberOrganisationAction.ToOrganisation',
@@ -34,26 +40,26 @@ class Organisation extends SocialModel {
 	];
 
 	private static $many_many = [
-		"OrganisationSubTypes" => "OrganisationSubType",
+		"OrganisationSubTypes" => "SocialOrganisationSubType",
 	];
 	// private static $default_sort = 'Sort,Title';
 
-	private static $singular_name = 'Organisation';
+	private static $singular_name = 'SocialOrganisation';
 
 	private static $route_part = 'organisation';
 
 	// fields to show by mode.
 	private static $fields_for_mode = [
-		Registerable::Action => [
+		\Modular\Actions\Registerable::Action => [
 			'MbieRegistrationNumber' => false,
 		],
-		Createable::Action   => [
+		\Modular\Actions\Createable::Action   => [
 			'Title'       => true,
 			'Logo'        => 'FileAttachmentField',
 			'Website'     => false,
 			'Description' => 'TextAreaField',
 		],
-		Editable::Action     => [
+		\Modular\Actions\Editable::Action     => [
 			'Title'               => true,
 			'PhoneNumber'         => true,
 			'MobilePhoneNumber'   => true,
@@ -62,25 +68,26 @@ class Organisation extends SocialModel {
 			'Description'         => 'TextAreaField',
 			'ProductsAndServices' => false,
 		],
-		Viewable::Action     => [
+		\Modular\Actions\Viewable::Action     => [
 			'Title'                 => true,
 			'Logo'                  => 'ImageField',
 			'Website'               => false,
 			'Description'           => true,
 			'OrganisationSubTypeID' => true,
 		],
-		Listable::Action     => [
+		\Modular\Actions\Listable::Action     => [
 			'Images'      => 'HasImagesField',
 			'Logo'        => 'ImageField',
 			'Title'       => true,
 			'Description' => false,
 		],
-		Searchable::Action   => [
+		\Modular\Actions\Searchable::Action   => [
 			'Title'                 => ['TextField', false, 'Organisation Title'],
 			'OrganisationSubTypeID' => true,
 		],
-		Joinable::Action     => [ // fields for join modal
-		                                   'Body' => ['TextAreaField', true, 'Reason for joining'],
+		\Modular\Actions\Joinable::Action     => [
+			// fields for join modal
+			'Body' => ['TextAreaField', true, 'Reason for joining'],
 		],
 	];
 
@@ -90,7 +97,7 @@ class Organisation extends SocialModel {
 
 	/**
 	 *
-	 * Organisation Type
+	 * SocialOrganisation Type
 	 *
 	 */
 	public function OrganisationTypes() {
@@ -108,7 +115,7 @@ class Organisation extends SocialModel {
 			$typeIDs[] = $subType->OrganisationTypeID;
 		}
 		if (count($typeIDs) != 0) {
-			return OrganisationType::get()->filter(["ID" => $typeIDs]);
+			return SocialOrganisationType::get()->filter(["ID" => $typeIDs]);
 		} else {
 			return false;
 		}
@@ -123,7 +130,7 @@ class Organisation extends SocialModel {
 				$subTypes = $this->OrganisationSubTypes();
 			}
 		}
-		return GroupedList::create($subTypes)->Groupedby('OrganisationTypeTitle');
+		return \GroupedList::create($subTypes)->Groupedby('OrganisationTypeTitle');
 	}
 
 	public function getOrganisationSubTypes() {
@@ -132,14 +139,14 @@ class Organisation extends SocialModel {
 
 	/**
 	 * Checks:
-	 * - Organisation with provided Title not already in Database
+	 * - SocialOrganisation with provided Title not already in Database
 	 *
 	 * @return ValidationResult|void
 	 * @throws ValidationException
 	 */
 	public function validate() {
 		if (!$this->isInDB()) {
-			if (Organisation::get()->filterAny(['Title' => $this->Title, 'MbieRegistrationNumber' => $this->MbieRegistrationNumber])->count()) {
+			if (SocialOrganisation::get()->filterAny(['Title' => $this->Title, 'MbieRegistrationNumber' => $this->MbieRegistrationNumber])->count()) {
 				throw new ValidationException("Sorry, an organisation with that name already exists", 400);
 			}
 		}
@@ -169,7 +176,7 @@ class Organisation extends SocialModel {
 
 	/**
 	 *
-	 * Unique Organisation cities array
+	 * Unique SocialOrganisation cities array
 	 *
 	 * @return array
 	 *
@@ -209,7 +216,7 @@ class Organisation extends SocialModel {
 	 */
 	public function OrganisationMembers() {
 		$memberIDs = $this->RelatedMembers()
-			->filter(['ActionType.Code' => ['MJO', 'MRO', 'MEM', 'MCO']])
+			->filter(['Type.Code' => ['MJO', 'MRO', 'MEM', 'MCO']])
 			->column('FromMemberID');
 
 		$uniquemembers = Member::get()->filter(['ID' => $memberIDs])->distinct(true)->setQueriedColumns(array('ID'));
@@ -219,7 +226,7 @@ class Organisation extends SocialModel {
 
 	public function OrganisationFollowers() {
 		$members = $this->RelatedMembers()
-			->filter(['ActionType.Code' => ['FOL']]);
+			->filter(['Type.Code' => ['FOL']]);
 
 		return $members ? $members : false;
 	}
@@ -234,12 +241,12 @@ class Organisation extends SocialModel {
 			return false;
 		}
 
-		// $checkAction_Edit = ActionType::check_permission("EDT", $this);
+		// $checkAction_Edit = SocialAction::check_permission("EDT", $this);
 
 		$relatedMembers = $this->relatedMembers();
 		if ($relatedMembers->count() > 0) {
 			$members = $relatedMembers->filter(["FromMemberID" => $member->ID, "ToOrganisationID" => $this->ID]);
-			$members = $members->filter('ActionType.Code', ["MCO", "MAO", "MRO"]);
+			$members = $members->filter('Type.Code', ["MCO", "MAO", "MRO"]);
 			if ($members->count() > 0) {
 				return true;
 			} else {
@@ -293,9 +300,9 @@ class Organisation extends SocialModel {
 
 	/**
 	 *
-	 * Organisation's location info
+	 * SocialOrganisation's location info
 	 *
-	 * @return ArrayData
+	 * @return \DataList
 	 */
 	public function officeLocations() {
 		$locationList = $this->RelatedContactInfo();
@@ -303,6 +310,6 @@ class Organisation extends SocialModel {
 		foreach ($locationList as $loc) {
 			$locationId[] = $loc->ToContactInfo()->ID;
 		}
-		return ContactInfo::get()->filter(['ID' => $locationId]);
+		return SocialContactInfo::get()->filter(['ID' => $locationId]);
 	}
 }

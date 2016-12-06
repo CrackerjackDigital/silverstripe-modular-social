@@ -1,10 +1,11 @@
 <?php
-namespace Modular\Extensions\Controller;
+namespace Modular\Extensions\UI;
+use ArrayData;
 
 /**
  * Extends Models to add actions specific to that model, such as view, like etc.
  */
-class ActionButtons extends ActionMenu {
+class SocialActionButtons extends SocialActionMenu {
     const MenuClass = 'action-buttons';
     const FilterField = 'ShowInActionButtons';
 

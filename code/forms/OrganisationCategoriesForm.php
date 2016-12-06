@@ -18,7 +18,7 @@ class OrganisationCategoriesForm extends SocialForm  {
 		);
 
 		$actions = FieldList::create(
-			FormAction::create('categories')->setTitle("Save Organisation Types")->addExtraClass("btn btn-blue btn-large")
+			FormAction::create('categories')->setTitle("Save SocialOrganisation Types")->addExtraClass("btn btn-blue btn-large")
 		);
 
 		$validator = new RequiredFields();

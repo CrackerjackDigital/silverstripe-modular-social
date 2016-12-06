@@ -1,34 +1,49 @@
 <?php
 namespace Modular\Extensions\Model;
 use ClassInfo;
+use Config;
 use Controller;
 use DataList;
+use DataObject;
+use DropdownField;
 use FieldList;
+use FileAttachmentField;
+use FormField;
+use Modular\Actions\Createable;
 use Modular\Actions\Editable;
 use Modular\Actions\Listable;
+use Modular\Actions\Registerable;
 use Modular\Actions\Viewable;
+use Modular\debugging;
+use Modular\Edges\SocialRelationship as Edge;
+use Modular\enabler;
+use Modular\Exceptions\Exception;
+use Modular\Forms\SocialForm;
+use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
-use Modular\SocialForm;
-use Modular\Types\SocialActionType;
-use \Modular\Edges\SocialEdge as Edge;
+use Modular\ModelExtension;
+use Modular\Types\SocialAction;
 use RequiredFields;
+use UploadField;
 
 /**
  * Adds common functionality for a 'SocialModel'.
  *
  * Class SocialModel
  */
-class SocialModel extends \Modular\ModelExtension implements SocialModelInterface  {
-	use \Modular\debugging;
-	use \Modular\enabler;
+class SocialModel extends ModelExtension implements SocialModelInterface  {
+	use debugging;
+	use enabler;
 
-	// models are suffixed e.g. 'Organisation', except where external such as 'Member'
+	// models are suffixed e.g. 'SocialOrganisation', except where external such as 'Member'
 	const ModelClassNameSuffix = 'Model';
+
+	const ModelHTMLAttributeName = 'model';
 
 	/**
 	 * Checks:
 	 *  -   The current user is the model's Creator
-	 *  -   via ActionType.check_permission if we can perform the requested action.
+	 *  -   via SocialAction.check_permission if we can perform the requested action.
 	 *
 	 * @param        $actionCodes
 	 * @param string $source where call is being made from, e.g. a controller will set this to 'action' on checking allowed_actions
@@ -38,7 +53,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 	public function canDoIt($actionCodes, $source = '') {
 		$source = $source ?: \Member::currentUser();
 
-		$canDoIt = SocialActionType::check_permission(
+		$canDoIt = SocialAction::check_permission(
 			$actionCodes,
 			$this->getModelInstance()
 		);
@@ -57,7 +72,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 	 * @return bool|int
 	 */
 	public function canEdit($member = null) {
-		return $this->canDoIt(Editable::RelationshipCode);
+		return $this->canDoIt(Editable::ActionCode);
 	}
 
 	/**
@@ -67,7 +82,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 	 * @return bool|int
 	 */
 	public function canView($member = null) {
-		return $this->canDoIt(Viewable::RelationshipCode);
+		return $this->canDoIt(Viewable::ActionCode);
 	}
 
 	/**
@@ -75,7 +90,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 	 *
 	 * @param string            $forAction           a relationship type/action Code e.g. 'CRT' or empty for all
 	 * @param string|DataObject $actorModels         of the class related to the extended model,
-	 *                                               e.g. 'Member' or 'Organisation'
+	 *                                               e.g. 'Member' or 'SocialOrganisation'
 	 * @return \ArrayList of all ManyManyRelationships which match passed criteria.
 	 */
 	public function Actions($forAction = '', $actorModels = 'Member') {
@@ -99,7 +114,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 			]);
 			if ($forAction) {
 				$actions = $actions->filter([
-					'ActionType.Code' => $forAction,
+					'Type.Code' => $forAction,
 				]);
 			}
 			$out->merge($actions);
@@ -218,7 +233,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 	 * Return a form for this model used by different modes. May be the same form between modes.
 	 *
 	 * @param string $mode used to select which fields will be used from config.fields_for_mode
-	 * @return Modular\Forms\Social
+	 * @return \Modular\Forms\SocialForm
 	 */
 	public function formForMode($mode) {
 		$formClassName = $this->getFormName();
@@ -263,7 +278,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 	/**
 	 * Returns config.route_part of the extended model, or lowercase config.singular_name if not set.
 	 *
-	 * So Organisation -> /organisation
+	 * So SocialOrganisation -> /organisation
 	 *
 	 * @sideeffect Triggers a Notice user error if config.route_part is not set and using config.singular_name
 	 *
@@ -411,7 +426,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 	 * e.g. PostReply::form_for_mode('reply') will return
 	 * form with PostReply.config.fields_for_mode['reply'] fields.
 	 *
-	 * @param \SocialModelInterface|DataObject|SocialModel $model
+	 * @param SocialModelInterface|DataObject|SocialModel $model
 	 * @param                                              $mode
 	 * @return mixed
 	 */
@@ -620,7 +635,7 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 
 	/**
 	 * Strip self::ModelClassNameSuffix from the end of a class name if it is there.
-	 * e.g. Organisation -> Organisation.
+	 * e.g. SocialOrganisation -> SocialOrganisation.
 	 *
 	 * @param $className
 	 * @return string
@@ -702,8 +717,8 @@ class SocialModel extends \Modular\ModelExtension implements SocialModelInterfac
 		if ($otherModelOrClassName instanceof DataObject) {
 			$otherModelOrClassName = $otherModelOrClassName->class;
 		}
-		/** @var SocialActionType $Action */
-		$Action = SocialActionType::get_heirarchy(
+		/** @var SocialAction $Action */
+		$Action = SocialAction::get_heirarchy(
 			$this->getModelClass(),
 			$otherModelOrClassName,
 			$actionCode

@@ -3,17 +3,16 @@ namespace Modular\Controllers;
 
 use ArrayData;
 use ArrayList;
-use Forum;
-use ForumTopic;
 use Member;
-use Modular\Actions\Approveable;
 use Modular\Forms\SocialForm;
+use Modular\Models\SocialForum;
+use Modular\Models\SocialForumTopic;
 
-class Forum_Controller extends SocialModel {
+class SocialForum_Controller extends SocialModel_Controller {
 	private static $model_class = 'Forum';
 
 	// type of approval needed to view.
-	private static $approveable_mode = Approveable::ApprovalManual;
+	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;
 
 	public function init() {
 		$this->AuthenticateUser();
@@ -42,7 +41,7 @@ class Forum_Controller extends SocialModel {
 	public function RelatedItems() {
 		return new ArrayData([
 			'Title'     => singleton('ForumTopic')->plural_name(),
-			'ListItems' => ForumTopic::get()->filter([
+			'ListItems' => SocialForumTopic::get()->filter([
 				'ForumID' => $this()->getModelID(),
 			]),
 		]);
@@ -84,6 +83,6 @@ class Forum_Controller extends SocialModel {
 			$forumArray[] = $item->ToForumID;
 		}
 
-		return Forum::get()->filter(["ID" => $forumArray]);
+		return SocialForum::get()->filter(["ID" => $forumArray]);
 	}
 }

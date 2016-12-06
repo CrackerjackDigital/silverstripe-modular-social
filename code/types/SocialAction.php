@@ -4,13 +4,12 @@ namespace Modular\Types;
 use ArrayList;
 use DataList;
 use DataObject;
-use Modular\Type;
-use SocialMember;
-use Modular\Extensions\Model\SocialModel;
+use Modular\config;
+use Modular\Extensions\Model\SocialMember;
+use Modular\Extensions\Model\SocialModel as SocialModelExtension;
 use Modular\Fields\SystemData;
 use Permission;
 use TreeDropdownField;
-use Modular\Extensions\Model\SocialModel as SocialModelExtension;
 
 /**
  * ActionType's are the core rules for the SocialModel system which describe what relationships are allowed between
@@ -25,11 +24,14 @@ use Modular\Extensions\Model\SocialModel as SocialModelExtension;
  * @method \SS_List NotifyMembers()
  * @method \SS_List NotifyGroups()
  * @method \SS_List ImpliedRelationshipTypes()
- * @method SocialActionType|null RequirePrevious()
+ * @method SocialAction|null RequirePrevious()
  *
  */
-class SocialActionType extends Type  {
-	const ActionCode = '';
+class SocialAction extends SocialType {
+	use config;
+
+	const ActionCode                  = '';
+	const ActionName                  = '';
 	const RelationshipClassNameSuffix = 'Relationship';
 	const RelationshipNamePrefix      = 'Related';
 
@@ -45,11 +47,11 @@ class SocialActionType extends Type  {
 
 	private static $db = [
 		// Title and Code from Modular\Type
-		'ActionType'              => 'Varchar(12)',              // e.g. 'Follow'
+		'ActionType'          => 'Varchar(12)',              // e.g. 'Follow'
 		'ReverseAction'       => 'Varchar(12)',       // e.g. 'Unfollow'
 		'ReverseTitle'        => 'Varchar(64)',        // e.g for Title of 'Follows' would be 'Followed by'
 		'AllowedFrom'         => 'Varchar(64)',         // e.g. 'Member'
-		'AllowedTo'           => 'Varchar(64)',           // e.g. 'Organisation'
+		'AllowedTo'           => 'Varchar(64)',           // e.g. 'SocialOrganisation'
 		'LastBuildResult'     => 'Varchar(32)',     // if this record was created, changed or unchanged by last build
 		'ShowInActionLinks'   => 'Int',           // show this action in action-link menus if not 0
 		'ShowInActionButtons' => 'Int',         // show this action in action-button menus if not 0
@@ -58,21 +60,21 @@ class SocialActionType extends Type  {
 		'ActionLinkType'      => "enum('nav,modal,inplace')"     // when clicked what to do?
 	];
 	private static $has_one = [
-		'Parent'          => 'ActionType',         // typical parent relationship
+		'Parent'          => 'Modular\Types\SocialAction',         // typical parent relationship
 		'Permission'      => 'Permission',           // what permission is required to make/break a relationship
 		'NotifyFrom'      => 'Member',                // who emails are sent from when one is made/broken
-		'RequirePrevious' => 'ActionType'   // e.g. for 'EDT' then a 'CRT' MemberPost relationship must exist
+		'RequirePrevious' => 'Modular\Types\SocialAction'   // e.g. for 'EDT' then a 'CRT' MemberPost relationship must exist
 	];
 	private static $has_many = [
-		'Relationship' => 'SocialModel',
+		'Relationships' => 'Modular\Edges\SocialRelationship',
 	];
 	private static $many_many = [
-		'ImpliedRelationshipTypes' => 'ActionType',  // when this relationship is created also create these between member and model
+		'ImpliedRelationshipTypes' => 'Modular\Types\SocialAction',  // when this relationship is created also create these between member and model
 		'NotifyMembers'            => 'Member',            // who (Members) get notified when made/broken
 		'NotifyGroups'             => 'Group',               // who (Security Groups) get notified
 	];
 	private static $belongs_many_many = [
-		'TriggerRelationshipType' => 'ActionType'  // back relationship to 'ImpliedRelationshipTypes'
+		'TriggerRelationshipType' => 'Modular\Types\SocialAction'  // back relationship to 'ImpliedRelationshipTypes'
 	];
 	private static $summary_fields = [
 		'Title',
@@ -80,22 +82,25 @@ class SocialActionType extends Type  {
 		'Code',
 		'AllowedFrom',
 		'AllowedTo',
-		'ActionType',
+		'Action',
 		'ActionLinkType',
 	];
-	private static $singular_name = 'Relationship';
+	private static $singular_name = 'Action';
 
-	private static $plural_name = 'Relationships';
+	private static $plural_name = 'Actions';
+
+	public function __invoke() {
+		return $this;
+	}
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
-
 		$fields->addFieldToTab(
 			'Root.Main',
 			new TreeDropdownField(
 				'RequirePreviousID',
 				'Require previous relationship',
-				'ActionType'
+				'SocialAction'
 			)
 		);
 
@@ -121,7 +126,7 @@ class SocialActionType extends Type  {
 	/**
 	 * Returns an array of information used to build records around this type of relationship:
 	 * -    FromName                e.g. 'Member'
-	 * -    ToName                  e.g. 'Organisation' (not Organisation)
+	 * -    ToName                  e.g. 'SocialOrganisation' (not SocialOrganisation)
 	 * -    FromFieldName           e.g. 'FromMemberID'
 	 * -    ToFieldName             e.g. 'ToOrganisationModelID'
 	 * -    RelationshipClassName   e.g. 'MemberOrganisationRelationship'
@@ -202,12 +207,12 @@ class SocialActionType extends Type  {
 	 * @param \DataObject $toModel
 	 */
 	public function createImpliedRelationships(DataObject $fromModel, DataObject $toModel) {
-		// add additional relationships between models as listed in ActionType.ImpliedRelationshipTypes
+		// add additional relationships between models as listed in SocialAction.ImpliedRelationshipTypes
 
 		foreach ($this->ImpliedRelationshipTypes() as $impliedRelationshipType) {
 			// we might have a parent code so look up the suitable 'real' code.
-			/** @var SocialActionType $implied */
-			$implied = SocialActionType::get_heirarchy(
+			/** @var SocialAction $implied */
+			$implied = SocialAction::get_heirarchy(
 				$fromModel,
 				$toModel,
 				$impliedRelationshipType->Code
@@ -225,11 +230,11 @@ class SocialActionType extends Type  {
 	}
 
 	/**
-	 * Build a query used in checking a ActionType exists for the codes.
+	 * Build a query used in checking a SocialAction exists for the codes.
 	 */
 	public function buildRelationshipTypeQuery() {
 		$archetype = $this->buildRelationshipTypeArchetype();
-		return SocialActionType::get()->filter($archetype);
+		return SocialAction::get()->filter($archetype);
 	}
 
 	/**
@@ -247,11 +252,11 @@ class SocialActionType extends Type  {
 	}
 
 	/**
-	 * Returns a query which uses this ActionType to find records in a relationship
+	 * Returns a query which uses this SocialAction to find records in a relationship
 	 * table which match the passed in object IDs. e.g. MemberOrganisationRelationship with
 	 * Member.ID = $formObjectID and OrganisationModelID = $toModelID
 	 *
-	 * NB we take ints not models here as the model class etc comes from instance of ActionType
+	 * NB we take ints not models here as the model class etc comes from instance of SocialAction
 	 *
 	 * @param int $fromModelID
 	 * @param int $toModelID
@@ -271,7 +276,7 @@ class SocialActionType extends Type  {
 	 * Build a filter and data array used in checking an instance of a relationship exists between two
 	 * objects of the provided type and for initialising a new relationship object.
 	 *
-	 * for use against e.g. this being a 'FOL' between Member 1 and Organisation 10
+	 * for use against e.g. this being a 'FOL' between Member 1 and SocialOrganisation 10
 	 *
 	 * @param $fromModelID
 	 * @param $toModelID
@@ -313,8 +318,8 @@ class SocialActionType extends Type  {
 	 * @return SocialRelationship
 	 */
 	public static function check_relationship_exists(DataObject $fromModel, DataObject $toModel, $actionCode) {
-		/** @var SocialActionType $relationshipType */
-		$relationshipType = SocialActionType::get_for_models(
+		/** @var SocialAction $relationshipType */
+		$relationshipType = SocialAction::get_for_models(
 			$fromModel,
 			$toModel,
 			$actionCode
@@ -324,7 +329,7 @@ class SocialActionType extends Type  {
 	}
 
 	/**
-	 * Return a mangled class name like 'Organisation' from AllowedFrom 'Organisation'
+	 * Return a mangled class name like 'SocialOrganisation' from AllowedFrom 'SocialOrganisation'
 	 *
 	 * @return string
 	 */
@@ -333,7 +338,7 @@ class SocialActionType extends Type  {
 	}
 
 	/**
-	 * Return a mangled class name like 'Organisation' from AllowedTo 'Organisation'
+	 * Return a mangled class name like 'SocialOrganisation' from AllowedTo 'SocialOrganisation'
 	 *
 	 * @return string
 	 */
@@ -360,7 +365,7 @@ class SocialActionType extends Type  {
 	}
 
 	/**
-	 * Return the possible actions between two objects, optionally restricted by ActionType.ActionType.
+	 * Return the possible actions between two objects, optionally restricted by SocialAction.ActionType.
 	 *
 	 * @param                   $fromModel
 	 * @param                   $toModel
@@ -373,11 +378,11 @@ class SocialActionType extends Type  {
 			? is_array($restrictTo) ? $restrictTo : explode(',', $restrictTo)
 			: null;
 
-		$query = SocialActionType::get()->filter([
+		$query = SocialAction::get()->filter([
 			'AllowedFrom' => $fromModel->class,
 			'AllowedTo'   => $toModel->class,
 		]);
-		return $restrictTo ? $query->filter('ActionType', $restrictTo) : $query;
+		return $restrictTo ? $query->filter('SocialAction', $restrictTo) : $query;
 
 	}
 
@@ -385,7 +390,7 @@ class SocialActionType extends Type  {
 	 * Convenience fetch helper.
 	 *
 	 * @param string|array $actionCodes
-	 * @return SocialActionType
+	 * @return SocialAction
 	 */
 	public static function get_by_code($actionCodes) {
 		return self::get()->filter('Code', $actionCodes)->first();
@@ -410,7 +415,7 @@ class SocialActionType extends Type  {
 	}
 
 	/**
-	 * Return all ActionType records which have the particular code(s) passed as their parent(s).
+	 * Return all SocialAction records which have the particular code(s) passed as their parent(s).
 	 * e.g. passing 'LIK' will return 'MLO', 'MLG' etc which are children of the 'LIK' record. Does not return the
 	 * 'LIK' record.
 	 *
@@ -418,11 +423,11 @@ class SocialActionType extends Type  {
 	 * @return SS_List
 	 */
 	public static function get_by_parent($parentRelationshipTypeCodes) {
-		return SocialActionType::get()->filter('ParentCode', $parentRelationshipTypeCodes);
+		return SocialAction::get()->filter('ParentCode', $parentRelationshipTypeCodes);
 	}
 
 	/**
-	 * Returns a list of ActionType models which have the provided code or have the code as a Parent.
+	 * Returns a list of SocialAction models which have the provided code or have the code as a Parent.
 	 *
 	 * @param string|DataObject $fromModelOrClassName
 	 * @param string|DataObject $toModelOrClassName
@@ -443,7 +448,7 @@ class SocialActionType extends Type  {
 		$toModelClass = ($toModelOrClassName instanceof DataObject) ? $toModelOrClassName->class : $toModelOrClassName;
 
 		// get relationship types for the code and the parent matching that code.
-		$heirarchy = SocialActionType::get()->filter([
+		$heirarchy = SocialAction::get()->filter([
 			'AllowedFrom' => $fromModelClass,
 			'AllowedTo'   => $toModelClass,
 		]);
@@ -461,8 +466,8 @@ class SocialActionType extends Type  {
 	/**
 	 * Check to see if valid permissions to perform an actione exist between two objects.
 	 *
-	 * The 'from' object is generally (and by default) the logged in member, the 'to' object is e.g. an Organisation
-	 * and the permission code is the three-letter code such as 'MAO' for 'Member Administer Organisation'.
+	 * The 'from' object is generally (and by default) the logged in member, the 'to' object is e.g. an SocialOrganisation
+	 * and the permission code is the three-letter code such as 'MAO' for 'Member Administer SocialOrganisation'.
 	 *
 	 * If a direct relationship is not found then the parent relationship is also tried, e.g. passing in 'ADM' will
 	 * check for all Administer actions.
@@ -483,7 +488,7 @@ class SocialActionType extends Type  {
 		$fromModelOrLoggedInMember = null,
 		$checkObjectInstances = true
 	) {
-		// generally we're check the current site viewer though may wany to check e.g. if an Organisation can do something
+		// generally we're check the current site viewer though may wany to check e.g. if an SocialOrganisation can do something
 		$fromModelOrLoggedInMember = $fromModelOrLoggedInMember ?: SocialMember::current_or_guest();
 
 		// sometimes we only have the model class name to go on, get a singleton to make things easier
@@ -495,7 +500,7 @@ class SocialActionType extends Type  {
 		}
 		$permissionOK = false;
 
-		$relationshipTypes = SocialActionType::get_heirarchy($fromModelOrLoggedInMember, $toModel, $actionCodes);
+		$relationshipTypes = SocialAction::get_heirarchy($fromModelOrLoggedInMember, $toModel, $actionCodes);
 
 		// get the ids of permissions for the allowed relationships (and Codes to help debugging)
 		if ($permissionIDs = $relationshipTypes->map('PermissionID', 'Code')->toArray()) {
@@ -515,7 +520,7 @@ class SocialActionType extends Type  {
 				// now we get more specific; if we were handed a model object it should have an ID so also check that
 				// instance rules are met, such as a previous relationship existing (if just a class was passed to function
 				// then we have a singleton and we can't check these requirements).
-				// This check uses the ActionType.RequirePrevious relationship on the current ActionType
+				// This check uses the SocialAction.RequirePrevious relationship on the current SocialAction
 
 				if ($permissionOK && $toModel->ID && $checkObjectInstances) {
 
@@ -538,7 +543,7 @@ class SocialActionType extends Type  {
 
 				if ($permissionOK) {
 					// now we ask the models to check themselves, e.g. if they require a field to be set outside of the permissions
-					// ActionType model, such as a Member requiring to be Confirmed then the Confirmable extension will
+					// SocialAction model, such as a Member requiring to be Confirmed then the Confirmable extension will
 					// intercept this and check the 'RegistrationConfirmed' field
 					if ($modelCheck = $toModel->extend('checkPermissions', $fromModel, $toModel, $actionCodes)) {
 						$permissionOK = count(array_filter($modelCheck)) != 0;
@@ -577,7 +582,7 @@ class SocialActionType extends Type  {
 		$fromModel = $fromModel ?: $member;
 
 		// get all the ADM type relationships for the models
-		$relationshipTypes = SocialActionType::get_for_models(
+		$relationshipTypes = SocialAction::get_for_models(
 			$fromModel,
 			$toModel
 		)->filter('ParentCode', 'ADM');
@@ -592,11 +597,11 @@ class SocialActionType extends Type  {
 	}
 
 	/**
-	 * Checks 'default' rules such as if passed a Member and an Organisation then the member can only EDT
+	 * Checks 'default' rules such as if passed a Member and an SocialOrganisation then the member can only EDT
 	 * if a MemberOrganisationRelationship of type 'CRT' exists. These are set up by the
-	 * ActionType.RequirePrevious relationship.
+	 * SocialAction.RequirePrevious relationship.
 	 *
-	 * @param string|array $actionCodes - three letter code e.g. 'MEO' for Member edit Organistion
+	 * @param string|array $actionCodes           - three letter code e.g. 'MEO' for Member edit Organistion
 	 * @param DataObject   $fromModel
 	 * @param DataObject   $toModel
 	 * @param array        $requirementTally      - list of relationship Types checked and the result of permission
@@ -604,8 +609,8 @@ class SocialActionType extends Type  {
 	 * @return boolean
 	 */
 	public static function check_rules(DataObject $fromModel, DataObject $toModel, $actionCodes, array &$requirementTally = []) {
-		// e.g. get all 'EDT' RelationshipTypes from e.g. Model to Organisation
-		$relationshipTypes = SocialActionType::get_heirarchy(
+		// e.g. get all 'EDT' RelationshipTypes from e.g. Model to SocialOrganisation
+		$relationshipTypes = SocialAction::get_heirarchy(
 			$fromModel,
 			$toModel,
 			$actionCodes
@@ -614,22 +619,22 @@ class SocialActionType extends Type  {
 		$old = SystemData::disable();
 		// check each relationships 'RequirePrevious' exists in the corresponding relationship table for the model
 		// instances
-		/** @var SocialActionType $relationshipType */
+		/** @var SocialAction $relationshipType */
 		foreach ($relationshipTypes as $relationshipType) {
 			// NB: only handle has_ones at the moment, need to refactor if we move to multiple previous requirements
 			if ($relationshipType->RequirePreviousID) {
 
-				/** @var SocialActionType $requiredRelationshipType */
-				$requiredRelationshipType = SocialActionType::get()->byID($relationshipType->RequirePreviousID);
+				/** @var SocialAction $requiredRelationshipType */
+				$requiredRelationshipType = SocialAction::get()->byID($relationshipType->RequirePreviousID);
 
-				// now we have a required ActionType which may be a parent or child
+				// now we have a required SocialAction which may be a parent or child
 				// if a parent we can't check the relationship exists directly, as there
 				// are no Allowed... constraints on a parent, so we need to get the child
 				// relationshipType which matches the parent code. e.g. for a CRT we need to
 				// get the MemberOrganisationRelationship record with 'MCO'
 
 				if (!$requiredRelationshipType->ParentID) {
-					$requiredRelationshipType = SocialActionType::get()->filter([
+					$requiredRelationshipType = SocialAction::get()->filter([
 						'AllowedFrom' => $fromModel->class,
 						'AllowedTo'   => $toModel->class,
 						'ParentCode'  => $requiredRelationshipType->Code,
@@ -683,18 +688,18 @@ class SocialActionType extends Type  {
 
 		$old = SystemData::disable();
 
-		$relationshipTypes = SocialActionType::get_heirarchy($fromModel, $toModel, $actionCodes);
+		$relationshipTypes = SocialAction::get_heirarchy($fromModel, $toModel, $actionCodes);
 
-		/** @var SocialActionType $relationshipType */
+		/** @var SocialAction $relationshipType */
 		foreach ($relationshipTypes as $relationshipType) {
 
 			// if the relationship type requires a previous to have been made/action performed
 			if ($relationshipType->RequirePreviousID) {
 				// get the required relationship
-				/** @var SocialActionType $requiredRelationshipType */
-				if ($requiredRelationshipType = SocialActionType::get()->byID($relationshipType->RequirePreviousID)) {
+				/** @var SocialAction $requiredRelationshipType */
+				if ($requiredRelationshipType = SocialAction::get()->byID($relationshipType->RequirePreviousID)) {
 
-					// get the SocialModel class name for this particular ActionType
+					// get the SocialModel class name for this particular SocialAction
 					$relationshipClassName = $relationshipType->getRelationshipClassName();
 					$previous = $relationshipClassName::history(
 						$fromModel,
@@ -721,7 +726,7 @@ class SocialActionType extends Type  {
 
 	/**
 	 * Returns all defined RelationshipTypes from one model to another,
-	 * optionally filtered by passed ActionType.Codes
+	 * optionally filtered by passed SocialAction.Codes
 	 *
 	 * @param string|DataObject $fromModelClass
 	 * @param string|DataObject $toModelClass
@@ -735,7 +740,7 @@ class SocialActionType extends Type  {
 		if (is_object($toModelClass)) {
 			$toModelClass = get_class($toModelClass);
 		}
-		return SocialActionType::get_heirarchy($fromModelClass, $toModelClass, $actionCodes);
+		return SocialAction::get_heirarchy($fromModelClass, $toModelClass, $actionCodes);
 	}
 
 	/**

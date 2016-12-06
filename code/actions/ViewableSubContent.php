@@ -1,7 +1,10 @@
 <?php
 namespace Modular\Actions;
 
+use Form;
 use \Modular\Extensions\Controller\SocialAction;
+use SS_HTTPRequest;
+use SS_HTTPResponse_Exception;
 
 class ViewableSubContent extends SocialAction  {
 	const ActionTypeCode = 'VEW';

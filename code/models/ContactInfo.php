@@ -1,20 +1,20 @@
 <?php
-use Modular\Models\SocialModel;
+namespace Modular\Models;
 
 /**
  *
  * Contact Information Model
  *
  */
-class ContactInfo extends SocialModel {
+class SocialContactInfo extends SocialModel {
 	private static $has_one = [
 	];
 
 	private static $db = [
-		"Address" => "Text",
+		"Address"     => "Text",
 		"PhoneNumber" => "Varchar",
-		"Email" => "Varchar",
-		"Location" => "Varchar",
+		"Email"       => "Varchar",
+		"Location"    => "Varchar",
 	];
 
 	private static $singular_name = 'Contact Information';
@@ -24,9 +24,9 @@ class ContactInfo extends SocialModel {
 	public function GoogleMap($w = 200, $h = 250) {
 		$loc = urlencode($this->Address . "," . $this->Location . "");
 		return "https://maps.googleapis.com/maps/api/staticmap?key=" . GOOGLE_MAP_API_KEY
-			. "&center=" . $loc
-			. "&zoom=14&size=" . $w . "x" . $h
-			. "&markers=size:small%7Ccolor:red%7Clabel:C%7C" . $loc;
+		. "&center=" . $loc
+		. "&zoom=14&size=" . $w . "x" . $h
+		. "&markers=size:small%7Ccolor:red%7Clabel:C%7C" . $loc;
 	}
 
 }

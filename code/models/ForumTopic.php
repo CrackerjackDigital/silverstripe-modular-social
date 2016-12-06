@@ -1,11 +1,10 @@
 <?php
-use Modular\Interfaces\SocialModel;
-use Modular\Models\SocialModel;
+namespace Modular\Models;
 
 /**
  * A Forum Topic public model.
  */
-class ForumTopic extends SocialModel implements SocialModel
+class SocialForumTopic extends SocialModel
 {
 	private static $singular_name = 'Forum Topic';
 
@@ -59,7 +58,7 @@ class ForumTopic extends SocialModel implements SocialModel
 	}
 
 	public function StartedBy() {
-		$StartedByObj = $this->RelatedMembers()->filter('ActionType.Code', 'MCT')->first();
+		$StartedByObj = $this->RelatedMembers()->filter('Type.Code', 'MCT')->first();
 		if ($StartedByObj) {
 			return $StartedByObj->FromMember();
 		}
@@ -76,7 +75,7 @@ class ForumTopic extends SocialModel implements SocialModel
 
 	//Get last topic posted in forum
 	public function LastPost() {
-		return Post::get()
+		return SocialPost::get()
 			->filter([
 				'ForumTopicID' => $this->ID,
 			])->sort("Created", "DESC")
@@ -85,10 +84,10 @@ class ForumTopic extends SocialModel implements SocialModel
 	}
 
 	public function canEdit($member = null) {
-		$StartedByObj = $this->RelatedMembers()->filter('ActionType.Code', 'MCT')->first();
+		$StartedByObj = $this->RelatedMembers()->filter('Type.Code', 'MCT')->first();
 		if ($StartedByObj) {
 			$ForumTopicOwner = $StartedByObj->FromMemberID;
-			if ($ForumTopicOwner == Member::currentUserID()) {
+			if ($ForumTopicOwner == \Member::currentUserID()) {
 				return true;
 			} else {
 				return false;

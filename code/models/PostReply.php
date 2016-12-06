@@ -1,12 +1,12 @@
 <?php
-use Modular\Models\SocialModel;
+namespace Modular\Models;
 
 /**
  *
  */
-class PostReply extends SocialModel implements SocialModelInterface {
+class SocialPostReply extends SocialModel {
 
-	private static $approveable_mode = Approveable::ApprovalAutomatic;
+	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalAutomatic;
 
 	private static $db = [
 		'Body' => 'Text',
@@ -28,7 +28,7 @@ class PostReply extends SocialModel implements SocialModelInterface {
 	];
 
 	public function getFieldsForMode($mode) {
-		return ModularModule::get_config_setting('fields_for_mode', $mode, __CLASS__);
+		return \Application::get_config_setting('fields_for_mode', $mode, __CLASS__);
 	}
 
 	public function endpoint() {

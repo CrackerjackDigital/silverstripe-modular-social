@@ -3,7 +3,7 @@ use Modular\Relationships\SocialHasMany;
 
 class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 
-	protected static $other_class = 'OrganisationProductAndServiceType';
+	protected static $other_class = 'SocialOrganisationProductAndServiceType';
 
 	protected static $other_field = 'ToProductAndServiceTypeID';
 
@@ -42,7 +42,7 @@ class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 	/**
 	 * Returns InterestTypes owner is related to.
 	 *
-	 * @return DataList|ArrayList of InterestType records
+	 * @return DataList|ArrayList of SocialInterestType records
 	 */
 	public function ProductsAndServices() {
 		return parent::getRelated();
@@ -117,7 +117,7 @@ class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 				if (!$checkProductInList) {
 					$newProductService = new self::$other_class;
 					$newProductService->Title = $value;
-					$newProductService->AllowedFrom = "Organisation";
+					$newProductService->AllowedFrom = "SocialOrganisation";
 					$newProductService->write();
 				}
 			}

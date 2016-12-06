@@ -1,12 +1,17 @@
 <?php
 namespace Modular\Relationships;
+use ArrayList;
+use Config;
+use DataObject;
+use FieldList;
 use Modular\Interfaces\ModelWriteHandlers;
+use SS_HTTPRequest;
 
 /**
  * Extension class for implementing HasMany actions, e.g. between a Member and InterestTypes
  */
 
-class SocialHasMany extends \Modular\ModelExtension implements ModelWriteHandlers  {
+abstract class SocialHasMany extends \Modular\ModelExtension implements ModelWriteHandlers  {
 	// foreign class should be set in implementation, e.g. 'SocialInterestType'
 	protected static $other_class;
 
@@ -17,7 +22,7 @@ class SocialHasMany extends \Modular\ModelExtension implements ModelWriteHandler
 	protected static $action_class;
 
 	// the name of the action on the primary data object, e.g. 'RelatedInterests'
-	protected static $action_name;
+	protected static $relationship_name;
 
 	// name of field added to form
 	protected static $field_name;
@@ -77,14 +82,14 @@ class SocialHasMany extends \Modular\ModelExtension implements ModelWriteHandler
 			if ($action) {
 				$actionClassName = static::$action_class;
 				$actionFieldName = 'From' . $this->owner->class . 'ID';
-				$actionName = static::$action_name;
+				$relationshipName = static::$relationship_name;
 
 				$actionRecord = new $actionClassName([
 					static::$other_field => $typeID,
 					$actionFieldName => $this->owner->ID,
 				]);
 
-				$this->owner->$actionName()->add($actionRecord);
+				$this->owner->$relationshipName()->add($actionRecord);
 			} else {
 				// TODO handle bad types better
 				//                throw new SS_HTTPResponse_Exception("Invalid type for {$this->owner->class}: $typeID", 400);
@@ -166,11 +171,11 @@ class SocialHasMany extends \Modular\ModelExtension implements ModelWriteHandler
 	 * @return mixed
 	 */
 	protected function actions() {
-		$actionName = static::$action_name;
+		$relationshipName = static::$relationship_name;
 
 		$allowedIDs = $this->getAllowedActionTypes()->column('ID');
 
-		$actions = $this->owner->$actionName();
+		$actions = $this->owner->$relationshipName();
 
 		return $actions->filter([
 			static::$other_field => $allowedIDs,

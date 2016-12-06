@@ -2,12 +2,7 @@
 use Modular\Relationships\SocialHasManyMany;
 
 class HasPostsExtension extends SocialHasManyMany {
-
-	protected static $other_class_name = 'Post';
-
-	protected static $other_key_field = 'ToPostID';
-
-	protected static $action_name = 'RelatedPosts';
+	const RelatedClassName = 'Modular\Models\SocialPost';
 
 	public function HasPosts($actionCodes = null) {
 		return $this->PostList($actionCodes)->count();
@@ -20,7 +15,7 @@ class HasPostsExtension extends SocialHasManyMany {
 	 * -
 	 *
 	 * @param null $actionCodes
-	 * @return array
+	 * @return \SS_List
 	 */
 	public function PostList($actionCodes = null) {
 		return parent::actionList($actionCodes);
@@ -52,7 +47,7 @@ class HasPostsExtension extends SocialHasManyMany {
 	 * @return int|null
 	 */
 	public function getPostID($actionCode) {
-		return parent::getActionName($actionCode);
+		return parent::firstRelatedID($actionCode);
 	}
 
 	/**
@@ -63,7 +58,7 @@ class HasPostsExtension extends SocialHasManyMany {
 	 * @return int
 	 */
 	public function hasPost($postID, $actionCode = null) {
-		return parent::hasAction($postID, $actionCode);
+		return parent::hasRelated($postID, $actionCode);
 	}
 
 	/**
@@ -77,7 +72,7 @@ class HasPostsExtension extends SocialHasManyMany {
 	 * @return bool
 	 */
 	public function addPost($postID, $actionCode) {
-		return parent::addAction($postID, $actionCode);
+		return parent::addRelated($postID, $actionCode);
 	}
 
 	/**
@@ -88,7 +83,7 @@ class HasPostsExtension extends SocialHasManyMany {
 	 * @return int count of actions deleted
 	 */
 	public function removePost($postID, $actionCode = null) {
-		return parent::removeAction($postID, $actionCode);
+		return parent::removeRelated($postID, $actionCode);
 	}
 
 	/**
@@ -98,7 +93,7 @@ class HasPostsExtension extends SocialHasManyMany {
 	 * @param $actionCode
 	 */
 	public function setPosts($postID, $actionCode) {
-		parent::setActions($postID, $actionCode);
+		parent::setRelated($postID, $actionCode);
 	}
 
 	/**

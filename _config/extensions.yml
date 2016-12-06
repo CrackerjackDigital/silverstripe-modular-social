@@ -11,9 +11,14 @@ Member:
     - Modular\Extensions\Model\SocialMember
     - Modular\Extensions\Model\Historical
 
+Modular\Types\SocialMembershipType:
+  extensions:
+    - Modular\Extensions\Acting
+
 # models and their controllers
 Modular\Models\SocialModel:
   extensions:
+    - Modular\Extensions\Acting
     - Modular\Extensions\UI\SocialActionButtons
     - Modular\Extensions\Model\Historical
 
@@ -21,8 +26,26 @@ Modular\Types\SocialType:
   extensions:
     - Modular\Extensions\Model\Historical
 
+Modular\Types\SocialInterestType:
+  extensions:
+    - Modular\Actions\Approveable
+
+Modular\Types\SocialOrganisationType:
+  extensions:
+    - Modular\Actions\Approveable
+
+Modular\Types\SocialOrganisationSubType:
+  extensions:
+    - Modular\Actions\Approveable
+
+Modular\Types\SocialOrganisationProductAndServiceType:
+  extensions:
+    - Modular\Actions\Approveable
+
+
 Modular\Controllers\SocialModel_Controller:
   extensions:
+    - Modular\Extensions\Acting
     - Modular\Extensions\UI\SocialActionLinks
     - Modular\Extensions\UI\SocialModalProvider
     - Modular\Extensions\Controller\SocialController
@@ -39,10 +62,6 @@ Modular\Edges\Social:
 Modular\Types\SocialAction:
   extensions:
     - Modular\Extensions\Model\Historical
-
-Modular\Models\Recipient:
-  has_one:
-    Notification: Modular\Models\SocialNotification
 
 Modular\Controllers\SocialOrganisation_Controller:
   extensions:

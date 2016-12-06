@@ -5,14 +5,17 @@ use ArrayList;
 use DataList;
 use DataObject;
 use Modular\config;
+use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Extensions\Model\SocialModel as SocialModelExtension;
+use Modular\Fields\Code;
 use Modular\Fields\SystemData;
+use Modular\Interfaces\GraphEdgeType;
 use Permission;
 use TreeDropdownField;
 
 /**
- * ActionType's are the core rules for the SocialModel system which describe what relationships are allowed between
+ * SocialActions are the core rules for the SocialModel system which describe what relationships are allowed between
  * what models, what actions can be performed to create/delete the actual relationship records
  * and who gets notified when one is made or broken.
  *
@@ -23,17 +26,19 @@ use TreeDropdownField;
  * @property string ParentCode
  * @method \SS_List NotifyMembers()
  * @method \SS_List NotifyGroups()
- * @method \SS_List ImpliedRelationshipTypes()
+ * @method \SS_List ImpliedActions()
  * @method SocialAction|null RequirePrevious()
  *
  */
-class SocialAction extends SocialType {
+class SocialAction extends SocialType implements GraphEdgeType {
 	use config;
 
 	const ActionCode                  = '';
 	const ActionName                  = '';
-	const RelationshipClassNameSuffix = 'Relationship';
-	const RelationshipNamePrefix      = 'Related';
+	const RelationshipClassNamePrefix = '';
+	const RelationshipClassNameSuffix = '';
+	const RelationshipNamePrefix      = '';
+	const RelationshipNameSuffix      = '';
 
 	private static $admin_groups = [
 		'administrators' => true,
@@ -69,12 +74,12 @@ class SocialAction extends SocialType {
 		'Relationships' => 'Modular\Edges\SocialRelationship',
 	];
 	private static $many_many = [
-		'ImpliedRelationshipTypes' => 'Modular\Types\SocialAction',  // when this relationship is created also create these between member and model
-		'NotifyMembers'            => 'Member',            // who (Members) get notified when made/broken
-		'NotifyGroups'             => 'Group',               // who (Security Groups) get notified
+		'ImpliedActions' => 'Modular\Types\SocialAction',  // when this relationship is created also create these between member and model
+		'NotifyMembers'  => 'Member',            // who (Members) get notified when made/broken
+		'NotifyGroups'   => 'Group',               // who (Security Groups) get notified
 	];
 	private static $belongs_many_many = [
-		'TriggerRelationshipType' => 'Modular\Types\SocialAction'  // back relationship to 'ImpliedRelationshipTypes'
+		'TriggerAction' => 'Modular\Types\SocialAction'  // back relationship to 'ImpliedActions'
 	];
 	private static $summary_fields = [
 		'Title',
@@ -187,35 +192,35 @@ class SocialAction extends SocialType {
 	 * Check a relationship of this type exists between two objects. Looks for relationships
 	 * and returns the last action of the type performed (in order of ID descending).
 	 *
-	 * @param int   $fromModelID
-	 * @param int   $toModelID
+	 * @param int   $nodeAID
+	 * @param int   $nodeBID
 	 * @param array $archetype
 	 * @return SocialRelationship|null
 	 */
-	public function checkRelationshipExists($fromModelID, $toModelID, &$archetype = []) {
-		return $this->buildRelationshipInstanceQuery(
-			$fromModelID,
-			$toModelID,
+	public function checkRelationshipExists($nodeAID, $nodeBID, &$archetype = []) {
+		return $this->buildGraphEdgeTypeInstanceQuery(
+			$nodeAID,
+			$nodeBID,
 			$archetype
 		)->sort('ID', 'desc')->first();
 	}
 
 	/**
-	 * Find the implied relationshipTypes for a given relationshipType and create those records in the database between the supplied models.
+	 * Find the implied actions for a given action and create those records in the database between the supplied models.
 	 *
 	 * @param \DataObject $fromModel
 	 * @param \DataObject $toModel
 	 */
-	public function createImpliedRelationships(DataObject $fromModel, DataObject $toModel) {
-		// add additional relationships between models as listed in SocialAction.ImpliedRelationshipTypes
+	public function createImpliedActions(DataObject $fromModel, DataObject $toModel) {
+		// add additional relationships between models as listed in SocialAction.ImpliedActions
 
-		foreach ($this->ImpliedRelationshipTypes() as $impliedRelationshipType) {
+		foreach ($this->ImpliedActions() as $impliedAction) {
 			// we might have a parent code so look up the suitable 'real' code.
 			/** @var SocialAction $implied */
 			$implied = SocialAction::get_heirarchy(
 				$fromModel,
 				$toModel,
-				$impliedRelationshipType->Code
+				$impliedAction->Code
 			)->first();
 
 			$impliedClassName = $implied->getRelationshipClassName();
@@ -230,74 +235,12 @@ class SocialAction extends SocialType {
 	}
 
 	/**
-	 * Build a query used in checking a SocialAction exists for the codes.
-	 */
-	public function buildRelationshipTypeQuery() {
-		$archetype = $this->buildRelationshipTypeArchetype();
-		return SocialAction::get()->filter($archetype);
-	}
-
-	/**
-	 * Build a filter array
-	 *
-	 * @param $actionCodes
-	 * @return array
-	 */
-	public function buildRelationshipTypeArchetype() {
-		return [
-			'AllowedFrom'        => $this->AllowedFrom,
-			'AllowedTo'          => $this->AllowedTo,
-			'RelationshipTypeID' => $this->RelationshipTypeID,
-		];
-	}
-
-	/**
-	 * Returns a query which uses this SocialAction to find records in a relationship
-	 * table which match the passed in object IDs. e.g. MemberOrganisationRelationship with
-	 * Member.ID = $formObjectID and OrganisationModelID = $toModelID
-	 *
-	 * NB we take ints not models here as the model class etc comes from instance of SocialAction
-	 *
-	 * @param int $fromModelID
-	 * @param int $toModelID
-	 * @return SS_List
-	 */
-	public function buildRelationshipInstanceQuery($fromModelID, $toModelID, &$archetype = null) {
-		if (!(is_numeric($fromModelID) && is_numeric($toModelID))) {
-			user_error(__METHOD__ . " expects IDs only, something else passed", E_USER_ERROR);
-			return null;
-		}
-		$archetype = $this->buildRelationshipInstanceArchetype($fromModelID, $toModelID);
-		$relationshipClassName = $this->getRelationshipClassName();
-		return $relationshipClassName::get()->filter($archetype);
-	}
-
-	/**
-	 * Build a filter and data array used in checking an instance of a relationship exists between two
-	 * objects of the provided type and for initialising a new relationship object.
-	 *
-	 * for use against e.g. this being a 'FOL' between Member 1 and SocialOrganisation 10
-	 *
-	 * @param $fromModelID
-	 * @param $toModelID
-	 * @return array
-	 */
-	public function buildRelationshipInstanceArchetype($fromModelID, $toModelID) {
-		return [
-			$this->getFromFieldName() => $fromModelID,
-			$this->getToFieldName()   => $toModelID,
-			'RelationshipTypeID'      => $this->ID,
-		];
-
-	}
-
-	/**
 	 * Return a class name like 'MemberOrganisationRelationship'
 	 *
 	 * @return string
 	 */
 	public function getRelationshipClassName() {
-		return $this->getFromName() . $this->getToName() . self::RelationshipClassNameSuffix;
+		return self::RelationshipClassNamePrefix . $this->getFromName() . $this->getToName() . self::RelationshipClassNameSuffix;
 	}
 
 	/**
@@ -306,7 +249,7 @@ class SocialAction extends SocialType {
 	 * @return string
 	 */
 	public function getRelationshipName() {
-		return self::RelationshipNamePrefix . $this->getToName() . 's';
+		return self::RelationshipNamePrefix . $this->getToName() . self::RelationshipNameSuffix;
 	}
 
 	/**
@@ -318,14 +261,14 @@ class SocialAction extends SocialType {
 	 * @return SocialRelationship
 	 */
 	public static function check_relationship_exists(DataObject $fromModel, DataObject $toModel, $actionCode) {
-		/** @var SocialAction $relationshipType */
-		$relationshipType = SocialAction::get_for_models(
+		/** @var SocialAction $action */
+		$action = SocialAction::get_by_edge_type_code(
 			$fromModel,
 			$toModel,
 			$actionCode
 		)->first();
 
-		return $relationshipType->checkRelationshipExists($fromModel->ID, $toModel->ID);
+		return $action->checkRelationshipExists($fromModel->ID, $toModel->ID);
 	}
 
 	/**
@@ -338,15 +281,6 @@ class SocialAction extends SocialType {
 	}
 
 	/**
-	 * Return a mangled class name like 'SocialOrganisation' from AllowedTo 'SocialOrganisation'
-	 *
-	 * @return string
-	 */
-	private function getToName() {
-		return SocialModelExtension::name_from_class_name($this->AllowedTo);
-	}
-
-	/**
 	 * Return a field name like 'FromOrganisationID' using AllowedFrom
 	 *
 	 * @return string
@@ -356,12 +290,93 @@ class SocialAction extends SocialType {
 	}
 
 	/**
+	 * Return a mangled class name like 'SocialOrganisation' from AllowedTo 'SocialOrganisation'
+	 *
+	 * @return string
+	 */
+	private function getToName() {
+		return SocialModelExtension::name_from_class_name($this->AllowedTo);
+	}
+
+	/**
 	 * Return a field name like 'ToOrganisationID' using AllowedTo
 	 *
 	 * @return string
 	 */
 	public function getToFieldName() {
 		return 'To' . $this->getToName() . 'ID';
+	}
+
+	/**
+	 * Social Action uses the 'Code' field to store type
+	 *
+	 * @return string
+	 */
+	public static function edge_type_field_name() {
+		return Code::single_field_name();
+	}
+
+	/**
+	 * Return a query which uses the ArchType
+	 */
+	public function buildGraphEdgeTypeQuery() {
+		$archetype = $this->buildGraphEdgeTypeArchetype();
+		return SocialAction::get()->filter($archetype);
+	}
+
+	/**
+	 * Returns a filter array used to locate Edge types (e.g. 'SocialAction' models)
+	 *
+	 * @return array
+	 */
+	public function buildGraphEdgeTypeArchetype() {
+		$typeFieldName = static::edge_type_field_name();
+		return [
+			'AllowedFrom'  => $this->AllowedFrom,
+			'AllowedTo'    => $this->AllowedTo,
+			$typeFieldName => $this->{$typeFieldName},
+		];
+	}
+
+	/**
+	 * Returns a query which uses this SocialAction to find records in a relationship
+	 * table which match the passed in object IDs. e.g. MemberOrganisationRelationship with
+	 * Member.ID = $formObjectID and OrganisationModelID = $nodeBID
+	 *
+	 * NB we take ints not models here as the model class etc comes from instance of SocialAction
+	 *
+	 * @param int        $nodeAID
+	 * @param int        $nodeBID
+	 * @param array|null $archetype will be filled with an 'archtype' which can be used to build queries on the relationship
+	 * @return \SS_List
+	 */
+	public function buildGraphEdgeTypeInstanceQuery($nodeAID, $nodeBID, &$archetype = []) {
+		if (!(is_numeric($nodeAID) && is_numeric($nodeBID))) {
+			user_error(__METHOD__ . " expects IDs only, something else passed", E_USER_ERROR);
+			return null;
+		}
+		$archetype = $this->buildGraphEdgeTypeArchtype($nodeAID, $nodeBID);
+		$relationshipClassName = $this->getRelationshipClassName();
+		return $relationshipClassName::get()->filter($archetype);
+	}
+
+	/**
+	 * Build a filter and data array used in checking an instance of a relationship exists between two
+	 * objects of the provided type and for initialising a new relationship object.
+	 *
+	 * for use against e.g. this being a 'FOL' between Member 1 and SocialOrganisation 10
+	 *
+	 * @param $nodeAID
+	 * @param $nodeBID
+	 * @return array
+	 */
+	public function buildGraphEdgeTypeArchtype($nodeAID, $nodeBID) {
+		return [
+			$this->getFromFieldName() => $nodeAID,
+			$this->getToFieldName()   => $nodeBID,
+			'ActionID'                => $this->ID,
+		];
+
 	}
 
 	/**
@@ -419,11 +434,11 @@ class SocialAction extends SocialType {
 	 * e.g. passing 'LIK' will return 'MLO', 'MLG' etc which are children of the 'LIK' record. Does not return the
 	 * 'LIK' record.
 	 *
-	 * @param string|array $parentRelationshipTypeCodes
+	 * @param string|array $parentActionCodes
 	 * @return SS_List
 	 */
-	public static function get_by_parent($parentRelationshipTypeCodes) {
-		return SocialAction::get()->filter('ParentCode', $parentRelationshipTypeCodes);
+	public static function get_by_parent($parentActionCodes) {
+		return SocialAction::get()->filter('ParentCode', $parentActionCodes);
 	}
 
 	/**
@@ -464,6 +479,25 @@ class SocialAction extends SocialType {
 	}
 
 	/**
+	 * Returns all defined Actions from one model to another,
+	 * optionally filtered by passed SocialAction.Codes
+	 *
+	 * @param string|DataObject $fromModelClass
+	 * @param string|DataObject $toModelClass
+	 * @param array             $actionCodes
+	 * @return DataList
+	 */
+	public static function get_by_edge_type_code($fromModelClass, $toModelClass, $actionCodes = null) {
+		if (is_object($fromModelClass)) {
+			$fromModelClass = get_class($fromModelClass);
+		}
+		if (is_object($toModelClass)) {
+			$toModelClass = get_class($toModelClass);
+		}
+		return SocialAction::get_heirarchy($fromModelClass, $toModelClass, $actionCodes);
+	}
+
+	/**
 	 * Check to see if valid permissions to perform an actione exist between two objects.
 	 *
 	 * The 'from' object is generally (and by default) the logged in member, the 'to' object is e.g. an SocialOrganisation
@@ -500,10 +534,10 @@ class SocialAction extends SocialType {
 		}
 		$permissionOK = false;
 
-		$relationshipTypes = SocialAction::get_heirarchy($fromModelOrLoggedInMember, $toModel, $actionCodes);
+		$actions = SocialAction::get_heirarchy($fromModelOrLoggedInMember, $toModel, $actionCodes);
 
 		// get the ids of permissions for the allowed relationships (and Codes to help debugging)
-		if ($permissionIDs = $relationshipTypes->map('PermissionID', 'Code')->toArray()) {
+		if ($permissionIDs = $actions->map('PermissionID', 'Code')->toArray()) {
 
 			// get the codes for those permissions using keys from map
 			if ($permissions = Permission::get()->filter('ID', array_keys($permissionIDs))) {
@@ -524,7 +558,7 @@ class SocialAction extends SocialType {
 
 				if ($permissionOK && $toModel->ID && $checkObjectInstances) {
 
-					$actionCodes = $relationshipTypes->column('Code');
+					$actionCodes = $actions->column('Code');
 
 					$permissionOK = self::check_rules(
 						$fromModelOrLoggedInMember,
@@ -582,13 +616,13 @@ class SocialAction extends SocialType {
 		$fromModel = $fromModel ?: $member;
 
 		// get all the ADM type relationships for the models
-		$relationshipTypes = SocialAction::get_for_models(
+		$actions = SocialAction::get_by_edge_type_code(
 			$fromModel,
 			$toModel
 		)->filter('ParentCode', 'ADM');
 
-		// get the permission IDs for the admin relationshipTypes for the models and check the member has them
-		if ($permissionIDs = $relationshipTypes->map('PermissionID', 'Code')->toArray()) {
+		// get the permission IDs for the admin actions for the models and check the member has them
+		if ($permissionIDs = $actions->map('PermissionID', 'Code')->toArray()) {
 			if ($permissionCodes = Permission::get()->filter('ID', $permissionIDs)->column('Code')) {
 				return Permission::checkMember($member, $permissionCodes, "any");
 			}
@@ -609,8 +643,8 @@ class SocialAction extends SocialType {
 	 * @return boolean
 	 */
 	public static function check_rules(DataObject $fromModel, DataObject $toModel, $actionCodes, array &$requirementTally = []) {
-		// e.g. get all 'EDT' RelationshipTypes from e.g. Model to SocialOrganisation
-		$relationshipTypes = SocialAction::get_heirarchy(
+		// e.g. get all 'EDT' Actions from e.g. Model to SocialOrganisation
+		$actions = SocialAction::get_heirarchy(
 			$fromModel,
 			$toModel,
 			$actionCodes
@@ -619,35 +653,35 @@ class SocialAction extends SocialType {
 		$old = SystemData::disable();
 		// check each relationships 'RequirePrevious' exists in the corresponding relationship table for the model
 		// instances
-		/** @var SocialAction $relationshipType */
-		foreach ($relationshipTypes as $relationshipType) {
+		/** @var SocialAction $action */
+		foreach ($actions as $action) {
 			// NB: only handle has_ones at the moment, need to refactor if we move to multiple previous requirements
-			if ($relationshipType->RequirePreviousID) {
+			if ($action->RequirePreviousID) {
 
-				/** @var SocialAction $requiredRelationshipType */
-				$requiredRelationshipType = SocialAction::get()->byID($relationshipType->RequirePreviousID);
+				/** @var SocialAction $requiredAction */
+				$requiredAction = SocialAction::get()->byID($action->RequirePreviousID);
 
 				// now we have a required SocialAction which may be a parent or child
 				// if a parent we can't check the relationship exists directly, as there
 				// are no Allowed... constraints on a parent, so we need to get the child
-				// relationshipType which matches the parent code. e.g. for a CRT we need to
+				// action which matches the parent code. e.g. for a CRT we need to
 				// get the MemberOrganisationRelationship record with 'MCO'
 
-				if (!$requiredRelationshipType->ParentID) {
-					$requiredRelationshipType = SocialAction::get()->filter([
+				if (!$requiredAction->ParentID) {
+					$requiredAction = SocialAction::get()->filter([
 						'AllowedFrom' => $fromModel->class,
 						'AllowedTo'   => $toModel->class,
-						'ParentCode'  => $requiredRelationshipType->Code,
+						'ParentCode'  => $requiredAction->Code,
 					])->first();
 				}
 				// get the instance of the required relationship if it exists
-				$requiredRelationship = $requiredRelationshipType->checkRelationshipExists(
+				$requiredRelationship = $requiredAction->checkRelationshipExists(
 					$fromModel->ID,
 					$toModel->ID
 				);
 				$recordExists = (bool) $requiredRelationship;
 
-				$requirementTally[ $requiredRelationshipType->Code ] = $recordExists;
+				$requirementTally[ $requiredAction->Code ] = $recordExists;
 			}
 		}
 		SystemData::enable($old);
@@ -682,25 +716,25 @@ class SocialAction extends SocialType {
 	 * @param array       $actionCodes expected to be already a heirarchy
 	 * @return bool true if an implied rule satisfying existing rules was found
 	 */
-	public static function check_implied_rules(DataObject $fromModel, DataObject $toModel, $actionCodes) {
+	protected static function check_implied_rules(DataObject $fromModel, DataObject $toModel, $actionCodes) {
 		// we start with fail as we are relying on an implied rule to make permissions OK
 		$permissionOK = false;
 
 		$old = SystemData::disable();
 
-		$relationshipTypes = SocialAction::get_heirarchy($fromModel, $toModel, $actionCodes);
+		$actions = SocialAction::get_heirarchy($fromModel, $toModel, $actionCodes);
 
-		/** @var SocialAction $relationshipType */
-		foreach ($relationshipTypes as $relationshipType) {
+		/** @var SocialAction $action */
+		foreach ($actions as $action) {
 
 			// if the relationship type requires a previous to have been made/action performed
-			if ($relationshipType->RequirePreviousID) {
+			if ($action->RequirePreviousID) {
 				// get the required relationship
-				/** @var SocialAction $requiredRelationshipType */
-				if ($requiredRelationshipType = SocialAction::get()->byID($relationshipType->RequirePreviousID)) {
+				/** @var SocialAction $requiredAction */
+				if ($requiredAction = SocialAction::get()->byID($action->RequirePreviousID)) {
 
 					// get the SocialModel class name for this particular SocialAction
-					$relationshipClassName = $relationshipType->getRelationshipClassName();
+					$relationshipClassName = $action->getRelationshipClassName();
 					$previous = $relationshipClassName::history(
 						$fromModel,
 						$toModel
@@ -709,7 +743,7 @@ class SocialAction extends SocialType {
 					/** @var SocialRelationship $prev */
 					foreach ($previous as $prev) {
 						// search previous relationships for an implied relationship matching the expected one
-						if ($found = $prev->RelationshipType()->ImpliedRelationshipTypes()->find('ID', $requiredRelationshipType->ID)) {
+						if ($found = $prev->Action()->ImpliedActions()->find('ID', $requiredAction->ID)) {
 							$permissionOK = true;
 							// break out of both foreach loops so we can continue to enable SystemData again so can't early return.
 							break 2;
@@ -722,25 +756,6 @@ class SocialAction extends SocialType {
 		SystemData::enable($old);
 		// will only be true if an implied rule was found
 		return $permissionOK;
-	}
-
-	/**
-	 * Returns all defined RelationshipTypes from one model to another,
-	 * optionally filtered by passed SocialAction.Codes
-	 *
-	 * @param string|DataObject $fromModelClass
-	 * @param string|DataObject $toModelClass
-	 * @param array             $actionCodes
-	 * @return DataList
-	 */
-	public static function get_for_models($fromModelClass, $toModelClass, $actionCodes = null) {
-		if (is_object($fromModelClass)) {
-			$fromModelClass = get_class($fromModelClass);
-		}
-		if (is_object($toModelClass)) {
-			$toModelClass = get_class($toModelClass);
-		}
-		return SocialAction::get_heirarchy($fromModelClass, $toModelClass, $actionCodes);
 	}
 
 	/**

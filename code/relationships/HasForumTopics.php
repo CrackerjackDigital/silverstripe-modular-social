@@ -1,11 +1,9 @@
 <?php
+use Modular\Actions\NewsFeed;
 use Modular\Relationships\SocialHasManyMany;
 
 class HasForumTopicsExtension extends SocialHasManyMany {
-
-	protected static $other_class_name = 'ForumTopic';
-
-	protected static $action_name = 'RelatedForumTopics';
+	const RelatedClassName = 'Modular\Models\SocialForumTopic';
 
 	public function HasForumTopics($actionCodes = null) {
 		return $this->ForumTopicList($actionCodes)->count();
@@ -18,7 +16,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	 * -
 	 *
 	 * @param null $actionCodes
-	 * @return array
+	 * @return \SS_List
 	 */
 	public function ForumTopicList($actionCodes = null) {
 		return parent::actionList($actionCodes);
@@ -50,7 +48,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	 * @return int|null
 	 */
 	public function getForumTopicID($actionCode = null) {
-		return parent::getActionName($actionCode);
+		return parent::firstRelatedID($actionCode);
 	}
 
 	/**
@@ -61,7 +59,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	 * @return int
 	 */
 	public function hasForumTopic($ForumTopicID, $actionCode = null) {
-		return parent::hasAction($ForumTopicID, $actionCode);
+		return parent::hasRelated($ForumTopicID, $actionCode);
 	}
 
 	/**
@@ -75,7 +73,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	 * @return bool
 	 */
 	public function addForumTopic($ForumTopicID, $actionCode) {
-		return parent::addAction($ForumTopicID, $actionCode);
+		return parent::addRelated($ForumTopicID, $actionCode);
 	}
 
 	/**
@@ -86,7 +84,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	 * @return int count of actions deleted
 	 */
 	public function removeForumTopic($ForumTopicID, $actionCode = null) {
-		return parent::removeAction($ForumTopicID, $actionCode);
+		return parent::removeRelated($ForumTopicID, $actionCode);
 	}
 
 	/**
@@ -96,7 +94,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	 * @param $actionCode
 	 */
 	public function setForumTopics($ForumTopicID, $actionCode) {
-		parent::setActions($ForumTopicID, $actionCode);
+		parent::setRelated($ForumTopicID, $actionCode);
 	}
 
 	/**
@@ -106,10 +104,10 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	 * @return DataList|ArrayList
 	 */
 	public function provideListItemsForAction($mode, $actionCodes = []) {
-		if ($mode === NewsFeedExtension::Action) {
+		if ($mode === NewsFeed::Action) {
 
 			$related = parent::related(
-				Action::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
+				\Modular\Types\SocialAction::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
 			);
 			return $related;
 		}

@@ -6,6 +6,8 @@ namespace Modular\Edges;
  */
 class OrganisationProductAndService extends SocialRelationship  {
 	const FromModelClass = 'Modular\Models\SocialOrganisation';
-	const ToModelClass   = 'Modular\Models\SocialOrganisationProductAndServiceType';
+	const ToModelClass   = 'Modular\Types\SocialOrganisationProductAndServiceType';
+	const FromFieldName = 'FromOrganisation';
+	const ToFieldName = 'ToProductAndService';
 
 }

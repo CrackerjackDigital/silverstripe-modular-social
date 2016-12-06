@@ -31,7 +31,7 @@ class SocialMember extends SocialModel  {
 	];
 	private static $has_one = [
 		'ProfileImage'   => 'Image',
-		'SocialMembershipType' => 'SocialMembershipType',
+		'MembershipType' => 'SocialMembershipType',
 	];
 	private static $belongs_many_many = [
 		'NotifyRelationshipTypes' => '\Modular\Types\SocialAction',

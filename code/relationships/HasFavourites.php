@@ -8,18 +8,18 @@ class HasFavouritesExtension extends SocialHasManyMany {
 	/**
 	 * Returns a list of
 	 */
-	public function HasFavourites($actionCodes = ['LIK', 'FOL'], $actionNames = ['RelatedMembers', 'RelatedOrganisations']) {
+	public function HasFavourites($actionCodes = ['LIK', 'FOL'], $relationshipNames = ['RelatedMembers', 'RelatedOrganisations']) {
 		$data = [
 			'Title' => _t('HasFavourites.WidgetTitle', 'Favourites', 'Favourites'),
 			'Content' => _t('HasFavourites.WidgetContent', 'Here are your favourites:'),
 			'Model' => $this->owner,
-			'ListItems' => $this->favouritesList($actionCodes, $actionNames)->reverse(),
+			'ListItems' => $this->favouritesList($actionCodes, $relationshipNames)->reverse(),
 
 		];
 		return new ArrayData($data);
 	}
 
-	private function favouritesList($parentActionCodes, $actionNames = []) {
-		return $this->relatedByParent($parentActionCodes, $actionNames);
+	private function favouritesList($parentActionCodes, $relationshipNames = []) {
+		return $this->relatedByParent($parentActionCodes, $relationshipNames);
 	}
 }

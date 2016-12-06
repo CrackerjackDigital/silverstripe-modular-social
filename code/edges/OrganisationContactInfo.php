@@ -2,10 +2,11 @@
 namespace Modular\Edges;
 
 /**
- * ActionType between a SocialOrganisation and Contact Info
+ * SocialRelationship between a SocialOrganisation and SocialContactInfo
  */
 class OrganisationContactInfo extends SocialRelationship  {
 	const FromModelClass = 'Modular\Models\SocialOrganisation';
 	const ToModelClass = 'Modular\Models\SocialContactInfo';
-
+	const FromFieldName = 'FromOrganisation';
+	const ToFieldName = 'ToContactInfo';
 }

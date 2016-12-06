@@ -3,6 +3,7 @@ namespace Modular\Extensions\Controller;
 
 use DataObject;
 use Modular\Actions\Editable;
+use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Interfaces\SocialModel;
 use Modular\Interfaces\SocialModelProvider;
@@ -113,5 +114,6 @@ abstract class SocialAction extends SocialController
 			$actionCode
 		);
 	}
+
 
 }

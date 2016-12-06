@@ -2,10 +2,8 @@
 use Modular\Relationships\SocialHasManyMany;
 
 class HasRssFeedsExtension extends SocialHasManyMany {
-
-	protected static $other_class_name = 'RssFeed';
-
-	protected static $action_name = 'RelatedRssFeeds';
+	const RelatedClassName = 'Modular\Models\SocialRSSFeed';
+	const RelationshipName = '';
 
 	public function HasRssFeeds($actionCodes = null) {
 		return $this->RssFeedList($actionCodes)->count();
@@ -18,7 +16,7 @@ class HasRssFeedsExtension extends SocialHasManyMany {
 	 * -
 	 *
 	 * @param null $actionCodes
-	 * @return array
+	 * @return \SS_List
 	 */
 	public function RssFeedList($actionCodes = null) {
 		return parent::actionList($actionCodes);
@@ -50,7 +48,7 @@ class HasRssFeedsExtension extends SocialHasManyMany {
 	 * @return int|null
 	 */
 	public function getRssFeedID($actionCode = null) {
-		return parent::getActionName($actionCode);
+		return parent::related($actionCode)->first();
 	}
 
 	/**
@@ -61,7 +59,7 @@ class HasRssFeedsExtension extends SocialHasManyMany {
 	 * @return int
 	 */
 	public function hasRssFeed($RssFeedID, $actionCode = null) {
-		return parent::hasAction($RssFeedID, $actionCode);
+		return parent::hasRelated($RssFeedID, $actionCode);
 	}
 
 	/**
@@ -75,7 +73,7 @@ class HasRssFeedsExtension extends SocialHasManyMany {
 	 * @return bool
 	 */
 	public function addRssFeed($RssFeedID, $actionCode) {
-		return parent::addAction($RssFeedID, $actionCode);
+		return parent::addRelated($RssFeedID, $actionCode);
 	}
 
 	/**
@@ -86,7 +84,7 @@ class HasRssFeedsExtension extends SocialHasManyMany {
 	 * @return int count of actions deleted
 	 */
 	public function removeRssFeed($RssFeedID, $actionCode = null) {
-		return parent::removeAction($RssFeedID, $actionCode);
+		return parent::removeRelated($RssFeedID, $actionCode);
 	}
 
 	/**
@@ -96,7 +94,7 @@ class HasRssFeedsExtension extends SocialHasManyMany {
 	 * @param $actionCode
 	 */
 	public function setRssFeeds($RssFeedID, $actionCode) {
-		parent::setActions($RssFeedID, $actionCode);
+		parent::setRelated($RssFeedID, $actionCode);
 	}
 
 	/**

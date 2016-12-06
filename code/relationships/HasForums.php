@@ -2,10 +2,7 @@
 use Modular\Relationships\SocialHasManyMany;
 
 class HasForumsExtension extends SocialHasManyMany {
-
-	protected static $other_class_name = 'ForumModel';
-
-	protected static $action_name = 'RelatedForums';
+	const RelatedClassName = 'Modular\Models\SocialForum';
 
 	public function HasForums($actionCodes = null) {
 		return $this->ForumList($actionCodes)->count();
@@ -18,7 +15,7 @@ class HasForumsExtension extends SocialHasManyMany {
 	 * -
 	 *
 	 * @param null $actionCodes
-	 * @return array
+	 * @return \SS_List
 	 */
 	public function ForumList($actionCodes = null) {
 		return parent::actionList($actionCodes);
@@ -50,7 +47,7 @@ class HasForumsExtension extends SocialHasManyMany {
 	 * @return int|null
 	 */
 	public function getForumID($actionCode = null) {
-		return parent::getActionName($actionCode);
+		return parent::firstRelatedID($actionCode);
 	}
 
 	/**
@@ -61,7 +58,7 @@ class HasForumsExtension extends SocialHasManyMany {
 	 * @return int
 	 */
 	public function hasForum($ForumID, $actionCode = null) {
-		return parent::hasAction($ForumID, $actionCode);
+		return parent::hasRelated($ForumID, $actionCode);
 	}
 
 	/**
@@ -75,7 +72,7 @@ class HasForumsExtension extends SocialHasManyMany {
 	 * @return bool
 	 */
 	public function addForum($ForumID, $actionCode) {
-		return parent::addAction($ForumID, $actionCode);
+		return parent::addRelated($ForumID, $actionCode);
 	}
 
 	/**
@@ -86,7 +83,7 @@ class HasForumsExtension extends SocialHasManyMany {
 	 * @return int count of actions deleted
 	 */
 	public function removeForum($ForumID, $actionCode = null) {
-		return parent::removeAction($ForumID, $actionCode);
+		return parent::removeRelated($ForumID, $actionCode);
 	}
 
 	/**
@@ -96,6 +93,6 @@ class HasForumsExtension extends SocialHasManyMany {
 	 * @param $actionCode
 	 */
 	public function setForums($ForumID, $actionCode) {
-		parent::setActions($ForumID, $actionCode);
+		parent::setRelated($ForumID, $actionCode);
 	}
 }

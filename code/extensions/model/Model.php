@@ -15,13 +15,13 @@ use Modular\Actions\Listable;
 use Modular\Actions\Registerable;
 use Modular\Actions\Viewable;
 use Modular\debugging;
-use Modular\Edges\SocialRelationship as Edge;
 use Modular\enabler;
 use Modular\Exceptions\Exception;
 use Modular\Forms\SocialForm;
 use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\ModelExtension;
+use Modular\reflection;
 use Modular\Types\SocialAction;
 use RequiredFields;
 use UploadField;
@@ -34,6 +34,7 @@ use UploadField;
 class SocialModel extends ModelExtension implements SocialModelInterface  {
 	use debugging;
 	use enabler;
+	use reflection;
 
 	// models are suffixed e.g. 'SocialOrganisation', except where external such as 'Member'
 	const ModelClassNameSuffix = 'Model';
@@ -83,93 +84,6 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 */
 	public function canView($member = null) {
 		return $this->canDoIt(Viewable::ActionCode);
-	}
-
-	/**
-	 * Return all the actions performed on the extended model by the actor.
-	 *
-	 * @param string            $forAction           a relationship type/action Code e.g. 'CRT' or empty for all
-	 * @param string|DataObject $actorModels         of the class related to the extended model,
-	 *                                               e.g. 'Member' or 'SocialOrganisation'
-	 * @return \ArrayList of all ManyManyRelationships which match passed criteria.
-	 */
-	public function Actions($forAction = '', $actorModels = 'Member') {
-		$actorModels = is_object($actorModels) ? get_class($actorModels) : $actorModels;
-
-		if (!is_array($actorModels)) {
-			$actorModels = [$actorModels];
-		}
-
-		/** @var string|Edge $relationshipClass */
-		$relationshipClasses = Edge::implementors(
-			$actorModels,
-			$this()->ClassName
-		);
-		$out = new \ArrayList();
-
-		foreach ($relationshipClasses as $relationshipClass) {
-			/** @var DataList $actions */
-			$actions = $relationshipClass::get()->filter([
-				$relationshipClass::to_field_name() => $this()->ID,
-			]);
-			if ($forAction) {
-				$actions = $actions->filter([
-					'Type.Code' => $forAction,
-				]);
-			}
-			$out->merge($actions);
-		}
-		return $out;
-	}
-
-	/**
-	 * Return all the Actors who performed actions on the extended model, by default Members.
-	 *
-	 * @param string $forAction
-	 * @param string $actorModel
-	 * @return \ArrayList
-	 */
-	public function Actors($forAction = '', $actorModel = 'Member') {
-		$actions = $this->Actions($forAction, $actorModel);
-
-		/** @var string|Edge $relationshipClass */
-		$relationshipClass = Edge::implementors(
-			$actorModel,
-			$this()->ClassName
-		);
-
-		return $actions->filter([
-			'ID' => $actions->column($relationshipClass::from_field_name()),
-		]);
-	}
-
-	/**
-	 * Return the historically first actor who did an action on the extended model. Can be used in templates
-	 * e.g. FirstActor(CRT) will get you the creator of a model.
-	 *
-	 * @param string            $forAction  a relationship type/action Code e.g. 'CRT'
-	 * @param string|DataObject $actorModel of the class related to the extended model, e.g. 'Member'
-	 * @return \DataObject
-	 */
-	public function FirstActor($forAction, $actorModel = 'Member') {
-		$actorModel = is_object($actorModel) ? $actorModel->ClassName : $actorModel;
-
-		$action = $this->Actors($forAction, $actorModel)->sort('Created asc')->first();
-		return ($action && $action->exists()) ? $action->getFrom() : null;
-	}
-
-	/**
-	 * Return the historically last actor who did an action on the extended model.
-	 *
-	 * @param string            $forAction  a relationship type/action Code e.g. 'CRT'
-	 * @param string|DataObject $actorModel of the class related to the extended model, e.g. 'Member'
-	 * @return \DataObject
-	 */
-	public function LastActor($forAction, $actorModel = 'Member') {
-		$actorModel = is_object($actorModel) ? $actorModel->ClassName : $actorModel;
-
-		$action = $this->Actors($forAction, $actorModel)->sort('Created desc')->first();
-		return ($action && $action->exists()) ? $action->getFrom() : null;
 	}
 
 	/**
@@ -633,17 +547,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		}
 	}
 
-	/**
-	 * Strip self::ModelClassNameSuffix from the end of a class name if it is there.
-	 * e.g. SocialOrganisation -> SocialOrganisation.
-	 *
-	 * @param $className
-	 * @return string
-	 */
-	public static function name_from_class_name($className) {
-		$len = strlen(self::ModelClassNameSuffix);
-		return substr($className, -$len, $len) === self::ModelClassNameSuffix ? substr($className, 0, -$len) : $className;
-	}
+
 
 	/**
 	 * Return the owner's route_part in the case of Model Extensions.
@@ -663,10 +567,10 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 */
 	protected static function remove_own_fields(FieldList $fields, $removeDBFields = true, $removeHasOneFields = true) {
 		$ownDBFields = $removeDBFields
-			? (Config::inst()->get(get_called_class(), 'db') ?: [])
+			? (Config::inst()->get(get_called_class(), 'db', Config::UNINHERITED) ?: [])
 			: [];
 		$ownHasOneFields = $removeHasOneFields
-			? (Config::inst()->get(get_called_class(), 'has_one') ?: [])
+			? (Config::inst()->get(get_called_class(), 'has_one', Config::UNINHERITED) ?: [])
 			: [];
 
 		$ownFields = array_merge(

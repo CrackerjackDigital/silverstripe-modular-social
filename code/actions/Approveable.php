@@ -275,7 +275,7 @@ class Approveable extends SocialModel {
 		if ($relationshipClassNames = SocialRelationship::implementors($fromModelClass, $this()->ClassName)) {
 			foreach ($relationshipClassNames as $relationshipClassName) {
 				// find the RelationshipTypes which deal with actions between the found relationships models
-				$relationshipTypes = SocialAction::get_for_models(
+				$relationshipTypes = SocialAction::get_by_edge_type_code(
 					$relationshipClassName::from_class_name(),
 					$relationshipClassName::to_class_name(),
 					$forActions

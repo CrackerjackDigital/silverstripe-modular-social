@@ -7,7 +7,7 @@ use FeedMeFeedModelExtension as FeedMeFeedModel;
  * @property string RssURL
  * @property string Interests
  *
- * @method MemberRssFeedAction[] RelatedMembers
+ * @method MemberRssFeed RelatedMembers()
  * @method Post[] Posts() returns an array of PostModels
  */
 class SocialRssFeed extends SocialModel implements \FeedMeFeedModelInterface  {

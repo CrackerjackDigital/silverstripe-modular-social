@@ -7,8 +7,13 @@ use DataList;
 use DataObject;
 use FieldList;
 use FormField;
+use Modular\Edges\SocialRelationship;
+use Modular\Extensions\Model\SocialModel;
+use Modular\Fields\HasManyManyGridField;
+use Modular\Interfaces\GraphEdgeType;
 use Modular\Object;
 use Modular\Types\SocialAction;
+use Modular\UI\Component;
 use SS_List;
 
 /**
@@ -29,38 +34,30 @@ use SS_List;
  *
  *
  */
-class SocialHasManyMany extends \Modular\ModelExtension {
+class SocialHasManyMany extends HasManyManyGridField {
+	const RelatedClassName    = '';
+	const ChooserClassName    = '';            # 'OrganisationChooserField'
+	const GridFieldConfigName = 'Modular\GridField\Configs\SocialModelGridFieldConfig';
+	const RelationshipPrefix  = 'Related';
+
 	private static $url_handlers = [
-		'$ID/related/$ActionName!' => 'related',
+		'$ID/related/$RelationshipName!' => 'related',
 	];
 	private static $allowed_actions = [
 		'related' => '->canShowRelated',
 	];
 
-	// required in implementation class name of other object (not owner's) e.g. 'Post'
-	protected static $other_class_name = '';
-
-	// optional if need to override manufactured one, e.g. 'ToPostID'
-	protected static $other_key_field = '';
-
-	// optional if need to override manufactured one, e.g. 'PostChooser'
-	protected static $chooser_field = '';
-
-	// if need to override manufactured one e.g. if action is 'RelatedPosts' but model is 'Post' not 'Post'.
-	protected static $action_name = '';
-
 	/**
-	 * Return form component used to modify this action. If no static::$chooser_field set then return null.
+	 * Return form component used to modify this action. If no static::ChooserFieldName set then return null.
 	 *
-	 * @return OrganisationChooserField
+	 * @return Component
 	 */
 	protected function Chooser() {
-		if (static::$chooser_field) {
-			$className = static::$chooser_field;
+		if ($className = static::chooser_class_name()) {
 			// create chooser field and set options to map of other class ID => Title
 			$field = (new $className())
 				->setOptions(
-					DataObject::get($this->getOtherClassName())->map()->toArray()
+					DataObject::get(static::related_class_name())->map()->toArray()
 				);
 
 			// TODO: why?
@@ -70,6 +67,10 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 
 			return $field;
 		}
+	}
+
+	public static function chooser_class_name() {
+		return static::ChooserClassName;
 	}
 
 	/**
@@ -90,7 +91,7 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 
 		foreach ($codes as $code) {
 			$listItems->merge(
-				$this->actions($code)
+				$this->relationships($code)
 			);
 		}
 		return $listItems;
@@ -98,9 +99,10 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 
 	/**
 	 * Update action fields by adding a chooser field which is found by:
-	 * - existence of class static::$chooser_field
-	 * - existence of class $this->getOtherClassName() . 'ChooserField' e.g. PostChooserField
-	 * - owner having method $this->getOtherClassName() . 'Chooser' e.g. PostChooser()
+	 * - existence of class static::ChooserClassName
+	 * - existence of class $this->to_class_name() . 'ChooserField' e.g. PostChooserField
+	 * - owner having method $this->to_class_name() . 'Chooser' e.g. PostChooser()
+	 * - just use the parent GridField as per Modular\HasManyManyGridField
 	 *
 	 * @param FieldList $fields
 	 * @param           $mode
@@ -108,9 +110,9 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, &$requiredFields = []) {
 		$chooser = null;
 
-		$otherClassName = $this->getOtherClassName();
+		$relatedClassName = static::related_class_name();
 
-		if ($chooserField = static::$chooser_field) {
+		if ($chooserField = static::chooser_class_name()) {
 
 			if (\ClassInfo::exists($chooserField)) {
 
@@ -118,16 +120,17 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 
 			} else {
 
-				if (ClassInfo::exists($otherClassName . 'ChooserField')) {
+				if (ClassInfo::exists($relatedClassName . 'ChooserField')) {
 
-					$chooser = Object::create_from_string($otherClassName . 'ChooserField');
+					$chooser = Object::create_from_string($relatedClassName . 'ChooserField');
 
-				} else if ($this()->hasMethod($otherClassName . 'Chooser')) {
+				} else if ($this()->hasMethod($relatedClassName . 'Chooser')) {
 
-					$chooserMethod = $otherClassName . 'Chooser';
+					$chooserMethod = $relatedClassName . 'Chooser';
 					$chooser = $this->$chooserMethod();
 				}
 			}
+
 			if ($chooser instanceof FormField) {
 
 				$fields->push(
@@ -150,8 +153,8 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 	public function updateSearchFields(FieldList &$fields, &$csvWhat) {
 		$csvWhat = is_array($csvWhat) ? $csvWhat : explode(',', $csvWhat);
 
-		if (in_array(static::$other_class_name, $csvWhat)) {
-			list($modelFields,) = singleton(static::$other_class_name)->getFieldsForMode('search');
+		if (in_array(static::related_class_name(), $csvWhat)) {
+			list($modelFields,) = singleton(static::related_class_name())->getFieldsForMode('search');
 			$fields->merge(
 				$modelFields
 			);
@@ -159,29 +162,97 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 	}
 
 	/**
-	 * Return queries which will retrieve models related to the extended class by action code, or if the model
-	 * has not been saved an empty ArrayList
+	 * Return the name of the relationship class from the extended model to the 'other' model. e.g. 'Modular\Edges\MemberMember'
+	 *
+	 * @param string|DataObject $fromModelClass
+	 * @return string
+	 */
+	public static function relationship_class_name($fromModelClass) {
+		$fromModelClass = is_object($fromModelClass) ? get_class($fromModelClass) : $fromModelClass;
+		// there should be only one in the list returned as both from and to are specified
+		return current(SocialRelationship::implementors(
+			$fromModelClass,
+			static::related_class_name()
+		));
+	}
+
+	/**
+	 * Return models related to the extended model by the given codes.
 	 *
 	 * @param null $actionCodes
 	 * @return DataList|ArrayList
 	 */
 	public function related($actionCodes = null) {
 		if ($this()->isInDB()) {
-			$otherKeyField = $this->getOtherKeyField();
+			/** @var \SS_List $relationships e.g. MemberOrganisations */
+			$relationships = static::relationships($actionCodes);
 
-			$actions = $this->actions($actionCodes);
-			if ($actions && $actions->count()) {
+			/** @var string|SocialRelationship $relationshipClassName e.g. 'MemberOrganisation' */
+			$relationshipClassName = static::relationship_class_name($this());
 
-				$ids = $actions->column($otherKeyField);
+			/** @var string $toFieldName e.g. 'ToOrganisationID' */
+			$toFieldName = $relationshipClassName::to_field_name();
 
-				if ($ids) {
-					$modelClass = $this->getOtherClassName();
+			// return MemberOrganisation records which have an ID in the list of MemberOrganisation.ToOrganisationID
+			return DataObject::get()->filter([
+				'ID' => $relationships->column($toFieldName),
+			]);
 
-					return DataObject::get($modelClass)->filter('ID', $ids);
-				}
-			}
 		}
 		return new ArrayList();
+	}
+
+	/**
+	 * Return owner's action records (not the Related foreign objects) optionally filtered by type. If the owner
+	 * isn't in the database then returns an empty ArrayList instead.
+	 *
+	 * @param null|string|array $actionCodes
+	 * @return SS_List|null
+	 */
+	public function relationships($actionCodes = null) {
+		if ($this()->isInDB()) {
+			/** @var SocialRelationship $relationshipClassName */
+			$relationshipClassName = static::relationship_class_name($this());
+			return $relationshipClassName::nodeA($this(), $actionCodes);
+		}
+		return new ArrayList();
+	}
+
+	/**
+	 * Return an initialised SocialRelationship object suitable from the extended model to the RelatedClassName.
+	 * Does not write it (and so no relationship is really created yet).
+	 *
+	 * @param string|DataObject|int $action
+	 * @return SocialRelationship
+	 */
+	public function createRelationshipModel($toModelOrID, $action, $data = []) {
+		$toModelID = is_object($toModelOrID)
+			? $toModelOrID->ID
+			: $toModelOrID;
+
+		$actionID = is_object($action)
+			? $action->ID
+			: (is_numeric($action)
+				? $action
+				: SocialAction::get_by_code($action));
+
+		/** @var string|SocialRelationship $relationshipClassName */
+		$relationshipClassName = static::relationship_class_name($this());
+
+		if ($toModelID && $actionID) {
+			return new $relationshipClassName(array_merge(
+				$data,
+				[
+					$relationshipClassName::from_field_name('ID') => $this()->ID,
+					$relationshipClassName::to_field_name('ID')   => $toModelID,
+					$relationshipClassName::type_field_name('ID') => $actionID,
+				]
+			));
+		} else {
+			$fromModelClass = get_class($this());
+			$toModelClass = static::relationship_class_name($this());
+			$this->debug_fail(new \Exception("Failed to create relationship '$relationshipClassName' model from '$fromModelClass' to '$toModelClass' type ID '$actionID'"));
+		}
 	}
 
 	/**
@@ -189,30 +260,30 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 	 * action codes and action names.
 	 *
 	 * @param string|array $parentActionCodes e.g. 'LIK,FOL'
-	 * @param array        $actionNames       e.g. 'Organisations'
+	 * @param array        $relationshipNames e.g. 'Organisations'
 	 * @return ArrayList
 	 */
-	protected function relatedByParent($parentActionCodes, $actionNames = []) {
+	protected function relatedByParent($parentActionCodes, $relationshipNames = []) {
 		$related = new ArrayList();
 
 		if ($this()->isInDB()) {
-			$actionNames = $actionNames
-				? (is_array($actionNames)
-					? $actionNames
-					: explode(',', $actionNames))
-				: [$this->getActionName()];
+			$relationshipNames = $relationshipNames
+				? (is_array($relationshipNames)
+					? $relationshipNames
+					: array_filter(explode(',', $relationshipNames)))
+				: [$this->relationship_name()];
 
 			// get action type records which are children of the passed in code.
 			$actionTypeIDs = SocialAction::get_by_parent($parentActionCodes)->column('ID');
 
 			// for each of the action names append records which match the current action type
-			foreach ($actionNames as $actionName) {
+			foreach ($relationshipNames as $relationshipName) {
 
-				// check we can call the actionName as a method
+				// check we can call the relationshipName as a method
 				// TODO hasAction doesn't work, I don't think hasMethod checks actions.
-				if (true || $this()->hasAction($actionName)) {
+				if (true || $this()->hasAction($relationshipName)) {
 					$actions = $this()
-						->$actionName()
+						->$relationshipName()
 						->filter('ActionTypeID', $actionTypeIDs);
 
 					foreach ($actions as $action) {
@@ -231,193 +302,141 @@ class SocialHasManyMany extends \Modular\ModelExtension {
 	}
 
 	/**
+	 * Return relationship types which can be created from this model to any other model
+	 *
+	 * @param string $actionCode e.g. 'CRT', 'REG'
+	 * @return GraphEdgeType|SocialAction|DataObject
+	 */
+	protected function action_for_code($actionCode) {
+		return SocialAction::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();
+	}
+
+	/**
 	 * Get first related instances's ID with provided action or return null if none such.
 	 *
 	 * @param $actionCode
 	 * @return int|null
 	 */
-	protected function getRelatedID($actionCode) {
-		if ($instance = $this->related($actionCode)->first()) {
-			return $instance->ID;
+	protected function firstRelatedID($actionCode) {
+		if ($model = $this->firstRelated($actionCode)) {
+			return $model->ID;
 		}
 	}
 
-	/**
-	 * Return name of 'other' class this owner is related to e.g. 'Post'.
-	 *
-	 * @return string
-	 */
-	protected function getOtherClassName() {
-		return static::$other_class_name;
-	}
-
-	/**
-	 * Return static::$other_key_field or manufactured e.g. 'ToPostID'.
-	 *
-	 * @return string
-	 */
-	protected function getOtherKeyField() {
-		$modelName = $this->getOtherClassName();
-		if (substr($modelName, -5, 5) === 'Model') {
-			$modelName = substr($modelName, 0, -5);
-		}
-		return static::$other_key_field ?: ('To' . $modelName . 'ID');
-	}
-
-	/**
-	 * Return name of action from owner to this action, either
-	 * overridden with static::$action_name or manufactured e.g. 'RelatedPosts'
-	 *
-	 * @return string
-	 */
-	protected function getActionName() {
-		return static::$action_name ?: ('Related' . $this->getOtherClassName() . 's');
+	protected function firstRelated($actionCode) {
+		return $this->related($actionCode)->first();
 	}
 
 	/**
 	 * Return first related instance found with ID and optionally actionCode.
 	 *
-	 * @param      $instanceID
+	 * @param int  $modelID
 	 * @param null $actionCode
 	 * @return \DataObject
 	 */
-	protected function hasAction($instanceID, $actionCode = null) {
-		$otherClassName = $this->getOtherClassName();
-		$otherKeyField = $this->getOtherKeyField();
+	protected function hasRelated($modelOrID, $actionCode = null) {
+		$model = is_object($modelOrID)
+			? $modelOrID->ID
+			: $modelOrID;
 
-		if ($action = $this->actions($actionCode)
-			->filter($otherKeyField, $instanceID)
-			->first()
-		) {
-
-			$otherID = $action->{$otherKeyField};
-
-			return DataObject::get_by_id($otherClassName, $otherID);
-		}
-		return null;
+		$related = static::related($actionCode);
+		return $related->filter('ID', $model->ID)->count();
 	}
 
 	/**
-	 * Relate an instance to this object by supplied action.
+	 * Relate a model to the extended model by supplied action.
 	 *
-	 * Creates a action class object if Instane and ActionType records
+	 * Creates a action class object if Model and SocialAction records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
-	 * @param int    $instanceID
+	 * @param int    $modelOrID
 	 * @param string $actionCode
-	 * @return bool
+	 * @param array  $extraData to add to the relationship model when it is created, won't update existing though
+	 * @return SocialRelationship|null
 	 */
-	protected function addAction($instanceID, $actionCode) {
-		if ($this->hasAction($instanceID, $actionCode)) {
-			return true;
-		}
-		$otherClassName = $this->getOtherClassName();
-		$otherKeyField = $this->getOtherKeyField();
+	protected function addRelated($modelOrID, $actionCode, $extraData = []) {
+		$relationship = null;
 
-		$instance = DataObject::get_by_id($otherClassName, $instanceID);
-		if ($instance) {
-			$actionType = $this->getAllowedActionTypes('SocialOrganisation')
-				->filter([
-					'Code' => $actionCode,
-				])->first();
+		if (!$this->hasRelated($modelOrID, $actionCode)) {
+			$relatedClassName = static::related_class_name();
+			$model = is_object($modelOrID)
+				? $modelOrID
+				: DataObject::get_by_id($relatedClassName, $modelOrID);
 
-			if ($actionType) {
-				$actionClassName = $this->getActionName();
-				$actionFieldName = 'From' . $this()->class . 'ID';
+			if ($model) {
+				// get the first action (e.g. SocialAction) allowed between the extended model
+				// and the related model with the supplied action code
+				$action = static::action_for_code($actionCode);
 
-				$actionRecord = new $actionClassName([
-					'ActionTypeID'   => $actionType->ID,
-					$actionFieldName => $this()->ID,
-					$otherKeyField   => $instanceID,
-				]);
+				if ($action) {
+					/** @var SocialRelationship $relationshipClassName */
+					$relationshipClassName = static::relationship_class_name($this());
 
-				$actionName = $this->getActionName();
+					/** @var SocialRelationship $relationship */
+					$relationship = static::relationship(
+						array_merge(
+							$extraData,
+							[
+								$relationshipClassName::type_field_name('ID') => $action->ID,
+								$relationshipClassName::from_field_name('ID') => $this()->ID,
+								$relationshipClassName::to_field_name('ID')   => $model->ID,
+							]
+						)
+					);
+					if ($relationship->write()) {
+						$relationshipName = static::relationship_name();
 
-				$this()->$actionName()->add($actionRecord);
-				return true;
+						$this()->$relationshipName()->add($relationship);
+					}
+
+				}
 			}
 		}
-		return false;
+		return $relationship;
 	}
 
 	/**
-	 * Remove actions from this object to an instance, optionally by a supplied type.
+	 * Remove relationship from this object to an instance, optionally by a supplied type.
 	 *
-	 * @param int         $instanceID
-	 * @param string|null $actionCode
+	 * @param int|DataObject    $modelOrID if null then all related by actionCodes will be removed
+	 * @param string|array|null $actionCodes
 	 * @return int count of actions deleted
 	 */
-	protected function removeAction($instanceID, $actionCode = null) {
-		$actions = $this()
-			->Action($actionCode)
-			->filter(static::$other_key_field, $instanceID);
+	protected function removeRelated($modelOrID = null, $actionCodes = []) {
 
-		$count = $actions->count();
+		$relationships = static::relationships($actionCodes);
 
-		foreach ($actions as $action) {
-			$action->delete();
+		if ($modelOrID) {
+			$modelID = is_object($modelOrID)
+				? $modelOrID->ID
+				: $modelOrID;
+
+			$relationships = $relationships->filter([
+				'ID' => $modelID,
+			]);
+		}
+
+		$count = $relationships->count();
+
+		foreach ($relationships as $relationship) {
+			$relationship->delete();
 		}
 		return $count;
 	}
 
 	/**
-	 * Clear out all actions of a provided type and add new one.
+	 * Clear out all related models of a provided type and add new one.
 	 *
-	 * @param $instanceID
-	 * @param $actionCode
+	 * @param int $modelID
+	 * @param     $actionCode
 	 */
-	protected function setActions($instanceID, $actionCode) {
-		if ($existing = $this->actions($actionCode)) {
+	protected function setRelated($modelID, $actionCode) {
+		if ($existing = $this->relationships($actionCode)) {
 			foreach ($existing as $action) {
 				$action->delete();
 			}
 		}
-		$this->addAction($instanceID, $actionCode);
-	}
-
-	/**
-	 * Return Actions allowed from this owner class to foreign class.
-	 *
-	 * @param $foreignClass
-	 * @return DataList
-	 */
-	private function getAllowedActions($foreignClass) {
-		$filters = [
-			'AllowedFrom' => $this()->class,
-			'AllowedTo'   => $foreignClass,
-		];
-		return SocialAction::get()->filter($filters);
-	}
-
-	/**
-	 * Return owner's action records (not the Related foreign objects) optionally filtered by type. If the owner
-	 * isn't in the database then returns an empty ArrayList instead.
-	 *
-	 * @param null|string|array $actionCodes
-	 * @return SS_List|null
-	 */
-	public function actions($actionCodes = null) {
-		if ($this()->isInDB()) {
-			$actionCodes = is_array($actionCodes) ? $actionCodes
-				: explode(',', $actionCodes);
-
-			// have to check or filter call errors with unsaved action error.
-			$actionName = $this->getActionName();
-
-			$actionClassName = $this->getOtherClassName();
-
-			if ($actionCodes && $this()->isInDB()) {
-				$actions = SocialAction::get_heirarchy($this(), $actionClassName, $actionCodes);
-
-				if ($actions->count()) {
-					return $this()->$actionName()->filter('ActionID', $actions->column('ID'));
-				}
-			} else {
-				// will be empty but useable (hence check for isInDB above which will return something which is not useable).
-				return $this()->$actionName();
-			}
-		}
-		return null;
+		$this->addRelated($modelID, $actionCode);
 	}
 
 }

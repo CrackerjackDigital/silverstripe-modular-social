@@ -42,7 +42,7 @@ class Confirmable extends SocialAction  {
 	}
 
 	public function Confirmed() {
-		return MemberMember::to(
+		return MemberMember::nodeB(
 			$this(),
 			'CRT'
 		)->first();
@@ -60,7 +60,7 @@ class Confirmable extends SocialAction  {
 	 */
 	public function checkPermissions($fromModel, $toModel, $actionTypeCode) {
 		if ($confirmed = !static::enabled()) {
-			$registrants = MemberMember::to($toModel, 'REG');
+			$registrants = MemberMember::nodeB($toModel, 'REG');
 
 			/** @var Confirmable $registrant */
 			foreach ($registrants as $registrant) {

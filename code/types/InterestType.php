@@ -10,13 +10,11 @@ class SocialInterestType extends SocialType {
 		'AllowedFrom' => 'Varchar(32)',
 	];
 	private static $has_one = [
+
 	];
 	private static $has_many = [
 		'Organisations' => 'OrganisationInterestAction.ToInterestType',
 		'Members'       => 'MemberInterestAction.ToInterestType',
-	];
-	private static $many_many = [
-
 	];
 	private static $many_many_extraFields = [
 	];

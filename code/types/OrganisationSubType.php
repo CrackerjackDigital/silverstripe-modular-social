@@ -9,10 +9,10 @@ namespace Modular\Types;
  */
 class SocialOrganisationSubType extends SocialType {
 	private static $has_one = [
-		'OrganisationType' => 'SocialOrganisationType',
+		'OrganisationType' => 'Modular\Types\SocialOrganisationType',
 	];
 	private static $belongs_many_many = [
-		'Organisations' => 'SocialOrganisation',
+		'Organisations' => 'Modular\Models\SocialOrganisation',
 	];
 	private static $singular_name = 'SocialOrganisation Sub-type';
 

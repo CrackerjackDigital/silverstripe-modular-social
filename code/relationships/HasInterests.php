@@ -7,7 +7,7 @@ class HasInterestsExtension extends SocialHasMany {
 
 	protected static $other_field = 'ToInterestTypeID';
 
-	protected static $action_name = 'RelatedInterests';
+	protected static $relationship_name = 'RelatedInterests';
 
 	protected static $action_class = 'GroupInterestAction';
 

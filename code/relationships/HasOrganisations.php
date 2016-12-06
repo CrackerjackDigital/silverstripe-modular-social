@@ -6,15 +6,7 @@ use Modular\Relationships\SocialHasManyMany;
  * Support functions for Classes which has_many MemberOrganisationAction.
  */
 class HasOrganisationsExtension extends SocialHasManyMany {
-	const RelatedClassName = 'SocialOrganisation';
-	const ActionName = 'RelatedOrganisations';
-	const OtherKeyField = 'ToOrganisationID';
-
-	protected static $other_class_name = self::RelatedClassName;
-
-	protected static $action_name = self::ActionName;
-
-	protected static $other_key_field = self::OtherKeyField;
+	const RelatedClassName = 'Modular\Models\SocialOrganisation';
 
 	/**
 	 * Return related Organisations with an optional action type.
@@ -33,7 +25,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	 * @return int|null
 	 */
 	public function getOrganisationID($actionCode = 'MRO') {
-		return parent::getRelatedID($actionCode);
+		return parent::firstRelatedID($actionCode);
 	}
 
 	/**
@@ -43,7 +35,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	 * @return int|null
 	 */
 	public function getOrganisation($actionCode = 'MRO') {
-		return parent::getRelated($actionCode);
+		return parent::firstRelated($actionCode);
 	}
 
 	/**
@@ -54,7 +46,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	 * @return int
 	 */
 	public function hasOrganisation($organisationID, $actionCode = null) {
-		return parent::hasAction($organisationID, $actionCode);
+		return parent::hasRelated($organisationID, $actionCode);
 	}
 
 	/**
@@ -68,7 +60,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	 * @return bool
 	 */
 	public function addOrganisation($organisationID, $actionCode) {
-		return parent::addAction($organisationID, $actionCode);
+		return parent::addRelated($organisationID, $actionCode);
 	}
 
 	/**
@@ -79,7 +71,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	 * @return int count of actions deleted
 	 */
 	public function removeOrganisation($organisationID, $actionCode = null) {
-		return parent::removeAction($organisationID, $actionCode);
+		return parent::removeRelated($organisationID, $actionCode);
 	}
 
 	/**
@@ -89,7 +81,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	 * @param $actionCode
 	 */
 	public function setOrganisation($organisationID, $actionCode) {
-		parent::setActions($organisationID, $actionCode);
+		parent::setRelated($organisationID, $actionCode);
 	}
 
 	/**

@@ -7,7 +7,7 @@ class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 
 	protected static $other_field = 'ToProductAndServiceTypeID';
 
-	protected static $action_name = 'RelatedProductsAndServices';
+	protected static $relationship_name = 'RelatedProductsAndServices';
 
 	protected static $action_class = 'OrganisationProductAndServiceAction';
 

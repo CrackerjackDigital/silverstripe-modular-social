@@ -7,7 +7,7 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Listable extends SocialAction  {
-	const ActionTypeCode = 'VEW';
+	const ActionCode = 'VEW';
 	const Action = 'list';
 
 	private static $url_handlers = [
@@ -31,7 +31,7 @@ class Listable extends SocialAction  {
 	 * @return bool
 	 */
 	public function canList($source = null) {
-		return parent::canDoIt(self::ActionTypeCode, $source);
+		return parent::canDoIt(self::ActionCode, $source);
 	}
 
 	/**

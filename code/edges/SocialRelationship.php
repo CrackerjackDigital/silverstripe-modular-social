@@ -8,8 +8,4 @@ class SocialRelationship extends Directed {
 	const NodeAClassName = 'Modular\Models\SocialModel';
 	const NodeBClassName = 'Modular\Models\SocialModel';
 
-	private static $db = [
-		'RelationshipReference' => 'Varchar(255)'
-	];
-
 }

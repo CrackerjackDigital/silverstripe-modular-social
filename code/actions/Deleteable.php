@@ -6,7 +6,7 @@ use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;
 
 class Deleteable extends SocialAction  {
-    const ActionTypeCode = 'DEL';
+    const ActionCode = 'DEL';
     const Action = 'delete';
 
     private static $url_handlers = [
@@ -32,7 +32,7 @@ class Deleteable extends SocialAction  {
      * @return bool|int|void
      */
     public function canDelete($source = null) {
-        return parent::canDoIt(self::ActionTypeCode, $source);
+        return parent::canDoIt(self::ActionCode, $source);
     }
 
     /**

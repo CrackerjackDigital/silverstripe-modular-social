@@ -7,6 +7,6 @@ namespace Modular\Edges;
 class MemberInterest extends SocialRelationship {
 	const FromModelClass = 'Member';
 	const ToModelClass   = 'Modular\Types\SocialInterestType';
-	const FromFieldName = 'FromMember';
-	const ToFieldName = 'ToInterest';
+	// const FromFieldName = 'FromModel';
+	// const ToFieldName = 'ToInterest';
 }

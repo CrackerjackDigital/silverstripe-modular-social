@@ -24,8 +24,8 @@ class SocialPost extends SocialModel implements \FeedMeItemModelInterface {
 		'ForumTopic' => 'ForumTopic', // traditional SS has_many from ForumTopic
 	];
 	private static $has_many = [
-		'RelatedMembers'      => 'MemberPostAction.ToPost',
-		'RelatedOrganisation' => 'OrganisationPostAction.ToPost',
+		'RelatedMembers'      => 'MemberPost.ToModel',
+		'RelatedOrganisation' => 'OrganisationPost.ToModel',
 		'PostReplies'         => 'PostReply',
 	];
 	private static $singular_name = 'Post';
@@ -107,14 +107,14 @@ class SocialPost extends SocialModel implements \FeedMeItemModelInterface {
 				->filter('Type.Code', 'MCP')
 				->first();
 			if ($creator) {
-				return $creator->FromMember();
+				return $creator->FromModel();
 			};
 		} else if ($this->PostAs == "SocialOrganisation") {
 			$creator = $this->RelatedOrganisation()
 				->filter('Type.Code', 'OCP')
 				->first();
 			if ($creator) {
-				return $creator->FromOrganisation();
+				return $creator->FromModel();
 			};
 		} else {
 			return _t('Post.UnknownPosterText', '[unknown]');
@@ -177,7 +177,7 @@ class SocialPost extends SocialModel implements \FeedMeItemModelInterface {
 	public function canEdit($member = null) {
 		$StartedByObj = $this->RelatedMembers()->filter(['Type.Code' => 'MCP'])->first();
 		if ($StartedByObj) {
-			$ForumTopicOwner = $StartedByObj->FromMemberID;
+			$ForumTopicOwner = $StartedByObj->FromModelID;
 			if ($ForumTopicOwner == Member::currentUserID()) {
 				return true;
 			} else {

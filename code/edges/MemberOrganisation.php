@@ -7,8 +7,8 @@ namespace Modular\Edges;
 class MemberOrganisation extends SocialRelationship {
 	const FromModelClass = 'Member';
 	const ToModelClass   = 'Modular\Models\SocialOrganisation';
-	const FromFieldName = 'FromMember';
-	const ToFieldName = 'ToOrganisation';
+	// const FromFieldName = 'FromModel';
+	// const ToFieldName = 'ToOrganisation';
 
 	private static $db = [
 		"Body" => "Text",

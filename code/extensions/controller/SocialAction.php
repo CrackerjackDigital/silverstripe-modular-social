@@ -60,7 +60,7 @@ abstract class SocialAction extends SocialController
 	 * @return SocialAction
 	 * @throws ValidationException
 	 */
-	protected function makeAction($actionCode, array $extraData = []) {
+	protected function makeRelationship($actionCode, array $extraData = []) {
 		/** @var \Modular\Edges\SocialRelationship|string $className */
 		$className = $this->getActionClassName();
 
@@ -83,7 +83,7 @@ abstract class SocialAction extends SocialController
 	 *
 	 * @param $actionCode
 	 */
-	protected function breakAction($actionCode) {
+	protected function breakRelationship($actionCode) {
 		/** @var SocialAction $className */
 		$className = $this->getActionClassName();
 
@@ -104,7 +104,7 @@ abstract class SocialAction extends SocialController
 	 * @param $actionCode
 	 * @return boolean
 	 */
-	protected function checkAction($actionCode) {
+	protected function checkActionX($actionCode) {
 		/** @var SocialAction $className */
 		$className = $this->getActionClassName();
 

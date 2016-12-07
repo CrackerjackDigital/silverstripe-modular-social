@@ -7,7 +7,7 @@ use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;
 
 class ViewableSubContent extends SocialAction  {
-	const ActionTypeCode = 'VEW';
+	const ActionCode = 'VEW';
 	const ExtraAction = "ExtraAction";
 	const Mode = "view";
 

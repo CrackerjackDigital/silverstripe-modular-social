@@ -32,11 +32,11 @@ class SocialOrganisation extends SocialModel {
 		"OrganisationSubType" => "SocialOrganisationSubType",
 	];
 	private static $has_many = [
-		'RelatedMembers'             => 'MemberOrganisationAction.ToOrganisation',
-		'RelatedInterests'           => 'OrganisationInterestAction.FromOrganisation',
-		"RelatedProductsAndServices" => 'OrganisationProductAndServiceAction.FromOrganisation',
-		'RelatedPosts'               => 'OrganisationPostAction.FromOrganisation',
-		'RelatedContactInfo'         => 'OrganisationContactInfoAction.FromOrganisation',
+		'RelatedMembers'             => 'MemberOrganisation.ToModel',
+		'RelatedInterests'           => 'OrganisationInterest.FromModel',
+		"RelatedProductsAndServices" => 'OrganisationProductAndService.FromModel',
+		'RelatedPosts'               => 'OrganisationPost.FromModel',
+		'RelatedContactInfos'        => 'OrganisationContactInfo.FromModel',
 	];
 
 	private static $many_many = [
@@ -217,7 +217,7 @@ class SocialOrganisation extends SocialModel {
 	public function OrganisationMembers() {
 		$memberIDs = $this->RelatedMembers()
 			->filter(['Type.Code' => ['MJO', 'MRO', 'MEM', 'MCO']])
-			->column('FromMemberID');
+			->column('FromModelID');
 
 		$uniquemembers = Member::get()->filter(['ID' => $memberIDs])->distinct(true)->setQueriedColumns(array('ID'));
 
@@ -245,7 +245,7 @@ class SocialOrganisation extends SocialModel {
 
 		$relatedMembers = $this->relatedMembers();
 		if ($relatedMembers->count() > 0) {
-			$members = $relatedMembers->filter(["FromMemberID" => $member->ID, "ToOrganisationID" => $this->ID]);
+			$members = $relatedMembers->filter(["FromModelID" => $member->ID, "ToModelID" => $this->ID]);
 			$members = $members->filter('Type.Code', ["MCO", "MAO", "MRO"]);
 			if ($members->count() > 0) {
 				return true;

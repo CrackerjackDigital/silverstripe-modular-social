@@ -10,7 +10,7 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Inviteable extends SocialAction {
-    const ActionTypeCode = 'IVT';
+    const ActionCode = 'IVT';
     const Action = 'invite';
 
     private static $url_handlers = [
@@ -32,7 +32,7 @@ class Inviteable extends SocialAction {
      * @return bool|mixed
      */
     public function actionTaken($action) {
-        if ($action === self::ActionTypeCode) {
+        if ($action === self::ActionCode) {
             return self::isInvited();
         }
     }
@@ -41,14 +41,14 @@ class Inviteable extends SocialAction {
      * @return bool
      */
     public function canInvite($source = null) {
-        return parent::canDoIt(self::ActionTypeCode, $source);
+        return parent::canDoIt(self::ActionCode, $source);
     }
 
     /**
      * Member invites this->owner object, add a relationship from Member with type self::$actionTypeCode
      */
     public function invite() {
-        parent::makeRelationship(self::ActionTypeCode);
+        parent::makeRelationship(self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
@@ -57,12 +57,12 @@ class Inviteable extends SocialAction {
      * @param null $mmeberID
      */
     public function uninvite() {
-        parent::breakRelationship(self::ActionTypeCode);
+        parent::breakRelationship(self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
     public function isInvited() {
-        return parent::checkRelationship(self::ActionTypeCode);
+        return parent::checkRelationship(self::ActionCode);
     }
     /**
      * Return a link appropriate for this object to be inviteed by logged in Member if can be inviteed.

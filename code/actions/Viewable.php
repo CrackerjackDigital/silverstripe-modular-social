@@ -4,7 +4,7 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Viewable extends SocialAction  {
-	const ActionTypeCode = 'VEW';
+	const ActionCode = 'VEW';
 	const Action = 'view';
 
 	private static $url_handlers = [
@@ -39,7 +39,7 @@ class Viewable extends SocialAction  {
 				return true;
 			}
 		}
-		if (!parent::canDoIt(self::ActionTypeCode, $source == null)) {
+		if (!parent::canDoIt(self::ActionCode, $source == null)) {
 			$this()->httpError(401);
 		}
 		return true;
@@ -70,7 +70,7 @@ class Viewable extends SocialAction  {
 	public function updateActionsForMode(DataObject $model, FieldList $actions, $mode) {
 		if ($mode === self::Action) {
 			if (Action::check_permission(
-				Editable::ActionTypeCode,
+				Editable::ActionCode,
 				$this()->getModelInstance(self::Action))) {
 
 				$href = $this()->getModelInstance(self::Action)->ActionLink(Editable::Action);

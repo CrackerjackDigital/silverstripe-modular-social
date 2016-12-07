@@ -41,10 +41,12 @@ class SocialForm extends \MosaicForm {
 
 		parent::__construct($controller, $name, $fields, $actions, $validator = null);
 
-		$modelClass = $controller->getModelClass();
+		if ($controller->hasMethod('getModelClass')) {
+			$modelClass = $controller->getModelClass();
 
-		$this->addExtraClass($modelClass);
-		$this->setAttribute('data-class', $modelClass);
+			$this->addExtraClass($modelClass);
+			$this->setAttribute('data-class', $modelClass);
+		}
 	}
 
 	/**

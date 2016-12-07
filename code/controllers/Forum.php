@@ -80,7 +80,7 @@ class SocialForum_Controller extends SocialModel_Controller {
 		$memberForums = $member->RelatedForums();
 		$forumArray = [];
 		foreach ($memberForums as $item) {
-			$forumArray[] = $item->ToForumID;
+			$forumArray[] = $item->ToModelID;
 		}
 
 		return SocialForum::get()->filter(["ID" => $forumArray]);

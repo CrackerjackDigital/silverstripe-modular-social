@@ -125,13 +125,17 @@ class Approveable extends SocialModel {
 		if (!$previousValue && !$this->isAutomaticApproval()) {
 			// we may have saved record in 'Approved' state, e.g. in CMS.
 			if (!$this->isApproved()) {
-				// no previous value so a new record, send request
-				$this->queueRequestNotification('CRT');
+				if (static::notifies_enabled()) {
+					// no previous value so a new record, send request
+					$this->queueRequestNotification('CRT');
+				}
 			}
 		} else {
 			if (!$this()->{self::FieldName} == self::PendingValue) {
 				// there was a previous value and the current value is not 'pending' so send the response
-				$this->queueResponseNotification('CRT');
+				if (static::notifies_enabled()) {
+					$this->queueResponseNotification('CRT');
+				}
 			}
 		}
 	}

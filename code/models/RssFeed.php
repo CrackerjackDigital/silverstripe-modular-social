@@ -27,7 +27,7 @@ class SocialRssFeed extends SocialModel implements \FeedMeFeedModelInterface  {
 
 	private static $has_many = [
 		'Posts' => 'Post',
-		'RelatedMembers' => 'MemberRssFeedAction.ToRssFeed',
+		'RelatedMembers' => 'MemberRssFeed.ToModel',
 	];
 
 	/**

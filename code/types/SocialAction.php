@@ -52,7 +52,7 @@ class SocialAction extends SocialType implements GraphEdgeType {
 
 	private static $db = [
 		// Title and Code from Modular\Type
-		'ActionType'          => 'Varchar(12)',              // e.g. 'Follow'
+		'Action'              => 'Varchar(12)',              // e.g. 'Follow'
 		'ReverseAction'       => 'Varchar(12)',       // e.g. 'Unfollow'
 		'ReverseTitle'        => 'Varchar(64)',        // e.g for Title of 'Follows' would be 'Followed by'
 		'AllowedFrom'         => 'Varchar(64)',         // e.g. 'Member'
@@ -132,8 +132,8 @@ class SocialAction extends SocialType implements GraphEdgeType {
 	 * Returns an array of information used to build records around this type of relationship:
 	 * -    FromName                e.g. 'Member'
 	 * -    ToName                  e.g. 'SocialOrganisation' (not SocialOrganisation)
-	 * -    FromFieldName           e.g. 'FromMemberID'
-	 * -    ToFieldName             e.g. 'ToOrganisationModelID'
+	 * -    FromFieldName           e.g. 'FromModelID'
+	 * -    ToFieldName             e.g. 'ToModelID'
 	 * -    RelationshipClassName   e.g. 'MemberOrganisationRelationship'
 	 * -    RelationshipName        e.g. 'RelatedMembers'
 	 *
@@ -281,7 +281,7 @@ class SocialAction extends SocialType implements GraphEdgeType {
 	}
 
 	/**
-	 * Return a field name like 'FromOrganisationID' using AllowedFrom
+	 * Return a field name like 'FromModelID' using AllowedFrom
 	 *
 	 * @return string
 	 */
@@ -299,7 +299,7 @@ class SocialAction extends SocialType implements GraphEdgeType {
 	}
 
 	/**
-	 * Return a field name like 'ToOrganisationID' using AllowedTo
+	 * Return a field name like 'ToModelID' using AllowedTo
 	 *
 	 * @return string
 	 */

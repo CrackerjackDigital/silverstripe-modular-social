@@ -4,7 +4,7 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Editable extends SocialAction  {
-	const ActionTypeCode = 'EDT';
+	const ActionCode = 'EDT';
 	const Action = 'edit';
 
 	private static $url_handlers = [
@@ -28,7 +28,7 @@ class Editable extends SocialAction  {
 	 * @return bool
 	 */
 	public function canEdit($source = null) {
-		return parent::canDoIt(self::ActionTypeCode, $source);
+		return parent::canDoIt(self::ActionCode, $source);
 	}
 
 	/**

@@ -191,7 +191,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 			return $this->redirectBack();
 		}
 
-		$action = OrganisationContactInfo::get()->filter(['FromOrganisationID' => $id, 'ToContactInfoID' => $contactid])->first();
+		$action = OrganisationContactInfo::get()->filter(['FromModelID' => $id, 'ToContactInfoID' => $contactid])->first();
 		if (!$action) {
 			return $this()->httpError(404);
 		}

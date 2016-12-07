@@ -11,7 +11,7 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Replyable extends SocialAction {
-    const ActionTypeCode = 'REP';
+    const ActionCode = 'REP';
     const Action = 'reply';
     const ReverseMode = 'unreply';
 
@@ -29,7 +29,7 @@ class Replyable extends SocialAction {
      * @return bool|int
      */
     public function canReply($source = null) {
-        return parent::canDoIt(static::ActionTypeCode, $source);
+        return parent::canDoIt(static::ActionCode, $source);
     }
 
     /**
@@ -95,7 +95,7 @@ class Replyable extends SocialAction {
      * @return bool
      */
     public function isReplied() {
-        return parent::checkRelationship(self::ActionTypeCode);
+        return parent::checkRelationship(self::ActionCode);
     }
 
     /**

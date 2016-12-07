@@ -6,6 +6,11 @@ Name: modular-social-graph-config
 Modular\Edges\Directed:
   extensions:
     - Modular\Extensions\Model\GraphEdge
+  from_class_name: 'Modular\Models\SocialModel'
+  to_class_name: 'Modular\Models\SocialModel'
+  from_field_name: 'FromModel'
+  to_field_name: 'ToModel'
+
 
 # now add GraphNode extension to the Models
 Member:

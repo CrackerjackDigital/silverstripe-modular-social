@@ -11,7 +11,7 @@ use Modular\Interfaces\ModelWriteHandlers;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Registerable extends Createable implements ModelWriteHandlers  {
-	const ActionTypeCode   = 'REG';
+	const ActionCode   = 'REG';
 	const Action             = 'register';
 	const HasRegisteredFlag  = 'HasRegisteredFlag';
 	const ThanksURLSegment   = 'thanks';
@@ -47,7 +47,7 @@ class Registerable extends Createable implements ModelWriteHandlers  {
 	 */
 	public function canRegister($source = null) {
 		$modelClass = $this()->getModelClass();
-		return ($modelClass == 'Member') || parent::canDoIt(self::ActionTypeCode, $source);
+		return ($modelClass == 'Member') || parent::canDoIt(self::ActionCode, $source);
 	}
 
 	public function onBeforeInit() {

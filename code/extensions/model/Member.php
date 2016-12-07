@@ -37,12 +37,12 @@ class SocialMember extends SocialModel  {
 		'NotifyRelationshipTypes' => '\Modular\Types\SocialAction',
 	];
 	private static $has_many = [
-		'RelatedMembers'       => 'MemberMemberRelationship.FromMember',
-		'RelatedOrganisations' => 'MemberOrganisationRelationship.FromMember',
-		'RelatedForums'        => 'MemberForumRelationship.FromMember',
-		'RelatedForumTopics'   => 'MemberForumTopicRelationship.FromMember',
-		'RelatedPosts'         => 'MemberPostRelationship.FromMember',
-		'RelatedRssFeeds'      => "MemberRssFeedRelationship.FromMember",
+		'RelatedMembers'       => 'MemberMemberRelationship.FromModel',
+		'RelatedOrganisations' => 'MemberOrganisationRelationship.FromModel',
+		'RelatedForums'        => 'MemberForumRelationship.FromModel',
+		'RelatedForumTopics'   => 'MemberForumTopicRelationship.FromModel',
+		'RelatedPosts'         => 'MemberPostRelationship.FromModel',
+		'RelatedRssFeeds'      => "MemberRssFeedRelationship.FromModel",
 	];
 	// fields to show by action.
 	private static $fields_for_mode = [
@@ -246,7 +246,7 @@ class SocialMember extends SocialModel  {
 			->first();
 
 		if ($org) {
-			return ArrayData::create(["OrgModel" => $org->ToOrganisation()]);
+			return ArrayData::create(["OrgModel" => $org->ToModel()]);
 		}
 
 		return false;
@@ -262,7 +262,7 @@ class SocialMember extends SocialModel  {
 			->filter(['Type.Code' => ['MCO', 'MRO']])
 			->first();
 		if ($org) {
-			return $org->ToOrganisation();
+			return $org->ToModel();
 		}
 
 		return false;

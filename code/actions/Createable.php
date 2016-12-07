@@ -20,7 +20,7 @@ use ValidationResult;
 
 class Createable extends SocialAction
 	implements SocialModelProvider, ModelWriteHandlers {
-	const ActionTypeCode = 'CRT';
+	const ActionCode = 'CRT';
 	const Action         = 'new';
 
 	// can't use new as it's a reserved word
@@ -45,7 +45,7 @@ class Createable extends SocialAction
 	 * @return bool|int|void
 	 */
 	public function canCreate($source = null) {
-		return parent::canDoIt(static::ActionTypeCode, $source);
+		return parent::canDoIt(static::ActionCode, $source);
 	}
 
 	/**
@@ -254,7 +254,7 @@ class Createable extends SocialAction
 
 			Confirmable::disable();
 			Approveable::disable();
-			MemberMember::make($member, $model, static::ActionTypeCode);
+			MemberMember::make($member, $model, static::ActionCode);
 			Approveable::enable();
 			Confirmable::enable();
 

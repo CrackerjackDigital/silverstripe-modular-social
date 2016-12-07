@@ -17,7 +17,7 @@ use SS_List;
 
 class Uploadable extends SocialAction
  implements ModelWriteHandlers , SocialModelProvider {
-	const ActionTypeCode = 'UPL';
+	const ActionCode = 'UPL';
 	const Action = 'upload';
 
 	private static $url_handlers = [
@@ -34,7 +34,7 @@ class Uploadable extends SocialAction
 	 * @return bool|int
 	 */
 	public function canUpload($source = null) {
-		//return parent::canDoIt(self::ActionTypeCode, $source);
+		//return parent::canDoIt(self::ActionCode, $source);
 		return true;
 	}
 

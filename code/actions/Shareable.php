@@ -6,10 +6,11 @@ namespace Modular\Actions;
  *
  * Provides ShareableLink method to link to this objects share/unshare action.
  */
+use Controller;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Shareable extends SocialAction {
-	const ActionTypeCode = 'SHA';
+	const ActionCode = 'SHA';
 	const Action = 'share';
 
 	private static $url_handlers = [
@@ -30,7 +31,7 @@ class Shareable extends SocialAction {
 	 * @return bool|mixed
 	 */
 	public function actionTaken($action) {
-		if ($action === self::ActionTypeCode) {
+		if ($action === self::ActionCode) {
 			return self::isShared();
 		}
 	}
@@ -39,14 +40,14 @@ class Shareable extends SocialAction {
 	 * @return bool
 	 */
 	public function canShare($source = null) {
-		return parent::canDoIt(self::ActionTypeCode, $source);
+		return parent::canDoIt(self::ActionCode, $source);
 	}
 
 	/**
 	 * Member shares this->owner object, add a relationship from Member with type self::$actionTypeCode
 	 */
 	public function share() {
-		parent::makeRelationship(self::ActionTypeCode);
+		parent::makeRelationship(self::ActionCode);
 		return Controller::curr()->redirectBack();
 	}
 
@@ -55,12 +56,12 @@ class Shareable extends SocialAction {
 	 * @param null $mmeberID
 	 */
 	public function unshare() {
-		parent::breakRelationship(self::ActionTypeCode);
+		parent::breakRelationship(self::ActionCode);
 		return Controller::curr()->redirectBack();
 	}
 
 	public function isShared() {
-		return parent::checkRelationship(self::ActionTypeCode);
+		return parent::checkRelationship(self::ActionCode);
 	}
 	/**
 	 * Return a link appropriate for this object to be shareed by logged in Member if can be shareed.

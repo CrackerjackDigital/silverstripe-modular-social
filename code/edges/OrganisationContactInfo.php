@@ -7,6 +7,6 @@ namespace Modular\Edges;
 class OrganisationContactInfo extends SocialRelationship  {
 	const FromModelClass = 'Modular\Models\SocialOrganisation';
 	const ToModelClass = 'Modular\Models\SocialContactInfo';
-	const FromFieldName = 'FromOrganisation';
-	const ToFieldName = 'ToContactInfo';
+	// const FromFieldName = 'FromOrganisation';
+	// const ToFieldName = 'ToContactInfo';
 }

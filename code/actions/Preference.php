@@ -10,7 +10,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Preference extends SocialAction {
 	// Re-use the edit code here for permissions etc
-	const ActionTypeCode = 'EDT';
+	const ActionCode = 'EDT';
 	// url for action, e.g. 'post'
 	const Action = 'settings';
 
@@ -42,7 +42,7 @@ class Preference extends SocialAction {
 	 */
 	public function canEdit($source = null) {
 		// check we have permission, are admin, have a previous 'CRT' record
-		return parent::canDoIt(self::ActionTypeCode, $source);
+		return parent::canDoIt(self::ActionCode, $source);
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Preference extends SocialAction {
 	 * @return bool
 	 */
 	public function is_Action_ed() {
-		return parent::checkRelationship(self::ActionTypeCode);
+		return parent::checkRelationship(self::ActionCode);
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Preference extends SocialAction {
 			//Break all rss follow relationships
 			$relatedRss = $member->RelatedRssFeeds();
 			foreach ($relatedRss as $item) {
-				if ($rssInstance = RssFeed::get()->byID($item->ToRssFeedID)) {
+				if ($rssInstance = RssFeed::get()->byID($item->ToModelID)) {
 					MemberRssFeedRelationship::remove(
 						SocialMember::current_or_guest(),
 						$rssInstance,
@@ -197,7 +197,7 @@ class Preference extends SocialAction {
 			$checked = false;
 
 			if ($memberRssFeeds = $member->RelatedRssFeeds()) {
-				$memberFollowsRssFeed = $memberRssFeeds->filter(["ToRssFeedID" => $rss->ID])->first();
+				$memberFollowsRssFeed = $memberRssFeeds->filter(["ToModelID" => $rss->ID])->first();
 				if ($memberFollowsRssFeed) {
 					if ($memberFollowsRssFeed->RelationshipType()->Code == "MFR") {
 						$checked = true;

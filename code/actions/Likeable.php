@@ -11,7 +11,7 @@ use Modular\Extensions\Controller\SocialController;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Likeable extends SocialAction {
-    const ActionTypeCode = 'LIK';
+    const ActionCode = 'LIK';
     const Action = 'like';
 
     private static $url_handlers = [
@@ -33,7 +33,7 @@ class Likeable extends SocialAction {
      * @return bool|mixed
      */
     public function actionTaken($action) {
-        if ($action === self::ActionTypeCode) {
+        if ($action === self::ActionCode) {
             return self::isLiked();
         }
     }
@@ -45,14 +45,14 @@ class Likeable extends SocialAction {
      * @return bool
      */
     public function canLike($source = null) {
-        return parent::canDoIt(self::ActionTypeCode, $source);
+        return parent::canDoIt(self::ActionCode, $source);
     }
 
     /**
      * Member likes this->owner object, add a relationship from Member with type self::$actionTypeCode
      */
     public function like() {
-        parent::makeRelationship(self::ActionTypeCode);
+        parent::makeRelationship(self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
@@ -61,12 +61,12 @@ class Likeable extends SocialAction {
      * @param null $mmeberID
      */
     public function unlike() {
-        parent::breakRelationship(self::ActionTypeCode);
+        parent::breakRelationship(self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
     public function isLiked() {
-        return parent::checkRelationship(self::ActionTypeCode);
+        return parent::checkRelationship(self::ActionCode);
     }
     /**
      * Return a link appropriate for this object to be likeed by logged in Member if can be likeed.

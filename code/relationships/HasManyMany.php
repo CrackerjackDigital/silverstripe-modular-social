@@ -190,10 +190,10 @@ class SocialHasManyMany extends HasManyManyGridField {
 			/** @var string|SocialRelationship $relationshipClassName e.g. 'MemberOrganisation' */
 			$relationshipClassName = static::relationship_class_name($this());
 
-			/** @var string $toFieldName e.g. 'ToOrganisationID' */
+			/** @var string $toFieldName e.g. 'ToModelID' */
 			$toFieldName = $relationshipClassName::to_field_name();
 
-			// return MemberOrganisation records which have an ID in the list of MemberOrganisation.ToOrganisationID
+			// return MemberOrganisation records which have an ID in the list of MemberOrganisation.ToModelID
 			return DataObject::get()->filter([
 				'ID' => $relationships->column($toFieldName),
 			]);

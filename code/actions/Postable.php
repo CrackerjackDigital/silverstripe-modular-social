@@ -10,7 +10,7 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Postable extends SocialAction {
-	const ActionTypeCode = 'POS';
+	const ActionCode = 'POS';
 	const Action = 'post';
 
 	private static $url_handlers = [
@@ -76,7 +76,7 @@ class Postable extends SocialAction {
 	 * @return bool|mixed
 	 */
 	public function actionTaken($action) {
-		if ($action === self::ActionTypeCode) {
+		if ($action === self::ActionCode) {
 			return self::isPostd();
 		}
 	}
@@ -85,7 +85,7 @@ class Postable extends SocialAction {
 	 * @return bool
 	 */
 	public function canPost($source = null) {
-		// return parent::canDoIt(self::ActionTypeCode, $source);
+		// return parent::canDoIt(self::ActionCode, $source);
 		return true;
 	}
 
@@ -146,7 +146,7 @@ class Postable extends SocialAction {
 	 * @param null $mmeberID
 	 */
 	public function unpost() {
-		// parent::breakRelationship(self::ActionTypeCode);
+		// parent::breakRelationship(self::ActionCode);
 		$post = Post::get()->byID($this->owner->request->param('ID'));
 		if ($post && $post->canEdit()) {
 			$post->delete();
@@ -159,7 +159,7 @@ class Postable extends SocialAction {
 	}
 
 	public function isPosted() {
-		return parent::checkRelationship(self::ActionTypeCode);
+		return parent::checkRelationship(self::ActionCode);
 	}
 	/**
 	 * Return a link appropriate for this object to be posted by logged in Member if can be posted.

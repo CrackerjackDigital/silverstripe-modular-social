@@ -8,7 +8,7 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class NewsFeed extends SocialAction  {
-	const ActionTypeCode = 'VEW';
+	const ActionCode = 'VEW';
 	const Action           = 'newsfeed';
 
 	private static $template_name = self::Action;
@@ -46,7 +46,7 @@ class NewsFeed extends SocialAction  {
 		if (!$model = $this()->getModelInstance($mode = self::Action)) {
 			$this()->httpError(404);
 		}
-		return parent::canDoIt(self::ActionTypeCode, $source);
+		return parent::canDoIt(self::ActionCode, $source);
 	}
 
 	/**

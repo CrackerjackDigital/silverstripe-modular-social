@@ -10,7 +10,7 @@ use Modular\Interfaces\UIModalProvider;
 
 class Joinable extends SocialAction
 	implements UIModalProvider {
-	const ActionTypeCode = 'JOI';
+	const ActionCode = 'JOI';
 	const Action     = 'join';
 
 	private static $url_handlers = [
@@ -33,13 +33,13 @@ class Joinable extends SocialAction
 	 * @return bool|mixed
 	 */
 	public function actionTaken($action) {
-		if ($action === self::ActionTypeCode) {
+		if ($action === self::ActionCode) {
 			return self::isJoined();
 		}
 	}
 
 	public function canJoin($source = null) {
-		return parent::canDoIt(self::ActionTypeCode, $source);
+		return parent::canDoIt(self::ActionCode, $source);
 	}
 
 	/**
@@ -52,18 +52,18 @@ class Joinable extends SocialAction
 		if (!$currentMemberId = Member::currentUserID()) {
 			return $this()->httpError("You need to be logged in to join an organisation");
 		}
-		parent::makeRelationship(self::ActionTypeCode, $request->postVars());
+		parent::makeRelationship(self::ActionCode, $request->postVars());
 
 		return $this()->redirectBack();
 	}
 
 	public function leave() {
-		parent::breakRelationship(self::ActionTypeCode);
+		parent::breakRelationship(self::ActionCode);
 		return Controller::curr()->redirectBack();
 	}
 
 	public function isJoined() {
-		return parent::checkRelationship(self::ActionTypeCode);
+		return parent::checkRelationship(self::ActionCode);
 	}
 
 	/**

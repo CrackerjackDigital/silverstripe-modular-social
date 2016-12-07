@@ -15,7 +15,7 @@ class SocialForumTopic extends SocialModel
 	];
 	private static $has_many = [
 		'Posts'          => 'Post',
-		'RelatedMembers' => 'MemberForumTopicAction.ToForumTopic',
+		'RelatedMembers' => 'MemberForumTopic.ToModel',
 	];
 
 	private static $db = [
@@ -60,7 +60,7 @@ class SocialForumTopic extends SocialModel
 	public function StartedBy() {
 		$StartedByObj = $this->RelatedMembers()->filter('Type.Code', 'MCT')->first();
 		if ($StartedByObj) {
-			return $StartedByObj->FromMember();
+			return $StartedByObj->FromModel();
 		}
 		return false;
 	}
@@ -86,7 +86,7 @@ class SocialForumTopic extends SocialModel
 	public function canEdit($member = null) {
 		$StartedByObj = $this->RelatedMembers()->filter('Type.Code', 'MCT')->first();
 		if ($StartedByObj) {
-			$ForumTopicOwner = $StartedByObj->FromMemberID;
+			$ForumTopicOwner = $StartedByObj->FromModelID;
 			if ($ForumTopicOwner == \Member::currentUserID()) {
 				return true;
 			} else {

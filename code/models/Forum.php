@@ -11,7 +11,7 @@ class SocialForum extends SocialModel {
 
 	private static $has_many = [
 		'ForumTopics' => 'SocialForumTopic',
-		'RelatedMembers' => 'MemberForumAction.ToForum',
+		'RelatedMembers' => 'MemberForum.ToModel',
 	];
 
 	private static $fields_for_mode = [
@@ -37,7 +37,7 @@ class SocialForum extends SocialModel {
 
 	public function StartedBy() {
 		if ($created = $this->RelatedMembers()->filter('Type.Code', 'MCF')->first()) {
-			return $created->FromMember()->Title;
+			return $created->FromModel()->Title;
 		}
 	}
 

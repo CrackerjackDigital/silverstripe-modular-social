@@ -4,7 +4,7 @@ use Convert;
 use DataObject;
 use EmailField;
 use FieldList;
-use Form;
+use \Form;
 use FormAction;
 use RequiredFields;
 use Session;
@@ -18,7 +18,7 @@ use TextField;
  *
  **/
 
-class InitSignUpForm extends SocialForm {
+class InitSignUpForm extends Form {
 	const EmailFieldName = 'Email';
 	const OrganisationFieldName = 'OrganisationName';
 

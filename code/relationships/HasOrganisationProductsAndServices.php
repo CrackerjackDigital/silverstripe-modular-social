@@ -1,5 +1,6 @@
 <?php
 use Modular\Relationships\SocialHasMany;
+use Modular\UI\Components\SocialProductAndServiceChooser;
 
 class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 
@@ -14,14 +15,14 @@ class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 	protected static $value_seperator = ',';
 
 	// name of field added to form
-	protected static $field_name = ProductAndServiceChooserField::IDFieldName;
+	protected static $field_name = Modular\UI\Components\SocialProductAndServiceChooser::IDFieldName;
 
 	protected static $remove_field_name = 'ProductsAndServices';
 
 	/**
 	 * Return form component used to modify this action.
 	 *
-	 * @return ProductAndServiceChooserField
+	 * @return SocialProductAndServiceChooser
 	 */
 	public function Chooser() {
 		$ProductsAndServices = $this->ProductsAndServices();
@@ -33,7 +34,7 @@ class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 			$ProductsAndServices = [];
 		}
 
-		return (new ProductAndServiceChooserField(
+		return (new SocialProductAndServiceChooser(
 			$ProductsAndServices,
 			$this->getAllowedActionTypes()->map()->toArray()
 		));
@@ -98,7 +99,7 @@ class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 	}
 
 	/**
-	 * Add the ProductAndServiceChooserField.IDFieldName to the list of fields to remove from subsequent processing as POST data.
+	 * Add the SocialProductAndServiceChooser.IDFieldName to the list of fields to remove from subsequent processing as POST data.
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject $model
@@ -106,8 +107,8 @@ class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
 	 * @param array $fieldsHandled
 	 */
 	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
-		// $fieldsHandled[ProductAndServiceChooserField::IDFieldName] = ProductAndServiceChooserField::IDFieldName;
-		$products = $request->postVar(ProductAndServiceChooserField::IDFieldName);
+		// $fieldsHandled[SocialProductAndServiceChooser::IDFieldName] = SocialProductAndServiceChooser::IDFieldName;
+		$products = $request->postVar(SocialProductAndServiceChooser::IDFieldName);
 		if ($products) {
 			$productSplit = explode(self::$value_seperator, $products);
 

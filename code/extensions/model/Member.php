@@ -10,7 +10,7 @@ use Modular\Actions\Approveable;
 use Modular\Actions\Createable;
 use Modular\Actions\Editable;
 use Modular\Actions\Registerable;
-use OrganisationChooserField;
+use SocialOrganisationChooser;
 use OrganisationTypesChooser;
 use ValidationResult;
 
@@ -107,10 +107,10 @@ class SocialMember extends SocialModel  {
 	/**
 	 * Return form component used to modify this relationship.
 	 *
-	 * @return OrganisationChooserField
+	 * @return SocialOrganisationChooser
 	 */
 	protected function OrganisationChooser() {
-		return (new OrganisationChooserField(
+		return (new SocialOrganisationChooser(
 			$this()->getOrganisationID()
 		));
 	}

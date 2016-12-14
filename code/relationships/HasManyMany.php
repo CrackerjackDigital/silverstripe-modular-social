@@ -8,11 +8,11 @@ use DataObject;
 use FieldList;
 use FormField;
 use Modular\Edges\SocialRelationship;
-use Modular\Extensions\Model\SocialModel;
+use Modular\Exceptions\Social as Exception;
 use Modular\Fields\HasManyManyGridField;
 use Modular\Interfaces\GraphEdgeType;
 use Modular\Object;
-use Modular\Types\SocialAction;
+use Modular\Types\SocialActionType;
 use Modular\UI\Component;
 use SS_List;
 
@@ -35,10 +35,10 @@ use SS_List;
  *
  */
 class SocialHasManyMany extends HasManyManyGridField {
-	const RelatedClassName    = '';
-	const ChooserClassName    = '';            # 'OrganisationChooserField'
+	const RelatedClassName    = '';             # e.g. 'Modular\Models\SocialOrganisation
+	const ChooserClassName    = '';             # e.g. 'Modular\UI\Components\SocialOrganisationChooser'
 	const GridFieldConfigName = 'Modular\GridField\Configs\SocialModelGridFieldConfig';
-	const RelationshipPrefix  = 'Related';
+	const RelationshipPrefix  = 'Related';      // will try and build one from this and the sanitised class name being related to
 
 	private static $url_handlers = [
 		'$ID/related/$RelationshipName!' => 'related',
@@ -55,10 +55,10 @@ class SocialHasManyMany extends HasManyManyGridField {
 	protected function Chooser() {
 		if ($className = static::chooser_class_name()) {
 			// create chooser field and set options to map of other class ID => Title
-			$field = (new $className())
+			$field = ($className::create()
 				->setOptions(
 					DataObject::get(static::related_class_name())->map()->toArray()
-				);
+				));
 
 			// TODO: why?
 			if ($instance = $this->related('ADM')->first()) {
@@ -213,7 +213,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 		if ($this()->isInDB()) {
 			/** @var SocialRelationship $relationshipClassName */
 			$relationshipClassName = static::relationship_class_name($this());
-			return $relationshipClassName::nodeA($this(), $actionCodes);
+			return $relationshipClassName::nodeAForAction($this(), $actionCodes);
 		}
 		return new ArrayList();
 	}
@@ -234,7 +234,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 			? $action->ID
 			: (is_numeric($action)
 				? $action
-				: SocialAction::get_by_code($action));
+				: SocialActionType::get_by_code($action));
 
 		/** @var string|SocialRelationship $relationshipClassName */
 		$relationshipClassName = static::relationship_class_name($this());
@@ -251,7 +251,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 		} else {
 			$fromModelClass = get_class($this());
 			$toModelClass = static::relationship_class_name($this());
-			$this->debug_fail(new \Exception("Failed to create relationship '$relationshipClassName' model from '$fromModelClass' to '$toModelClass' type ID '$actionID'"));
+			$this->debug_fail(new Exception("Failed to create relationship '$relationshipClassName' model from '$fromModelClass' to '$toModelClass' type ID '$actionID'"));
 		}
 	}
 
@@ -274,7 +274,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 				: [$this->relationship_name()];
 
 			// get action type records which are children of the passed in code.
-			$actionTypeIDs = SocialAction::get_by_parent($parentActionCodes)->column('ID');
+			$actionTypeIDs = SocialActionType::get_by_parent($parentActionCodes)->column('ID');
 
 			// for each of the action names append records which match the current action type
 			foreach ($relationshipNames as $relationshipName) {
@@ -305,10 +305,10 @@ class SocialHasManyMany extends HasManyManyGridField {
 	 * Return relationship types which can be created from this model to any other model
 	 *
 	 * @param string $actionCode e.g. 'CRT', 'REG'
-	 * @return GraphEdgeType|SocialAction|DataObject
+	 * @return GraphEdgeType|SocialActionType|DataObject
 	 */
 	protected function action_for_code($actionCode) {
-		return SocialAction::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();
+		return SocialActionType::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();
 	}
 
 	/**
@@ -346,7 +346,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 	/**
 	 * Relate a model to the extended model by supplied action.
 	 *
-	 * Creates a action class object if Model and SocialAction records
+	 * Creates a action class object if Model and SocialActionType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int    $modelOrID
@@ -364,7 +364,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 				: DataObject::get_by_id($relatedClassName, $modelOrID);
 
 			if ($model) {
-				// get the first action (e.g. SocialAction) allowed between the extended model
+				// get the first action (e.g. SocialActionType) allowed between the extended model
 				// and the related model with the supplied action code
 				$action = static::action_for_code($actionCode);
 

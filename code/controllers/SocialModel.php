@@ -16,7 +16,7 @@ use Session;
 /**
  * Base controller for SocialModel derived classes.
  *
- * SocialAction methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
+ * SocialActionType methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
  */
 class SocialModel_Controller extends GraphNode_Controller implements SocialModelController , \MosaicFormControllerInterface {
 	use json;

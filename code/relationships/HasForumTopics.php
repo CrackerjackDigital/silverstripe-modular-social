@@ -25,7 +25,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 	/**
 	 * Return form component used to modify this action. If no self::$chooser_field set then return null.
 	 *
-	 * @return OrganisationChooserField
+	 * @return SocialOrganisationChooser
 	 */
 	public function ForumTopicChooser() {
 		return parent::Chooser();
@@ -107,7 +107,7 @@ class HasForumTopicsExtension extends SocialHasManyMany {
 		if ($mode === NewsFeed::Action) {
 
 			$related = parent::related(
-				\Modular\Types\SocialAction::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
+				\Modular\Types\SocialActionType::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
 			);
 			return $related;
 		}

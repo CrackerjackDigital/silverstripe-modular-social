@@ -7,7 +7,7 @@ Name: modular-social-config
 ## silverstripe models
 Member:
   extensions:
-    - Modular\Extensions\UI\SocialActionButtons
+    - Modular\UI\Controls\SocialActionButtons
     - Modular\Extensions\Model\SocialMember
     - Modular\Extensions\Model\Historical
 
@@ -19,7 +19,7 @@ Modular\Types\SocialMembershipType:
 Modular\Models\SocialModel:
   extensions:
     - Modular\Extensions\Acting
-    - Modular\Extensions\UI\SocialActionButtons
+    - Modular\UI\Controls\SocialActionButtons
     - Modular\Extensions\Model\Historical
 
 Modular\Types\SocialType:
@@ -46,8 +46,8 @@ Modular\Types\SocialOrganisationProductAndServiceType:
 Modular\Controllers\SocialModel_Controller:
   extensions:
     - Modular\Extensions\Acting
-    - Modular\Extensions\UI\SocialActionLinks
-    - Modular\Extensions\UI\SocialModalProvider
+    - Modular\UI\Controls\SocialActionLinks
+    - Modular\UI\Controls\SocialModalProvider
     - Modular\Extensions\Controller\SocialController
     - Modular\Actions\CreateableExtension
     - Modular\Actions\ListableExtension

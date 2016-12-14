@@ -1,4 +1,5 @@
 <?php
+use Modular\UI\Components\SocialInterestChooser;
 use Modular\Relationships\SocialHasMany;
 
 class HasInterestsExtension extends SocialHasMany {
@@ -14,14 +15,14 @@ class HasInterestsExtension extends SocialHasMany {
 	protected static $value_seperator = ',';
 
 	// name of field added to form
-	protected static $field_name = InterestChooserField::IDFieldName;
+	protected static $field_name = Modular\UI\Components\SocialInterestChooser::IDFieldName;
 
 	protected static $remove_field_name = 'Interests';
 
 	/**
 	 * Return form component used to modify this action.
 	 *
-	 * @return InterestChooserField
+	 * @return SocialInterestChooser
 	 */
 	public function Chooser() {
 		$interests = $this->Interests();
@@ -33,7 +34,7 @@ class HasInterestsExtension extends SocialHasMany {
 			$interests = [];
 		}
 
-		return (new InterestChooserField(
+		return (new SocialInterestChooser(
 			$interests,
 			$this->getAllowedActionTypes()->map()->toArray()
 		));
@@ -98,7 +99,7 @@ class HasInterestsExtension extends SocialHasMany {
 	}
 
 	/**
-	 * Add the InterestChooserField.IDFieldName to the list of fields to remove from subsequent processing as POST data.
+	 * Add the SocialInterestChooser.IDFieldName to the list of fields to remove from subsequent processing as POST data.
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject $model
@@ -106,11 +107,11 @@ class HasInterestsExtension extends SocialHasMany {
 	 * @param array $fieldsHandled
 	 */
 	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $mode, &$fieldsHandled = []) {
-		$fieldsHandled[InterestChooserField::IDFieldName] = InterestChooserField::IDFieldName;
+		$fieldsHandled[ SocialInterestChooser::IDFieldName] = SocialInterestChooser::IDFieldName;
 	}
 /*
 	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
-		$interestsVar = $request->postVar(InterestChooserField::IDFieldName);
+		$interestsVar = $request->postVar(SocialInterestChooser::IDFieldName);
 		if ($interestsVar) {
 			$interestSplit = explode(self::$value_seperator, $interestsVar);
 

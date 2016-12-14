@@ -43,7 +43,7 @@ class HasContactsExtension extends SocialHasManyMany {
 	/**
 	 * Return form component used to modify this action. If no self::$chooser_field set then return null.
 	 *
-	 * @return OrganisationChooserField
+	 * @return SocialOrganisationChooser
 	 */
 	public function ContactChooser() {
 		return parent::Chooser();

@@ -14,6 +14,21 @@ use ValidationResult;
  * An SocialOrganisation public model.
  * @method SocialOrganisationSubType OrganisationSubType()
  * @method \SS_List OrganisationSubTypes()
+ * @method \DataList RelatedMembers()
+ * @method \DataList RelatedInterests()
+ * @method \DataList RelatedProductsAndServices()
+ * @method \DataList RelatedPosts()
+ * @method \DataList RelatedContactInfos()
+ * @method \Image FeaturedImage()
+ * @property string Street
+ * @property string Suburb
+ * @property string City
+ * @property string Country
+ * @property string PhoneNumber
+ * @property string MobilePhoneNumber
+ * @property string Email
+ * @property string Website
+ * @property string MbieRegistrationNumber
  */
 class SocialOrganisation extends SocialModel {
 	private static $db = [
@@ -241,7 +256,7 @@ class SocialOrganisation extends SocialModel {
 			return false;
 		}
 
-		// $checkAction_Edit = SocialAction::check_permission("EDT", $this);
+		// $checkAction_Edit = SocialActionType::check_permission("EDT", $this);
 
 		$relatedMembers = $this->relatedMembers();
 		if ($relatedMembers->count() > 0) {

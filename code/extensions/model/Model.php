@@ -16,13 +16,13 @@ use Modular\Actions\Registerable;
 use Modular\Actions\Viewable;
 use Modular\debugging;
 use Modular\enabler;
-use Modular\Exceptions\Exception;
+use Modular\Exceptions\Social as Exception;
 use Modular\Forms\SocialForm;
 use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\ModelExtension;
 use Modular\reflection;
-use Modular\Types\SocialAction;
+use Modular\Types\SocialActionType;
 use RequiredFields;
 use UploadField;
 
@@ -44,7 +44,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	/**
 	 * Checks:
 	 *  -   The current user is the model's Creator
-	 *  -   via SocialAction.check_permission if we can perform the requested action.
+	 *  -   via SocialActionType.check_permission if we can perform the requested action.
 	 *
 	 * @param        $actionCodes
 	 * @param string $source where call is being made from, e.g. a controller will set this to 'action' on checking allowed_actions
@@ -54,7 +54,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	public function canDoIt($actionCodes, $source = '') {
 		$source = $source ?: \Member::currentUser();
 
-		$canDoIt = SocialAction::check_permission(
+		$canDoIt = SocialActionType::check_permission(
 			$actionCodes,
 			$this->getModelInstance()
 		);
@@ -621,8 +621,8 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		if ($otherModelOrClassName instanceof DataObject) {
 			$otherModelOrClassName = $otherModelOrClassName->class;
 		}
-		/** @var SocialAction $Action */
-		$Action = SocialAction::get_heirarchy(
+		/** @var SocialActionType $Action */
+		$Action = SocialActionType::get_heirarchy(
 			$this->getModelClass(),
 			$otherModelOrClassName,
 			$actionCode

@@ -106,8 +106,8 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 	}
 
 	/**
-	 * If we have a field called 'OrganisationTypesChooser' then set it's values from the model as its
-	 * probably an OrganisationTypesChooser field.
+	 * If we have a field called 'SocialOrganisationSubType' then set it's values from the model as its
+	 * probably an SocialOrganisationSubType field.
 	 *
 	 * @param DataObject $model
 	 * @param FieldList  $fields

@@ -7,13 +7,13 @@ use Member;
 use Modular\config;
 use Modular\Edges\SocialRelationship as Edge;
 use Modular\json;
-use Modular\Types\SocialAction;
+use Modular\Types\SocialActionType;
 use Modular\Controllers\GraphNode;
 
 /**
  * Base extension for Controller extensions. Adds some usefull functionality.
  *
- * SocialAction extensions such as Viewable, Listable, Postable etc should derive
+ * SocialActionType extensions such as Viewable, Listable, Postable etc should derive
  * from this.
  *
  */
@@ -53,50 +53,8 @@ class SocialController extends \Modular\Extensions\Controller\GraphNode {
 	}
 
 	/**
-	 * Check if the action can be done on the controlled model instance if an
-	 * ID is available, or class if not.
-	 *
-	 * @param string|array $actionCodes
-	 * @param string       $source where call is being made from, e.g. a controller will set this to 'action' on checking allowed_actions
-	 * @return bool|int
-	 */
-	public function canDoIt($actionCodes, $source = '') {
-		$action = static::action();
-
-		if ($id = $this()->getModelID()) {
-			/** @var string|Edge $actionClassName */
-			$actionClassName = current(Edge::implementors(
-				$this()->getModelClass(),
-				$this()->getModelClass()
-			));
-			$isCreator = $actionClassName::get()->filter([
-				$actionClassName::from_field_name() => $id,
-				$actionClassName::to_field_name()   => $id,
-				'Type.Code'                   => 'CRT',
-			])->count();
-
-			if ($isCreator) {
-				return true;
-			}
-
-		}
-		$canDoIt = SocialAction::check_permission(
-			$actionCodes,
-			$this()->getModelID()
-				? $this()->getModelInstance($action)
-				: $this()->getModelClass()
-		);
-		if ($source && !$canDoIt) {
-			if ($source == 'action') {
-				$this()->httpError(403, "Sorry, you do not have permissions to do that");
-			}
-		}
-		return $canDoIt;
-	}
-
-	/**
 	 * Helper function will return a model of $modelClass with ID $id if $mode
-	 * is same as the derived classes static::SocialAction.
+	 * is same as the derived classes static::SocialActionType.
 	 *
 	 * @param      $modelClass
 	 * @param      $id
@@ -119,7 +77,7 @@ class SocialController extends \Modular\Extensions\Controller\GraphNode {
 	}
 
 	/**
-	 * If mode matches derived classes SocialAction then return a new Model of class
+	 * If mode matches derived classes SocialActionType then return a new Model of class
 	 * $modelClass.
 	 *
 	 * @param $modelClass
@@ -133,40 +91,13 @@ class SocialController extends \Modular\Extensions\Controller\GraphNode {
 	}
 
 	/**
-	 * Returns true if a previous action exists from the current member
-	 * to the model which matches the provided Code, for example if the 'CRT'
-	 * was action was performed by the logged in member, then the member
-	 * 'owns' the model and so we can tailor things like showing 'like' and
-	 * 'follow' actions which wouldn't make sense for the creating member to
-	 * do.
-	 *
-	 * @param $previousActionCode - the code of the action type we are
-	 *                            checking to see exists as a record
-	 */
-
-	protected function hasPreviousAction($previousActionCode) {
-		return SocialAction::find(
-			Member::currentUser(),
-			$this()->getModelInstance(),
-			$previousActionCode
-		);
-	}
-
-	protected function checkPermission($actionCode) {
-		return SocialAction::check_permission(
-			$actionCode,
-			$this()->getModelInstance(null)
-		);
-	}
-
-	/**
 	 * Return data for use when populating the mosaic.jst file hooked via
 	 * application requirements.yml SocialModelInterface. Provides the glue
 	 * between SocialModels and mosaic front-end code.
 	 *
 	 * @param SocialController $controller
-	 * @param string           $fileType    one of the ModularModule.FileTypeABC constants
-	 * @param array            $info        additional information about the file from requirements.yml
+	 * @param string           $fileType one of the ModularModule.FileTypeABC constants
+	 * @param array            $info     additional information about the file from requirements.yml
 	 * @return array
 	 */
 	public function modularRequirementsTemplateData(SocialController $controller, $fileType, $info) {
@@ -175,7 +106,4 @@ class SocialController extends \Modular\Extensions\Controller\GraphNode {
 		];
 	}
 
-	public static function action() {
-		return static::Action;
-	}
 }

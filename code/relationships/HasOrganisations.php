@@ -52,7 +52,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	/**
 	 * Relate an organisation to this object by supplied action.
 	 *
-	 * Creates a MemberOrganisationAction object if SocialOrganisation and SocialAction records
+	 * Creates a MemberOrganisationAction object if SocialOrganisation and SocialActionType records
 	 * exits for supplied parameters and adds it to RelatedOrganisations collection.
 	 *
 	 * @param int $organisationID
@@ -139,7 +139,7 @@ class HasOrganisationsExtension extends SocialHasManyMany {
 	 * @param array $requiredFields
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, &$requiredFields = []) {
-		if ($chooserField = $fields->fieldByName('OrganisationTypesChooser')) {
+		if ($chooserField = $fields->fieldByName('SocialOrganisationSubType')) {
 			$chooserField->setTypeID($model->OrganisationTypeID)->setSubTypeID($model->OrganisationSubTypeID);
 		}
 		/** @var UploadField $uploadField */

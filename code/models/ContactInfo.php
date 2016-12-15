@@ -1,11 +1,16 @@
 <?php
 namespace Modular\Models\Social;
+
 use Modular\Models\SocialModel;
 
 /**
  *
  * Contact Information Model
  *
+ * @property string Address
+ * @property string Location
+ * @property string PhoneNumber
+ * @property string Email
  */
 class ContactInfo extends SocialModel {
 	private static $has_one = [

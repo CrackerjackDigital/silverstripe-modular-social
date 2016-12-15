@@ -1,10 +1,12 @@
 <?php
-namespace Modular\Forms;
+namespace Modular\Forms\Social;
 use FieldList;
 use FormAction;
 use HiddenField;
 use Modular\Actions\Editable;
-use OrganisationTypesChooser;
+use Modular\Forms\SocialForm;
+use Modular\Relationships\Social\HasOrganisationCategories;
+use Modular\UI\Components\Social\OrganisationSubTypeChooser;
 use RequiredFields;
 
 class OrganisationCategoriesForm extends SocialForm  {
@@ -13,7 +15,7 @@ class OrganisationCategoriesForm extends SocialForm  {
 	public function __construct($controller, $name, $id) {
 
 		$fields = FieldList::create(
-			OrganisationTypesChooser::create(),
+			OrganisationSubTypeChooser::create(),
 			HiddenField::create("ID")->setValue($id)
 		);
 
@@ -24,7 +26,7 @@ class OrganisationCategoriesForm extends SocialForm  {
 		$validator = new RequiredFields();
 		parent::__construct($controller, $name, $fields, $actions, $validator);
 
-		if ($model = $controller->getModelInstance(Editable::Action)) {
+		if ($model = $controller->getModelInstance(Editable::ActionName)) {
 			$this->setFormAction($model->ActionLink(static::Action));
 		}
 

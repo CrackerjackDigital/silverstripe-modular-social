@@ -1,10 +1,12 @@
 <?php
-namespace Modular\Forms;
+namespace Modular\Forms\Social;
+
 use FieldList;
 use FileAttachmentField;
 use FormAction;
-use Forum;
 use HiddenField;
+use Modular\Forms\SocialForm;
+use Modular\Models\Social\Forum;
 use RequiredFields;
 use Select2Field;
 use TextareaField;
@@ -15,7 +17,6 @@ use TextField;
  * Forum Form
  *
  **/
-
 class ForumTopicForm extends SocialForm {
 
 	public function __construct($controller, $name, $fields, $actions, $validator) {

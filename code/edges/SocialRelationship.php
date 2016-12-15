@@ -3,7 +3,7 @@ namespace Modular\Edges;
 
 use DataObject;
 use Modular\Exceptions\Social as Exception;
-use Modular\Types\SocialActionType;
+use Modular\Types\Social\ActionType as SocialActionType;
 
 /**
  * SocialModel between two models with a relationship type, used to track historical actions and relationships made/broken.
@@ -17,8 +17,8 @@ class SocialRelationship extends Directed {
 
 	// keep these in sync then we should be able to create a new relationship
 	// with an 'update' from the Action being created (providing 'ID' is being added to the field name)
-	private static $from_field_name = \Modular\Types\SocialActionType::FromModelFieldName;
-	private static $to_field_name = \Modular\Types\SocialActionType::ToModelFieldName;
+	private static $from_field_name = \Modular\Types\Social\ActionType::FromModelFieldName;
+	private static $to_field_name = \Modular\Types\Social\ActionType::ToModelFieldName;
 
 	private static $db = [
 		'Action' => 'Varchar(32)'        // what was the actual action, or was it the 'reverse' action e.g. 'approve' or 'decline'?
@@ -41,7 +41,7 @@ class SocialRelationship extends Directed {
 	}
 
 	/**
-	 * Return a filter which can be used to select a GraphEdge or edges based on parameters;
+	 * Return a filter which can be used to select a Edge or edges based on parameters;
 	 *
 	 * @param int|DataObject $nodeAID
 	 * @param int|DataObject $nodeBID

@@ -10,6 +10,17 @@ Member:
     - Modular\UI\Controls\SocialActionButtons
     - Modular\Extensions\Model\SocialMember
     - Modular\Extensions\Model\Historical
+    - Modular\Actions\Approveable
+    - Modular\Actions\Confirmable
+    - HasOrganisations
+    - HasForums
+    - HasContacts
+    - HasFavourites
+    - HasPosts
+    - HasForumTopics
+    - HasImages
+    - HasProfilePicture
+    - HasRssFeeds
 
 Modular\Types\SocialMembershipType:
   extensions:
@@ -60,6 +71,7 @@ Modular\Controllers\SocialModel_Controller:
     - Modular\UI\Controls\SocialActionLinks
     - Modular\UI\Dialogs\SocialModalProvider
     - Modular\Extensions\Controller\SocialController
+    - Modular\Extensions\Controller\SocialModelController     # dynamically add url_handlers
     - Modular\Actions\Createable
     - Modular\Actions\Listable
     - Modular\Actions\Viewable

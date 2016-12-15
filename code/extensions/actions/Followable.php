@@ -12,7 +12,7 @@ use Modular\Extensions\Controller\SocialAction;
 
 class Followable extends SocialAction {
     const ActionCode = 'FOL';
-    const Action = 'follow';
+    const ActionName = 'follow';
 
     private static $url_handlers = [
         '$ID/follow' => 'follow',
@@ -74,7 +74,7 @@ class Followable extends SocialAction {
     public function FollowableLink($action) {
         if ($this->canFollow()) {
             return Controller::curr()->join_links(
-                $this()->getModelInstance(self::Action)->Link(),
+                $this()->getModelInstance(self::ActionName)->Link(),
                 $action
             );
         }

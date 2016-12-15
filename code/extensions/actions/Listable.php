@@ -8,7 +8,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Listable extends SocialAction  {
 	const ActionCode = 'VEW';
-	const Action = 'list';
+	const ActionName = 'list';
 
 	private static $url_handlers = [
 		'list' => 'dolist',
@@ -17,11 +17,11 @@ class Listable extends SocialAction  {
 		'dolist' => '->canList("action")',
 	];
 	private static $action_templates = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	private static $action_modes = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	/**
@@ -44,9 +44,9 @@ class Listable extends SocialAction  {
 	 */
 	public function dolist(SS_HTTPRequest $request) {
 		// extend takes references
-		$mode = self::Action;
+		$mode = self::ActionName;
 
-		$model = $this()->getModelInstance(self::Action);
+		$model = $this()->getModelInstance(self::ActionName);
 
 		if ($request->httpMethod() === 'GET') {
 			$responses = $this()->extend('beforeList', $request, $model, $mode);
@@ -67,7 +67,7 @@ class Listable extends SocialAction  {
 	 * @return mixed
 	 */
 	public function beforeList() {
-		return $this()->renderTemplates(self::Action);
+		return $this()->renderTemplates(self::ActionName);
 	}
 
 	/**
@@ -90,7 +90,7 @@ class Listable extends SocialAction  {
 	 */
 	public function ListView() {
 		$className = $this()->getModelClass();
-		$model = $this()->getModelInstance(self::Action);
+		$model = $this()->getModelInstance(self::ActionName);
 
 		$items = new PaginatedList(DataObject::get($className), $this()->getRequest());
 		$items->setPageLength(10);

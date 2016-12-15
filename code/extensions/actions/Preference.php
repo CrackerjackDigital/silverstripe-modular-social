@@ -12,23 +12,23 @@ class Preference extends SocialAction {
 	// Re-use the edit code here for permissions etc
 	const ActionCode = 'EDT';
 	// url for action, e.g. 'post'
-	const Action = 'settings';
+	const ActionName = 'settings';
 
 	private static $url_handlers = [
-		'$ID/settings' => self::Action,
+		'$ID/settings' => self::ActionName,
 		'interests-json' => "interests_json",
 	];
 	private static $allowed_actions = [
-		self::Action => '->canEdit("action")',
+		self::ActionName => '->canEdit("action")',
 		'interests_json' => '->canEdit("action")',
 	];
 
 	private static $action_templates = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	private static $action_modes = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	/**
@@ -85,10 +85,10 @@ class Preference extends SocialAction {
 	 * Handle the _action_ request
 	 */
 	public function settings(SS_HTTPRequest $request) {
-		$model = $this()->getModelInstance(self::Action);
+		$model = $this()->getModelInstance(self::ActionName);
 
 		// need to this as extend takes a reference
-		$mode = self::Action;
+		$mode = self::ActionName;
 
 		if ($request->isPOST()) {
 			$responses = $this()->extend('afterEdit', $request, $model, $mode);

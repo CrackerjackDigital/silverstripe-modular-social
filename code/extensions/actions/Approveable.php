@@ -5,32 +5,25 @@ use ArrayList;
 use CompositeField;
 use Controller;
 use DataObject;
-use DateField;
-use DropdownField;
 use FieldList;
 use LeftAndMain;
-use Member;
 use Modular\Application;
 use Modular\Edges\SocialRelationship;
 use Modular\emailer;
 use Modular\enabler;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Extensions\Model\SocialModelAction;
 use Modular\notifies;
-use Modular\Types\SocialActionType;
+use Modular\Types\Social\ActionType as SocialActionType;
 use OptionsetField;
-use Permission;
-use SQLQuery;
-use SS_Datetime;
 
-class Approveable extends SocialModelAction {
+class Approveable extends SocialAction {
 	use emailer;
 	use enabler;
 	use notifies;
 
 	const ActionCode = 'APP';
-	const Action = 'approve';
+	const ActionName = 'approve';
 
 	// just in the offchance we need to change the configuration name for some reason
 	const ModeConfigVariable = 'approveable_mode';
@@ -40,6 +33,11 @@ class Approveable extends SocialModelAction {
 	// approval modes
 	const ApprovalAutomatic = 0;
 	const ApprovalManual    = 1;
+
+	// values used for e.g. display and in forms
+	const PendingValue = 'Pending';
+	const ApprovedValue = 'Approved';
+	const DeclinedValue = 'Declined';
 
 	private static $allowed_actions = [
 		'approve' => '->canDoIt("APP", "action")',
@@ -64,17 +62,30 @@ class Approveable extends SocialModelAction {
 	}
 
 	public function approve() {
-		if (SocialRelationship::make(\Member::currentUser(), $this(), static::ActionCode)) {
+		if (SocialRelationship::make(\Member::currentUser(), $this(), static::ActionCode, 'approve')) {
 			$this->queueResponseNotification('CRT');
 		}
 	}
 
 	public function decline() {
-		if (SocialRelationship::removeAll(\Member::currentUser(), $this(), static::ActionCode)) {
+		if (SocialRelationship::remove(\Member::currentUser(), $this(), static::ActionCode, 'decline')) {
 			$this->queueResponseNotification('CRT');
 		}
 	}
 
+	/**
+	 * Check for an 'APP' action to the extended Model
+	 */
+	public function Approved() {
+		return SocialRelationship::latest(null, $this(), static::ActionCode, 'approve')->count();
+	}
+
+	/**
+	 * Check that an 'APP' action to the extended Model doesn't exist
+	 */
+	public function Declined() {
+		return !SocialRelationship::latest(null, $this(), static::ActionCode, 'decline')->count();
+	}
 	/**
 	 * Send an email to approvers asking for approval of an action.
 	 *
@@ -133,20 +144,6 @@ class Approveable extends SocialModelAction {
 			$message,
 			$template
 		);
-	}
-
-	/**
-	 * Check for an 'APP' action to the extended Model
-	 */
-	public function Approved() {
-		return SocialRelationship::latest(null, $this(), static::ActionCode)->count();
-	}
-
-	/**
-	 * Check that an 'APP' action to the extended Model doesn't exist
-	 */
-	public function Declined() {
-		return !SocialRelationship::latest(null, $this(), static::ActionCode)->count();
 	}
 
 	/**
@@ -228,7 +225,7 @@ class Approveable extends SocialModelAction {
 			foreach ($relationshipClassNames as $relationshipClassName) {
 				// find the RelationshipTypes which deal with actions between the found relationships models
 				$relationshipTypes = SocialActionType::get_for_models(
-					$relationshipClassName::from_class_name(),
+					$relationshipClassName::from_fie(),
 					$relationshipClassName::to_class_name(),
 					$forActions
 				);
@@ -287,20 +284,9 @@ class Approveable extends SocialModelAction {
 		);
 
 		$composite = new CompositeField([
-			new DateField(
-				'ApproveableDate',
-				'Approved Date',
-				$this()->ApproveableDate),
-			new DropdownField(
-				'ApproveableMemberID',
-				'Approved By',
-				Permission::get_members_by_permission($permissionCode)->map()),
+			new OptionsetField('ApprovalStatus', 'Approval', [self::PendingValue, self::ApprovedValue, self::DeclinedValue])
 		]);
 
-		$composite->replaceField(
-			'ApproveableApproved',
-			new OptionsetField('ApproveableApproved', 'Approved', [self::ApprovedValue, self::DeclinedValue])
-		);
 		if (!SocialActionType::check_permission(self::ActionCode, SocialMember::current_or_guest(), $this())) {
 			$composite = $composite->performReadonlyTransformation();
 		}

@@ -10,6 +10,7 @@ use Image;
 use Modular\Edges\MemberMember;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Extensions\Model\SocialMember;
+use Modular\Forms\SocialForm;
 use Modular\Interfaces\ModelWriteHandlers;
 use Modular\Interfaces\SocialModelProvider;
 use Session;
@@ -24,7 +25,7 @@ class Createable extends SocialAction
 
 	// can't use new as it's a reserved word
 	private static $url_handlers = [
-		self::Action => 'donew',
+		self::ActionName => 'donew',
 	];
 
 	private static $allowed_actions = [
@@ -32,11 +33,11 @@ class Createable extends SocialAction
 	];
 
 	private static $action_templates = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	private static $action_modes = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	/**
@@ -50,7 +51,7 @@ class Createable extends SocialAction
 	/**
 	 * Return the Model form configured for 'new' action.
 	 *
-	 * @return Form
+	 * @return SocialForm
 	 */
 	public function CreateForm() {
 		return $this()->formForModel($this->action());
@@ -217,7 +218,7 @@ class Createable extends SocialAction
 					'good'
 				);
 			} else {
-				return $this()->redirect($model->ActionLink(Viewable::Action));
+				return $this()->redirect($model->ActionLink(Viewable::ActionName));
 
 			}
 

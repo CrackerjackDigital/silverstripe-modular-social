@@ -5,22 +5,22 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Editable extends SocialAction  {
 	const ActionCode = 'EDT';
-	const Action = 'edit';
+	const ActionName = 'edit';
 
 	private static $url_handlers = [
-		'$ID/edit' => self::Action,
+		'$ID/edit' => self::ActionName,
 	];
 
 	private static $allowed_actions = [
-		self::Action => '->canEdit("action")',
+		self::ActionName => '->canEdit("action")',
 	];
 
 	private static $action_templates = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	private static $action_modes = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	/**
@@ -45,7 +45,7 @@ class _Form. If not existing class
 	 * @return SocialForm - or derived [modelClass]Form
 	 */
 	public function EditForm() {
-		return $this()->formForModel(self::Action);
+		return $this()->formForModel(self::ActionName);
 	}
 
 	/**
@@ -84,10 +84,10 @@ class _Form. If not existing class
 	 */
 	public function edit(SS_HTTPRequest $request) {
 
-		$model = $this()->getModelInstance(self::Action);
+		$model = $this()->getModelInstance(self::ActionName);
 
 		// need to this as extend takes a reference
-		$mode = self::Action;
+		$mode = self::ActionName;
 
 		if ($request->httpMethod() === 'POST') {
 			$responses = $this()->extend('afterEdit', $request, $model, $mode);
@@ -211,7 +211,7 @@ class _Form. If not existing class
 				$this()->setSessionMessage("Forum post updated.");
 				return $this()->redirect("forumtopic/" . $model->ForumTopicID . "/view/#post" . $model->ID);
 			}
-			return $this()->redirect($model->ActionLink(Viewable::Action));
+			return $this()->redirect($model->ActionLink(Viewable::ActionName));
 		}
 	}
 
@@ -222,7 +222,7 @@ class _Form. If not existing class
 	 * @param $mode
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
-		if ($mode === self::Action) {
+		if ($mode === self::ActionName) {
 			if (!$fields->fieldByName('ID')) {
 				$fields->push(
 					new HiddenField('ID', '', $model->ID)
@@ -242,7 +242,7 @@ class _Form. If not existing class
 	 * @param $mode
 	 */
 	public function updateActionsForMode(DataObject $model, $actions, $mode) {
-		if ($mode === self::Action) {
+		if ($mode === self::ActionName) {
 			if ($this->canEdit()) {
 				$actions->push(new FormAction('Save', 'Save'));
 			}
@@ -256,7 +256,7 @@ class _Form. If not existing class
 	 * @return SocialModelForm
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === self::Action) {
+		if ($mode === self::ActionName) {
 			return $this->EditForm();
 		}
 	}

@@ -8,13 +8,13 @@ use SS_HTTPRequest;
  * Responds to a request to show a modal dialog with the content of a modal dialog as pjax.
  */
 class SocialModalProvider extends SocialController  {
-    const Action = 'uimodal';
+    const ActionName = 'uimodal';
 
     private static $url_handlers = [
         '$ID!/$Mode!/uimodal' => 'uimodal'
     ];
     private static $allowed_actions = [
-        self::Action => '->canShowUIModal'
+        self::ActionName => '->canShowUIModal'
     ];
 
     /**

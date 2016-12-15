@@ -1,5 +1,6 @@
 <?php
 namespace Modular\Relationships;
+
 use Modular\Edges\SocialRelationship;
 
 /**

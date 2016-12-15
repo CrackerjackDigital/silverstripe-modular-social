@@ -1,10 +1,14 @@
 <?php
 namespace Modular\Relationships\Social;
 
-use Modular\UI\Components\SocialInterestChooser;
-use Modular\Relationships\SocialHasMany;
+use ArrayList;
+use DataList;
+use DataObject;
+use Modular\UI\Components\Social\InterestChooser;
+use SS_HTTPRequest;
+use SS_HTTPResponse_Exception;
 
-class HasInterests extends SocialHasMany {
+class HasInterests extends HasMany {
 
 	protected static $other_class = 'SocialInterestType';
 
@@ -17,14 +21,14 @@ class HasInterests extends SocialHasMany {
 	protected static $value_seperator = ',';
 
 	// name of field added to form
-	protected static $field_name = Modular\UI\Components\SocialInterestChooser::IDFieldName;
+	protected static $field_name = \Modular\UI\Components\Social\InterestChooser::IDFieldName;
 
 	protected static $remove_field_name = 'Interests';
 
 	/**
 	 * Return form component used to modify this action.
 	 *
-	 * @return SocialInterestChooser
+	 * @return InterestChooser
 	 */
 	public function Chooser() {
 		$interests = $this->Interests();
@@ -36,7 +40,7 @@ class HasInterests extends SocialHasMany {
 			$interests = [];
 		}
 
-		return (new SocialInterestChooser(
+		return (new InterestChooser(
 			$interests,
 			$this->getAllowedActionTypes()->map()->toArray()
 		));
@@ -101,7 +105,7 @@ class HasInterests extends SocialHasMany {
 	}
 
 	/**
-	 * Add the SocialInterestChooser.IDFieldName to the list of fields to remove from subsequent processing as POST data.
+	 * Add the InterestChooser.IDFieldName to the list of fields to remove from subsequent processing as POST data.
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject $model
@@ -109,11 +113,11 @@ class HasInterests extends SocialHasMany {
 	 * @param array $fieldsHandled
 	 */
 	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $mode, &$fieldsHandled = []) {
-		$fieldsHandled[ SocialInterestChooser::IDFieldName] = SocialInterestChooser::IDFieldName;
+		$fieldsHandled[ InterestChooser::IDFieldName] = InterestChooser::IDFieldName;
 	}
 /*
 	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
-		$interestsVar = $request->postVar(SocialInterestChooser::IDFieldName);
+		$interestsVar = $request->postVar(InterestChooser::IDFieldName);
 		if ($interestsVar) {
 			$interestSplit = explode(self::$value_seperator, $interestsVar);
 
@@ -123,7 +127,7 @@ class HasInterests extends SocialHasMany {
 				if (!$checkInList) {
 					$newInterest = new self::$other_class;
 					$newInterest->Title = $value;
-					$newInterest->AllowedFrom = "GroupModel";
+					$newInterest->{ActionType::FromModelFieldName} = "GroupModel";
 					$newInterest->write();
 				}
 			}

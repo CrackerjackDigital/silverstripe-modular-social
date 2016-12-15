@@ -1,5 +1,6 @@
 <?php
 namespace Modular\Extensions\Model;
+
 use ClassInfo;
 use Config;
 use Controller;
@@ -22,7 +23,7 @@ use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\ModelExtension;
 use Modular\reflection;
-use Modular\Types\SocialActionType;
+use Modular\Types\Social\ActionType as SocialActionType;
 use RequiredFields;
 use UploadField;
 
@@ -94,7 +95,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 */
 
 	public function ViewForm() {
-		$form = $this->formForMode(Viewable::Action);
+		$form = $this->formForMode(Viewable::ActionName);
 		// NB this is overridded in SocialForm to just disable the fields.
 		$form->makeReadOnly();
 		return $form;
@@ -107,7 +108,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 */
 
 	public function ListItemForm() {
-		$form = $this->formForMode(Listable::Action);
+		$form = $this->formForMode(Listable::ActionName);
 		// NB this is overridded in SocialForm to just disable the fields.
 		$form->makeReadOnly();
 		return $form;
@@ -119,7 +120,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 * @return SocialModelForm
 	 */
 	public function EditForm() {
-		return $this->formForMode(Editable::Action);
+		return $this->formForMode(Editable::ActionName);
 	}
 
 	public function getModelID() {
@@ -460,7 +461,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		return Controller::curr()->join_links(
 			'/',
 			strtolower($this()->config()->get('route_part') ?: $this()->class),
-			($action === Createable::Action || $action === Registerable::Action)
+			($action === Createable::ActionName || $action === Registerable::ActionName)
 				? null
 				: $includeID
 				? $this()->ID
@@ -481,7 +482,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 				'/',
 				strtolower($this()->config()->get('route_part') ?: $this()->class),
 				$this()->ID,
-				Viewable::Action
+				Viewable::ActionName
 			);
 		}
 	}

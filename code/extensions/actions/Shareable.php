@@ -11,7 +11,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Shareable extends SocialAction {
 	const ActionCode = 'SHA';
-	const Action = 'share';
+	const ActionName = 'share';
 
 	private static $url_handlers = [
 		'$ID/share' => 'share',

@@ -1,9 +1,16 @@
 <?php
-use Modular\Models\SocialOrganisation;
-use Modular\UI\Component;
+namespace Modular\UI\Components\Social;
 
-class SocialOrganisationChooser extends Component {
-	const IDFieldName = 'OrganisationID';
+use CheckboxField;
+use Config;
+use DataObject;
+use FieldList;
+use Modular\Models\Social\Organisation;
+use Modular\UI\Component;
+use Select2Field;
+
+class OrganisationChooser extends Component {
+	const IDFieldName        = 'OrganisationID';
 	const CreateNewFieldName = '_CreateNewOrganisation';
 
 	protected static $field_name = self::IDFieldName;
@@ -15,10 +22,10 @@ class SocialOrganisationChooser extends Component {
 	public function __construct($selectedOrganisationID = null, $allOrganisations = null) {
 		// if a list of Organisations not supplied then get all
 		$allOrganisations = $allOrganisations
-		?: SocialOrganisation::get()
-			->sort('Title')
-			->map()
-			->toArray();
+			?: Organisation::get()
+				->sort('Title')
+				->map()
+				->toArray();
 
 		list($fieldName, $fieldLabel) = self::get_field_config();
 
@@ -31,7 +38,7 @@ class SocialOrganisationChooser extends Component {
 			),
 			$checkbox = new CheckboxField(
 				self::CreateNewFieldName,
-				_t('SocialOrganisationChooser.CreateNewLabel', 'Create new organisation')
+				_t('OrganisationChooser.CreateNewLabel', 'Create new organisation')
 			),
 		]);
 		$dropdown->setDataModel('SocialOrganisation');
@@ -46,12 +53,11 @@ class SocialOrganisationChooser extends Component {
 	 * If model passed in is an SocialOrganisation then update this field from model fields.
 	 *
 	 * @param DataObject $model
-	 * @param FieldList $fields
-	 * @param $mode
-	 * @param array $requiredFields
+	 * @param            $mode
+	 * @param            $fieldInfo
 	 */
 	public function updateFieldFromModel(DataObject $model, $mode, $fieldInfo) {
-		if ($model instanceof SocialOrganisation) {
+		if ($model instanceof Organisation) {
 			$this->setValue($model->ID);
 		}
 	}
@@ -84,6 +90,7 @@ class SocialOrganisationChooser extends Component {
 
 	/**
 	 * Override to return the 'inner' field's name so can be used in search etc as is the model field name.
+	 *
 	 * @return string
 	 */
 	public function getName() {
@@ -110,6 +117,7 @@ class SocialOrganisationChooser extends Component {
 
 	/**
 	 * Set available values.
+	 *
 	 * @param array $options
 	 * @return $this
 	 */

@@ -11,8 +11,8 @@ namespace Modular\Actions;
 use \Modular\Extensions\Controller\SocialAction;
 
 class Replyable extends SocialAction {
-    const ActionCode = 'REP';
-    const Action = 'reply';
+    const ActionCode  = 'REP';
+    const ActionName  = 'reply';
     const ReverseMode = 'unreply';
 
     private static $url_handlers = [

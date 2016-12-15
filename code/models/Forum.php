@@ -16,21 +16,21 @@ class Forum extends SocialModel {
 	];
 
 	private static $fields_for_mode = [
-		\Modular\Actions\Listable::Action => [
+		\Modular\Actions\Listable::ActionName => [
 			'Title' => true,
 			'Replies' => 'ReadonlyField',
 			'Views' => 'ReadonlyField',
 			'StartedBy' => 'ReadonlyField',
 			'LastPost' => 'ReadonlyField',
 		],
-		\Modular\Actions\Viewable::Action => [
+		\Modular\Actions\Viewable::ActionName => [
 			'Title' => true,
 		],
-		\Modular\Actions\Editable::Action => [
+		\Modular\Actions\Editable::ActionName => [
 			'Title' => true,
 			'Description' => true,
 		],
-		\Modular\Actions\Createable::Action => [
+		\Modular\Actions\Createable::ActionName   => [
 			'Title' => true,
 			'Description' => true,
 		],

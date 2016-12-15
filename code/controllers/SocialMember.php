@@ -5,7 +5,6 @@ use Application;
 use FieldList;
 use GroupedList;
 use Member;
-use Modular\Actions\Approveable;
 use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
 

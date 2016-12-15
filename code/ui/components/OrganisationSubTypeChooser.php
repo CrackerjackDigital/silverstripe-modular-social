@@ -1,13 +1,13 @@
 <?php
-namespace Modular\UI\Components;
+namespace Modular\UI\Components\Social;
 
 use Config;
 use FieldList;
 use GroupedDropdownField;
-use Modular\Types\SocialOrganisationType;
+use Modular\Types\Social\OrganisationType;
 use Modular\UI\Component;
 
-class SocialOrganisationSubType extends Component {
+class OrganisationSubTypeChooser extends Component {
 	const IDFieldName = 'OrganisationSubTypeID';
 
 	protected static $field_name = self::IDFieldName;
@@ -18,7 +18,7 @@ class SocialOrganisationSubType extends Component {
 
 		$tree = [];
 
-		foreach (SocialOrganisationType::get() as $orgType) {
+		foreach (OrganisationType::get() as $orgType) {
 			$tree[$orgType->Title] = [];
 
 			foreach ($orgType->OrganisationSubTypes() as $subType) {
@@ -54,11 +54,14 @@ class SocialOrganisationSubType extends Component {
 		}
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getOrganisationTypeID() {
 		if ($subTypeID = $this->getOrganisationSubTypeID()) {
-			$subType = SocialOrganisationSubType::get()->byID($subTypeID);
+			$subType = OrganisationSubType::get()->byID($subTypeID);
 			if ($subType) {
-				$type = SocialOrganisationType::get()->byID($subType->OrganisationTypeID);
+				$type = OrganisationType::get()->byID($subType->OrganisationTypeID);
 				if ($type) {
 					return $type->ID;
 				}
@@ -83,7 +86,7 @@ class SocialOrganisationSubType extends Component {
 	/**
 	 * Returns array of
 	 * -    config.field_name
-	 * -    _t.SocialOrganisationSubType.field_title
+	 * -    _t.OrganisationSubType.field_title
 	 *
 	 * @return array
 	 */

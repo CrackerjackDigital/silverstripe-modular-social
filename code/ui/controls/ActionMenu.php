@@ -7,7 +7,7 @@ use DataObject;
 use Modular\Actions\Createable;
 use Modular\Extensions\Controller\SocialController;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Types\SocialActionType;
+use Modular\Types\Social\ActionType as SocialActionType;
 
 /**
  * Base class for menus which display a list of available and permitted actions such as Like, Follow, Edit etc

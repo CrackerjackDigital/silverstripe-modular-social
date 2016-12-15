@@ -18,19 +18,19 @@ class Confirmable extends SocialAction  {
 	const ConfirmationTokenFieldName = 'ConfirmationToken';
 
 	private static $url_handlers = [
-		'confirm/$Token' => self::Action,
+		'confirm/$Token' => self::ActionName,
 	];
 
 	private static $allowed_actions = [
-		self::Action => '->canConfirm("action")',
+		self::ActionName => '->canConfirm("action")',
 	];
 
 	private static $action_templates = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	private static $action_modes = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	/**
@@ -81,7 +81,7 @@ class Confirmable extends SocialAction  {
 	 * Handles the 'delete' action, only POST. If GET then returns 405.
 	 */
 	public function confirm(SS_HTTPRequest $request) {
-		$token = $request->Param('Token');
+		$token = $request->param('Token');
 		if (isset($token) && !empty($token)) {
 			/** @var Member|Confirmable $member */
 			$reenable = Approveable::disable();
@@ -122,7 +122,7 @@ class Confirmable extends SocialAction  {
 		$this()->write();
 		$routePart = \Config::inst()->get($this()->ClassName, 'route_part');
 
-		return Controller::join_links($routePart, self::Action, $token);
+		return Controller::join_links($routePart, self::ActionName, $token);
 	}
 
 	/**

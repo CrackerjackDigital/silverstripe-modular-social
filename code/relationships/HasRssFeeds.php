@@ -1,7 +1,13 @@
 <?php
 namespace Modular\Relationships\Social;
 
-class HasRssFeeds extends SocialHasManyMany {
+use DataList;
+use Modular\Actions\NewsFeed;
+use Modular\Models\Social\Post;
+use Modular\Types\Social\ActionType;
+use Modular\UI\Components\Social\OrganisationChooser;
+
+class HasRssFeeds extends HasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialRSSFeed';
 	const RelationshipName = '';
 
@@ -25,7 +31,7 @@ class HasRssFeeds extends SocialHasManyMany {
 	/**
 	 * Return form component used to modify this action. If no self::$chooser_field set then return null.
 	 *
-	 * @return SocialOrganisationChooser
+	 * @return OrganisationChooser
 	 */
 	public function RssFeedChooser() {
 		return parent::Chooser();
@@ -34,7 +40,7 @@ class HasRssFeeds extends SocialHasManyMany {
 	/**
 	 * Return related instances with an optional action type.
 	 *
-	 * @param null $actionCode
+	 * @param null $actionCodes
 	 * @return DataList
 	 */
 	public function RssFeeds($actionCodes = null) {
@@ -104,10 +110,10 @@ class HasRssFeeds extends SocialHasManyMany {
 	 * @return ArrayList|null
 	 */
 	public function provideListItemsForAction($mode, $actionCodes = []) {
-		if ($mode === NewsFeedExtension::Action) {
+		if ($mode === NewsFeed::ActionName) {
 			// get ids of feeds the user is following
 			$feedIDs = parent::related(
-				Action::merge_code_lists($actionCodes, 'MFR')
+				ActionType::merge_code_lists($actionCodes, 'MFR')
 			)->column();
 
 			return Post::get()->filter('FeedMeFeedID', $feedIDs);

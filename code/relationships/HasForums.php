@@ -1,14 +1,12 @@
 <?php
 namespace Modular\Relationships\Social;
 
-
-
 use DataList;
 use Modular\Edges\SocialRelationship;
-use SocialOrganisationChooser;
+use Modular\UI\Components\Social\OrganisationChooser;
 
-class HasForums extends SocialHasManyMany {
-	const RelatedClassName = 'Modular\Models\SocialForum';
+class HasForums extends HasManyMany {
+	const RelatedClassName = 'Modular\Models\Social\Forum';
 
 	public function HasForums($actionCodes = null) {
 		return $this->ForumList($actionCodes)->count();
@@ -30,7 +28,7 @@ class HasForums extends SocialHasManyMany {
 	/**
 	 * Return form component used to modify this action. If no self::$chooser_field set then return null.
 	 *
-	 * @return SocialOrganisationChooser
+	 * @return OrganisationChooser
 	 */
 	public function ForumChooser() {
 		return parent::Chooser();
@@ -59,7 +57,7 @@ class HasForums extends SocialHasManyMany {
 	/**
 	 * Return first related instance found with ID and optionally actionCode.
 	 *
-	 * @param $ForumID
+	 * @param      $ForumID
 	 * @param null $actionCode
 	 * @return int
 	 */
@@ -73,7 +71,7 @@ class HasForums extends SocialHasManyMany {
 	 * Creates a action class object if Instane and ActionType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
-	 * @param int $ForumID
+	 * @param int    $ForumID
 	 * @param string $actionCode
 	 * @return SocialRelationship
 	 */
@@ -84,7 +82,7 @@ class HasForums extends SocialHasManyMany {
 	/**
 	 * Remove actions from this object to a ForumModel, optionally by a supplied type.
 	 *
-	 * @param int $ForumID
+	 * @param int         $ForumID
 	 * @param string|null $actionCode
 	 * @return int count of actions deleted
 	 */

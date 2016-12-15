@@ -1,9 +1,10 @@
 <?php
-namespace Modular\Forms;
+namespace Modular\Forms\Social;
 use FieldList;
 use FileAttachmentField;
 use HiddenField;
 use Modular\Actions\Editable;
+use Modular\Forms\SocialForm;
 use TextareaField;
 
 /**
@@ -26,7 +27,7 @@ class PostForm extends SocialForm {
 			);
 		}
 
-		if ($model = $controller->getModelInstance(Editable::Action)) {
+		if ($model = $controller->getModelInstance(Editable::ActionName)) {
 
 			if ($model->ForumTopicID == 0) {
 				$fields->push(FileAttachmentField::create("AttachImages", 'Add more images')
@@ -34,7 +35,7 @@ class PostForm extends SocialForm {
 						->setMultiple(true)
 						->setView('grid'));
 			}
-			$this->setFormAction($model->ActionLink(Editable::Action));
+			$this->setFormAction($model->ActionLink(Editable::ActionName));
 		}
 
 		parent::__construct($controller, $name, $fields, $actions, $validator);

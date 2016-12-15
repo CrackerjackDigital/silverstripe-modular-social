@@ -18,7 +18,7 @@ use SS_List;
 class Uploadable extends SocialAction
  implements ModelWriteHandlers , SocialModelProvider {
 	const ActionCode = 'UPL';
-	const Action = 'upload';
+	const ActionName = 'upload';
 
 	private static $url_handlers = [
 		'$ID/$Mode/field/$FieldName//$ActionType!' => 'field',

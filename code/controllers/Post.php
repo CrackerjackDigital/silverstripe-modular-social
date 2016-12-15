@@ -2,10 +2,9 @@
 namespace Modular\Controllers\Social;
 
 use Member;
-use Modular\Actions\Approveable;
 use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
-use Modular\Models\SocialPostReply;
+use Modular\Models\Social\PostReply;
 
 class Post_Controller extends SocialModelController {
 	private static $model_class = 'Post';
@@ -46,14 +45,14 @@ class Post_Controller extends SocialModelController {
 			return 0;
 		}
 
-		$PostReply = SocialPostReply::create();
+		$PostReply = PostReply::create();
 		$PostReply->Body = $reply;
 		$PostReply->PostID = $parent_id;
 		$PostReply->MemberID = Member::currentUserID();
 		$PostReply->write();
 
 		//refresh all replies buy fetching new ones
-		$PostReplies = SocialPostReply::get()->filter(['PostID' => $parent_id]);
+		$PostReplies = PostReply::get()->filter(['PostID' => $parent_id]);
 		if ($this->request->isAjax()) {
 			return $this->renderWith(['PostReplyList'], compact('PostReplies'));
 		}

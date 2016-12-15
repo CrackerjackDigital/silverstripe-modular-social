@@ -5,7 +5,7 @@ use ArrayData;
 /**
  * Extension which can report on a model's 'favourites', that is other models which have a LIK or FOL action
  */
-class HasFavourites extends SocialHasManyMany {
+class HasFavourites extends HasManyMany {
 	/**
 	 * Returns a list of
 	 */

@@ -12,18 +12,19 @@ use Convert;
 use DataObject;
 use EmailNotifier;
 use FieldList;
+use Form;
 use FormAction;
 use Member;
 use Modular\Edges\MemberMember;
 use Modular\Edges\MemberOrganisation;
 use Modular\Forms\InitSignUpForm;
 use Modular\Interfaces\ModelWriteHandlers;
-use Modular\Models\SocialOrganisation;
-use Modular\UI\Components\SocialOrganisationSubType;
+use Modular\Models\Social\Organisation;
+use Modular\Types\Social\OrganisationSubType;
+use Modular\UI\Components\Social\OrganisationChooser;
 use Permission;
 use Requirements;
 use Session;
-use SocialOrganisationChooser;
 use SS_HTTPRequest;
 use ValidationException;
 
@@ -173,8 +174,8 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $mode, &$fieldsHandled = []) {
 		if ($mode == "new" || $mode == "register") {
 			if ($model instanceof Member) {
-				if (!($request->postVar(SocialOrganisationChooser::CreateNewFieldName)
-					|| $request->postVar(SocialOrganisationChooser::IDFieldName))
+				if (!($request->postVar(OrganisationChooser::CreateNewFieldName)
+					|| $request->postVar(OrganisationChooser::IDFieldName))
 				) {
 
 					throw new ValidationException("Please choose an already registered SocialOrganisation or create a new one");
@@ -263,7 +264,7 @@ class Registerable extends Createable implements ModelWriteHandlers {
 				Confirmable::enable();
 
 				// if member was registering and they want to create a new organisation then redirect to organisation register
-				if ($request->postVar(SocialOrganisationChooser::CreateNewFieldName)) {
+				if ($request->postVar(OrganisationChooser::CreateNewFieldName)) {
 
 					// redirect to the register link on the model.
 					$result = $this()->redirect(singleton('SocialOrganisation')->ActionLink('register'));
@@ -300,8 +301,8 @@ class Registerable extends Createable implements ModelWriteHandlers {
 				/** @var Organisation $organisation */
 				$organisation = $model;
 
-				if ($request->postVar(SocialOrganisationSubType::IDFieldName)) {
-					$subTypes = $request->postVar(SocialOrganisationSubType::IDFieldName);
+				if ($request->postVar(OrganisationSubType::IDFieldName)) {
+					$subTypes = $request->postVar(OrganisationSubType::IDFieldName);
 					if (count($subTypes)) {
 						for ($i = 0; $i < count($subTypes); $i++) {
 							$organisation->OrganisationSubTypes()->add($subTypes[ $i ]);
@@ -327,7 +328,7 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	}
 
 	/**
-	 * Adds an SocialOrganisationSubType to form, we can't just put this in the fields_for_mode['register'] collection as
+	 * Adds an OrganisationSubType to form, we can't just put this in the fields_for_mode['register'] collection as
 	 * then the stupid 'changeFieldOrder' method looses it because CompositeField doesn't track its name.
 	 *
 	 * @param DataObject $model
@@ -337,10 +338,10 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, &$requiredFields = []) {
 		if ($mode === Registerable::Action) {
-			list($fieldName, $fieldLabel) = SocialOrganisationSubType::get_field_config();
+			list($fieldName, $fieldLabel) = OrganisationSubType::get_field_config();
 
 			if (!$chooserField = $fields->dataFieldByName($fieldName)) {
-				$chooserField = new SocialOrganisationSubType();
+				$chooserField = new OrganisationSubType();
 				$chooserField->setAttribute('placeholder', $fieldLabel);
 				$fields->push($chooserField);
 

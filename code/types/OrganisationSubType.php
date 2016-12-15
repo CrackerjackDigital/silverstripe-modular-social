@@ -3,7 +3,7 @@ namespace Modular\Types\Social;
 use Modular\Types\SocialType;
 
 /**
- * SocialOrganisationSubType
+ * OrganisationSubType
  * @method OrganisationType SocialOrganisationType
  * @method \SS_List Organisations
  * @method OrganisationType OrganisationType

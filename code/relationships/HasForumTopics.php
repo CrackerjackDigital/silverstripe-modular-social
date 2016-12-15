@@ -1,11 +1,15 @@
 <?php
 namespace Modular\Relationships\Social;
 
+use ArrayList;
+use DataList;
 use Modular\Actions\NewsFeed;
+use Modular\Edges\SocialRelationship;
+use Modular\Types\Social\ActionType;
+use Modular\UI\Component;
 
-
-class HasForumTopics extends SocialHasManyMany {
-	const RelatedClassName = 'Modular\Models\SocialForumTopic';
+class HasForumTopics extends HasManyMany {
+	const RelatedClassName = 'Modular\Models\Social\ForumTopic';
 
 	public function HasForumTopics($actionCodes = null) {
 		return $this->ForumTopicList($actionCodes)->count();
@@ -27,7 +31,7 @@ class HasForumTopics extends SocialHasManyMany {
 	/**
 	 * Return form component used to modify this action. If no self::$chooser_field set then return null.
 	 *
-	 * @return SocialOrganisationChooser
+	 * @return Component
 	 */
 	public function ForumTopicChooser() {
 		return parent::Chooser();
@@ -72,7 +76,7 @@ class HasForumTopics extends SocialHasManyMany {
 	 *
 	 * @param int $ForumTopicID
 	 * @param string $actionCode
-	 * @return bool
+	 * @return SocialRelationship
 	 */
 	public function addForumTopic($ForumTopicID, $actionCode) {
 		return parent::addRelated($ForumTopicID, $actionCode);
@@ -106,10 +110,10 @@ class HasForumTopics extends SocialHasManyMany {
 	 * @return DataList|ArrayList
 	 */
 	public function provideListItemsForAction($mode, $actionCodes = []) {
-		if ($mode === NewsFeed::Action) {
+		if ($mode === NewsFeed::ActionName) {
 
 			$related = parent::related(
-				\Modular\Types\SocialActionType::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
+				ActionType::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
 			);
 			return $related;
 		}

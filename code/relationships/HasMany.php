@@ -11,7 +11,7 @@ use SS_HTTPRequest;
  * Extension class for implementing HasMany actions, e.g. between a Member and InterestTypes
  */
 
-abstract class SocialHasMany extends \Modular\ModelExtension implements ModelWriteHandlers  {
+abstract class HasMany extends \Modular\ModelExtension implements ModelWriteHandlers  {
 	// foreign class should be set in implementation, e.g. 'SocialInterestType'
 	protected static $other_class;
 

@@ -10,7 +10,7 @@ use Modular\Extensions\Model\SocialMember;
 use Modular\Forms\SocialForm;
 use Modular\Interfaces\SocialModelController as SocialModelControllerInterface;
 use Modular\json;
-use Modular\Models\SocialOrganisation;
+use Modular\Models\Social\Organisation;
 use MosaicFormControllerInterface as FormControllerInterface;
 use RequiredFields;
 use Requirements;
@@ -476,7 +476,7 @@ JS
 
 		//check if user is an organisation admin and redirect if profile is incomplete
 		if ($member->MemberCreatedOrganisation() != false) {
-			/** @var SocialOrganisation $org */
+			/** @var Organisation $org */
 			$org = $member->MemberCreatedOrganisation();
 			if (!$org->isProfileCompleted()) {
 				$this->setSessionMessage("Please complete your organisation's profile", "notice");

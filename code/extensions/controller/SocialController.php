@@ -3,25 +3,21 @@ namespace Modular\Extensions\Controller;
 
 use Application;
 use DataObject;
-use Member;
 use Modular\config;
-use Modular\Edges\SocialRelationship as Edge;
 use Modular\json;
-use Modular\Types\SocialActionType;
-use Modular\Controllers\GraphNode;
 
 /**
- * Base extension for Controller extensions. Adds some usefull functionality.
+ * Extension for Social Controllers, also base class for Action controller extension, and so ultimately Social Actions, e.g. Approveable, Creatable etc
  *
  * SocialActionType extensions such as Viewable, Listable, Postable etc should derive
  * from this.
  *
  */
-class SocialController extends \Modular\Extensions\Controller\GraphNode {
+class SocialController extends GraphNode {
 	use config;
 	use json;
 
-	const Action = 'index';
+	const ActionName = 'index';
 
 	/**
 	 * Test if we are in particular mode (calls extend.provideMode)
@@ -47,8 +43,8 @@ class SocialController extends \Modular\Extensions\Controller\GraphNode {
 	 * @return string
 	 */
 	public function provideMode($compareMode) {
-		if ($compareMode === static::Action) {
-			return static::Action;
+		if ($compareMode === static::ActionName) {
+			return static::ActionName;
 		}
 	}
 
@@ -64,7 +60,7 @@ class SocialController extends \Modular\Extensions\Controller\GraphNode {
 	 * @return DataObject|null
 	 */
 	protected function provideModel($modelClass, $id, $action, $createIfNotFound = false) {
-		if ($action === static::Action) {
+		if ($action === static::ActionName) {
 			if ($id) {
 				if (!$model = DataObject::get($modelClass)->byID($id)) {
 					if ($createIfNotFound) {
@@ -85,7 +81,7 @@ class SocialController extends \Modular\Extensions\Controller\GraphNode {
 	 * @return DataObject|null
 	 */
 	protected function provideNewModel($modelClass, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return DataObject::create($modelClass);
 		}
 	}

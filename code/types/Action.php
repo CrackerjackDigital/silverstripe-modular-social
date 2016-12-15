@@ -7,10 +7,9 @@ use DataObject;
 use Modular\config;
 use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Extensions\Model\SocialModel as SocialModelExtension;
 use Modular\Fields\Code;
 use Modular\Fields\SystemData;
-use Modular\Interfaces\GraphEdgeType;
+use Modular\Interfaces\Graph\EdgeType;
 use Modular\reflection;
 use Modular\Types\SocialType;
 use Permission;
@@ -21,8 +20,8 @@ use TreeDropdownField;
  * what models, what actions can be performed to create/delete the actual relationship records
  * and who gets notified when one is made or broken.
  *
- * @property string Action
- * @property string ReverseAction
+ * @property string ActionName
+ * @property string ReverseActionName
  * @property string ActionType
  * @property string AllowedFrom
  * @property string AllowedTo
@@ -34,20 +33,20 @@ use TreeDropdownField;
  * @method ActionType|null RequirePrevious()
  *
  */
-class ActionType extends SocialType implements GraphEdgeType {
+class ActionType extends SocialType implements EdgeType {
 	use reflection;
 	use config;
 
 	const ActionCode                  = '';
-	const VariantAction               = 'Action';
-	const VariantReverse              = 'ReverseAction';
 	const RelationshipClassNamePrefix = '';
 	const RelationshipClassNameSuffix = '';
 	const RelationshipNamePrefix      = '';
 	const RelationshipNameSuffix      = '';
 
-	const FromModelFieldName = 'FromModel';
-	const ToModelFieldName   = 'ToModel';
+	const CodeFieldName       = \Modular\Fields\Code::SingleFieldName;
+	const FromModelFieldName  = 'FromModel';
+	const ToModelFieldName    = 'ToModel';
+	const ParentCodeFieldName = self::CodeFieldName;
 
 	private static $admin_groups = [
 		'administrators' => true,
@@ -62,34 +61,34 @@ class ActionType extends SocialType implements GraphEdgeType {
 	private static $db = [
 		// 'Title'            from Modular\Fields\Title
 		// 'Code'             from Modular\Fields\Code
-		'Action'                 => 'Varchar(12)',                 // e.g. 'Follow'
-		'ReverseAction'          => 'Varchar(12)',                 // e.g. 'Unfollow'
-		'ReverseTitle'           => 'Varchar(64)',                 // e.g for Title of 'Follows' would be 'Followed by'
-		self::FromModelFieldName => 'Varchar(64)',                 // e.g. 'Member'
-		self::ToModelFieldName   => 'Varchar(64)',                 // e.g. 'SocialOrganisation'
-		'LastBuildResult'        => 'Varchar(32)',                 // if this record was created, changed or unchanged by last build
-		'ShowInActionLinks'      => 'Int',                         // show this action in action-link menus if not 0
-		'ShowInActionButtons'    => 'Int',                         // show this action in action-button menus if not 0
-		'ParentCode'             => 'Varchar(3)',                  // Code of Parent (e.g. 'LIK' for 'MLM'), for simplicity, not in record
-		'PermissionPrefix'       => 'Varchar(32)',                 // e.g. 'CAN_APPROVE_' for approval relationships, not in record,
-		'ActionLinkType'         => "enum('nav,modal,inplace')"    // when clicked what to do?
+		'ActionName'              => 'Varchar(12)',                             // e.g. 'Follow'
+		'ReverseActionName'       => 'Varchar(12)',                             // e.g. 'Unfollow'
+		'ReverseTitle'            => 'Varchar(64)',                             // e.g for Title of 'Follows' would be 'Followed by'
+		self::FromModelFieldName  => 'Varchar(64)',                             // e.g. 'Member'
+		self::ToModelFieldName    => 'Varchar(64)',                             // e.g. 'SocialOrganisation'
+		'LastBuildResult'         => 'Varchar(32)',                             // if this record was created, changed or unchanged by last build
+		'ShowInActionLinks'       => 'Int',                                     // show this action in action-link menus if not 0
+		'ShowInActionButtons'     => 'Int',                                     // show this action in action-button menus if not 0
+		self::ParentCodeFieldName => \Modular\Fields\Code::SingleFieldSchema,   // Code of Parent (e.g. 'LIK' for 'MLM'), for simplicity, not in record
+		'PermissionPrefix'        => 'Varchar(32)',                             // e.g. 'CAN_APPROVE_' for approval relationships, not in record,
+		'ActionLinkType'          => "enum('nav,modal,inplace')"                // when clicked what to do?
 	];
 	private static $has_one = [
-		'Parent'          => 'Modular\Types\ActionType',         // typical parent relationship
-		'Permission'      => 'Permission',           // what permission is required to make/break a relationship
-		'NotifyFrom'      => 'Member',                // who emails are sent from when one is made/broken
-		'RequirePrevious' => 'Modular\Types\ActionType'   // e.g. for 'EDT' then a 'CRT' MemberPost relationship must exist
+		'Parent'          => 'Modular\Types\ActionType',                        // typical parent relationship
+		'Permission'      => 'Permission',                                      // what permission is required to make/break a relationship
+		'NotifyFrom'      => 'Member',                                          // who emails are sent from when one is made/broken
+		'RequirePrevious' => 'Modular\Types\ActionType'                         // e.g. for 'EDT' then a 'CRT' MemberPost relationship must exist
 	];
 	private static $has_many = [
 		'Relationships' => 'Modular\Edges\SocialRelationship',
 	];
 	private static $many_many = [
-		'ImpliedActions' => 'Modular\Types\ActionType',  // when this relationship is created also create these between member and model
-		'NotifyMembers'  => 'Member',            // who (Members) get notified when made/broken
-		'NotifyGroups'   => 'Group',               // who (Security Groups) get notified
+		'ImpliedActions' => 'Modular\Types\ActionType',                         // when this relationship is created also create these between member and model
+		'NotifyMembers'  => 'Member',                                           // who (Members) get notified when made/broken
+		'NotifyGroups'   => 'Group',                                            // who (Security Groups) get notified
 	];
 	private static $belongs_many_many = [
-		'TriggerAction' => 'Modular\Types\ActionType'  // back relationship to 'ImpliedActions'
+		'TriggerAction' => 'Modular\Types\ActionType'                           // back relationship to 'ImpliedActions'
 	];
 	private static $summary_fields = [
 		'Title',
@@ -97,7 +96,8 @@ class ActionType extends SocialType implements GraphEdgeType {
 		'Code',
 		'AllowedFrom',
 		'AllowedTo',
-		'Action',
+		'ActionName',
+		'ReverseActionName',
 		'ActionLinkType',
 	];
 	private static $singular_name = 'Action';
@@ -140,8 +140,8 @@ class ActionType extends SocialType implements GraphEdgeType {
 
 	/**
 	 * Returns an array of information used to build records around this type of relationship:
-	 * -    FromName                e.g. 'Member'
-	 * -    ToName                  e.g. 'SocialOrganisation' (not SocialOrganisation)
+	 * -    FromModel                e.g. 'Member'
+	 * -    ToModel               e.g. 'Modular\' (not SocialOrganisation)
 	 * -    FromFieldName           e.g. 'FromModelID'
 	 * -    ToFieldName             e.g. 'ToModelID'
 	 * -    RelationshipClassName   e.g. 'MemberOrganisationRelationship'
@@ -149,14 +149,15 @@ class ActionType extends SocialType implements GraphEdgeType {
 	 *
 	 * NB you can use list(,,$useThisOne,,,$andThisOne) to ignore ones you're not using.
 	 *
+	 * @param string $fieldNameSuffix to append to field names returned
 	 * @return array
 	 */
-	public function getLinkInfo() {
+	public function getEdgeInfo($fieldNameSuffix = 'ID') {
 		return [
 			$this->getFromName(),
 			$this->getToName(),
-			$this->getFromFieldName(),
-			$this->getToFieldName(),
+			static::from_field_name($fieldNameSuffix),
+			static::to_field_name($fieldNameSuffix),
 			$this->getRelationshipClassName(),
 			$this->getRelationshipName(),
 		];
@@ -202,8 +203,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 	 *
 	 * @param \DataObject  $fromModel
 	 * @param \DataObject  $toModel
-	 * @param array|string $variantData will be set on the created GraphEdges, don't put anything in here that would damage a GraphEdge which isn't the
-	 *                                  primary graph edge being created, e.g. in 'Make'
+	 * @param array|string $variantData will be set on the created GraphEdges, using the name of the Edge class as a key into the values to set.
 	 * @return \ArrayList
 	 */
 	public function createImpliedRelationships(DataObject $fromModel, DataObject $toModel, $variantData = []) {
@@ -229,7 +229,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 						$fromModel,
 						$toModel,
 						$implied->Code,
-						$variantData
+						isset($variantData[ $impliedRelationshipClass ]) ? $variantData[ $impliedRelationshipClass ] : []
 					)
 				);
 			}
@@ -239,7 +239,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 	}
 
 	/**
-	 * Return a class name like 'MemberOrganisationRelationship'
+	 * Return a class name like 'MemberOrganisation' manufactured from the From and To class names with prefix and suffix.
 	 *
 	 * @return string
 	 */
@@ -261,7 +261,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 	 *
 	 * @return string
 	 */
-	public static function identity_field_name($suffix = '') {
+	public static function code_field_name($suffix = '') {
 		return Code::single_field_name($suffix);
 	}
 
@@ -269,7 +269,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 	 * Returns a list of ActionType records from the database which apply to actions between two models provided (by their class names).
 	 *
 	 * e.g.     given 'Member', 'Organisation' ( or an instance of each/either) then would return all ActionType records that
-	 *          implement a GraphEdge between 'Member' and 'Organisation' by filtering by ActionType 'AllowedFrom' and 'AllowedTo' fields.
+	 *          implement a Edge between 'Member' and 'Organisation' by filtering by ActionType 'AllowedFrom' and 'AllowedTo' fields.
 	 *
 	 *          given 'Member', null returns all ActionType records can be performed going from a Member to any model
 	 *
@@ -284,7 +284,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 		$fromModelClasses = static::derive_class_name($fromModelClass);
 		$toModelClasses = static::derive_class_name($toModelClass);
 
-		$filter = GraphEdgeType::archtype($fromModelClasses, $toModelClasses, $typeCodes);
+		$filter = EdgeType::archtype($fromModelClasses, $toModelClasses, $typeCodes);
 		return static::get()->filter($filter);
 	}
 
@@ -297,43 +297,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 	}
 
 	/**
-	 * Return a mangled class name like 'SocialOrganisation' from AllowedFrom 'SocialOrganisation'
-	 *
-	 * @return string
-	 */
-	private function getFromName() {
-		return SocialModelExtension::name_from_class_name($this->AllowedFrom);
-	}
-
-	/**
-	 * Return a field name like 'FromModelID' using AllowedFrom
-	 *
-	 * @return string
-	 */
-	public function getFromFieldName() {
-		return 'From' . $this->getFromName() . 'ID';
-	}
-
-	/**
-	 * Return a mangled class name like 'SocialOrganisation' from AllowedTo 'SocialOrganisation'
-	 *
-	 * @return string
-	 */
-	private function getToName() {
-		return SocialModelExtension::name_from_class_name($this->AllowedTo);
-	}
-
-	/**
-	 * Return a field name like 'ToModelID' using AllowedTo
-	 *
-	 * @return string
-	 */
-	public function getToFieldName() {
-		return 'To' . $this->getToName() . 'ID';
-	}
-
-	/**
-	 * Return a filter which can be used to select a SocialAction based on passed parameters (of which some may be empty).
+	 * Return a filter which can be used to select a Action based on passed parameters (of which some may be empty).
 	 *
 	 * @param \DataObject|string $nodeAClass
 	 * @param \DataObject|string $nodeBClass
@@ -343,7 +307,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 	public static function archtype($nodeAClass, $nodeBClass, $typeCodes = []) {
 		$fromFieldName = static::from_field_name();
 		$toFieldName = static::to_field_name();
-		$identifyFieldName = self::identity_field_name();
+		$identifyFieldName = self::code_field_name();
 
 		$archtype = [];
 
@@ -388,7 +352,7 @@ class ActionType extends SocialType implements GraphEdgeType {
 	 * @param string|array $actionCodes
 	 * @return ActionType
 	 */
-	public static function get_by_identity($actionCodes) {
+	public static function get_by_code($actionCodes) {
 		return self::get()->filter('Code', $actionCodes)->first();
 	}
 
@@ -425,33 +389,27 @@ class ActionType extends SocialType implements GraphEdgeType {
 	/**
 	 * Returns a list of ActionType models which have the provided code or have the code as a Parent.
 	 *
-	 * @param string|DataObject $fromModelOrClassName
-	 * @param string|DataObject $toModelOrClassName
-	 * @param string|array      $actionCodes
+	 * @param string|DataObject $fromModelClass
+	 * @param string|DataObject $toModelClass
+	 * @param string|array      $typeCodes
 	 * @return DataList
 	 */
-	public static function get_heirarchy($fromModelOrClassName, $toModelOrClassName, $actionCodes) {
+	public static function get_heirarchy($fromModelClass, $toModelClass, $typeCodes) {
 		$old = SystemData::disable();
 
-		$actionCodes = array_filter(
-			is_array($actionCodes)
-				? $actionCodes
-				: explode(',', $actionCodes)
-		);
-
-		$fromModelClass = ($fromModelOrClassName instanceof DataObject) ? $fromModelOrClassName->class
-			: $fromModelOrClassName;
-		$toModelClass = ($toModelOrClassName instanceof DataObject) ? $toModelOrClassName->class : $toModelOrClassName;
+		$typeCodes = static::parse_type_codes($typeCodes);
+		$fromModelClass = static::derive_class_name($fromModelClass);
+		$toModelClass = static::derive_class_name($toModelClass);
 
 		// get relationship types for the code and the parent matching that code.
 		$heirarchy = ActionType::get()->filter([
 			'AllowedFrom' => $fromModelClass,
 			'AllowedTo'   => $toModelClass,
 		]);
-		if ($actionCodes) {
+		if ($typeCodes) {
 			$heirarchy = $heirarchy->filterAny([
-				'Code'       => $actionCodes,
-				'ParentCode' => $actionCodes,
+				'Code'       => $typeCodes,
+				'ParentCode' => $typeCodes,
 			]);
 		}
 		SystemData::enable($old);
@@ -714,9 +672,12 @@ class ActionType extends SocialType implements GraphEdgeType {
 				/** @var ActionType $requiredAction */
 				if ($requiredAction = ActionType::get()->byID($action->RequirePreviousID)) {
 
-					// get the SocialModel class name for this particular ActionType
+					// get the relationship class name for this particular ActionType
+					/** @var SocialRelationship|string $relationshipClassName */
 					$relationshipClassName = $action->getRelationshipClassName();
-					$previous = $relationshipClassName::history(
+
+					// find all the
+					$previous = $relationshipClassName::graph(
 						$fromModel,
 						$toModel
 					);

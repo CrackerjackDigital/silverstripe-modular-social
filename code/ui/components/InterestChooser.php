@@ -1,14 +1,14 @@
 <?php
-namespace Modular\UI\Components;
+namespace Modular\UI\Components\Social;
 
 use Config;
 use DataObject;
 use FieldList;
-use Modular\Types\SocialInterestType;
+use Modular\Types\Social\InterestType;
 use Modular\UI\Component;
 use Select2TagField;
 
-class SocialInterestChooser extends Component {
+class InterestChooser extends Component {
 	const IDFieldName = 'Interests';
 
 	protected static $field_name = self::IDFieldName;
@@ -16,7 +16,7 @@ class SocialInterestChooser extends Component {
 	protected static $value_seperator = ',';
 
 	public function __construct($selectedInterests = null, $allInterests = null) {
-		$allInterests = $allInterests ?: SocialInterestType::get()->sort('Title')->map()->toArray();
+		$allInterests = $allInterests ?: InterestType::get()->sort('Title')->map()->toArray();
 
 		list($fieldName, $fieldLabel) = self::get_field_config();
 
@@ -63,7 +63,7 @@ class SocialInterestChooser extends Component {
 	 */
 	public static function decode($sentValue) {
 		$titles = explode(self::tag_seperator(), $sentValue);
-		return SocialInterestType::get()
+		return InterestType::get()
 			->filter('Title', $titles)
 			->column('ID');
 	}

@@ -7,7 +7,7 @@ class Administrable extends SocialAction {
     const ActionCode = 'ADM';
 
 	private static $url_handlers = [
-		'$ID/admin' => self::Action,
+		'$ID/admin' => self::ActionName,
 	];
 
 	public function canAdminister($source = null) {

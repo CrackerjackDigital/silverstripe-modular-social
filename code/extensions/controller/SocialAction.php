@@ -1,15 +1,11 @@
 <?php
 namespace Modular\Extensions\Controller;
 
-use DataObject;
 use Modular\Edges\SocialRelationship;
-use Modular\Exceptions\Social as Exception;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Fields\SystemData;
-use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\Interfaces\SocialModelProvider;
 use Modular\Models\SocialModel;
-use Modular\Types\SocialActionType as SocialActionType;
+use Modular\Types\Social\ActionType as SocialActionType;
 
 /**
  * Base extension for actions which can be performed by the logged in Member to establish
@@ -18,7 +14,7 @@ use Modular\Types\SocialActionType as SocialActionType;
 abstract class SocialAction extends SocialController
 	implements SocialModelProvider {
 	const ActionCode        = '';
-	const Action            = '';
+	const ActionName        = '';
 	const ReverseAction     = '';
 	const MemberClassName   = 'Member';
 	const ActionClassSuffix = '';
@@ -75,7 +71,7 @@ abstract class SocialAction extends SocialController
 	 */
 	public function provideModel($modelClass, $id, $action, $createIfNotFound = false) {
 		$model = null;
-		if ($action === static::Action) {
+		if ($action === static::ActionName) {
 			if ($id) {
 				$model = SocialModel::get($modelClass)->byID($id);
 			}

@@ -7,22 +7,22 @@ use SS_HTTPResponse_Exception;
 
 class Deleteable extends SocialAction  {
     const ActionCode = 'DEL';
-    const Action = 'delete';
+    const ActionName = 'delete';
 
     private static $url_handlers = [
-        '$ID/delete' => self::Action
+        '$ID/delete' => self::ActionName
     ];
 
     private static $allowed_actions = [
-        self::Action => '->canDelete("action")'
+        self::ActionName => '->canDelete("action")'
     ];
 
     private static $action_templates = [
-        self::Action => self::Action,
+	    self::ActionName => self::ActionName,
     ];
 
     private static $action_modes = [
-        self::Action => self::Action,
+	    self::ActionName => self::ActionName,
     ];
 
 
@@ -40,7 +40,7 @@ class Deleteable extends SocialAction  {
      * @return Form
      */
     public function DeleteForm() {
-        return $this()->formForModel(self::Action);
+        return $this()->formForModel(self::ActionName);
     }
 
     /**

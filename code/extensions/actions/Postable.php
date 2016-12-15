@@ -7,11 +7,27 @@
  */
 namespace Modular\Actions;
 
+use Application;
+use Controller;
+use DataObject;
+use DropdownField;
+use FieldList;
+use FileAttachmentField;
+use FormAction;
+use Member;
+use Modular\Edges\SocialRelationship;
 use \Modular\Extensions\Controller\SocialAction;
+use Modular\Forms\SocialForm;
+use Modular\Interfaces\SocialModel;
+use Modular\Models\Social\Post;
+use RequiredFields;
+use Session;
+use SS_HTTPRequest;
+use TextareaField;
 
 class Postable extends SocialAction {
 	const ActionCode = 'POS';
-	const Action = 'post';
+	const ActionName = 'post';
 
 	private static $url_handlers = [
 		'$ID/post' => 'post',
@@ -26,7 +42,7 @@ class Postable extends SocialAction {
 	/**
 	 * Returns a simple form with a text input and a 'post' button.
 	 *
-	 * @return SocialModelForm
+	 * @return SocialForm
 	 */
 	public function PostableForm() {
 		if ($this->canPost()) {
@@ -49,9 +65,9 @@ class Postable extends SocialAction {
 			);
 			$validator = new RequiredFields('Body');
 
-			$uploadField->setFolderName(Member::currentUser()->ActionLink(self::Action));
+			$uploadField->setFolderName(Member::currentUser()->ActionLink(self::ActionName));
 
-			$form = new SocialModelForm($this(), 'PostableForm', $fieldList, $actionList, $validator);
+			$form = new SocialForm($this(), 'PostableForm', $fieldList, $actionList, $validator);
 
 			// we want to post to the full url with id etc and action 'post'
 
@@ -62,7 +78,7 @@ class Postable extends SocialAction {
 					'/',
 					$modelClass::config()->get('route_part'),
 					Member::currentUserID(),
-					self::Action
+					self::ActionName
 				)
 			);
 			return $form;
@@ -118,7 +134,7 @@ class Postable extends SocialAction {
 			}
 
 		} else {
-			Session::setFormMessage('SocialModelForm_PostableForm', _t("PostableWidget.MissingTitleMessage", "Posts something"), "bad");
+			Session::setFormMessage('SocialForm_PostableForm', _t("PostableWidget.MissingTitleMessage", "Posts something"), "bad");
 		}
 
 		$this()->setSessionMessage("New post created successfully.");
@@ -133,17 +149,18 @@ class Postable extends SocialAction {
 	 * For uploads as a post we need to provide the form which handles them, in this case for a 'post' request.
 	 * @param SS_HTTPRequest $request
 	 * @param $mode
-	 * @return SocialModelForm
+	 * @return SocialForm
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === self::Action) {
+		if ($mode === self::ActionName) {
 			return $this->PostableForm();
 		}
 	}
 
 	/**
 	 * Member unposts this->owner object, remove all self::$actionTypeCode relationships between them
-	 * @param null $mmeberID
+	 *
+	 * @return \SS_HTTPResponse
 	 */
 	public function unpost() {
 		// parent::breakRelationship(self::ActionCode);
@@ -159,7 +176,7 @@ class Postable extends SocialAction {
 	}
 
 	public function isPosted() {
-		return parent::checkRelationship(self::ActionCode);
+		return SocialRelationship::exists_by_type(Member::currentUser(), $this(), self::ActionCode);
 	}
 	/**
 	 * Return a link appropriate for this object to be posted by logged in Member if can be posted.
@@ -184,7 +201,7 @@ class Postable extends SocialAction {
 	 * @param $id
 	 * @param $mode
 	 *
-	 * @return SocialModelInterface|null
+	 * @return SocialModel|null
 	 */
 	public function provideModel($modelClass, $id, $mode) {
 		if ($mode === $this->action()) {

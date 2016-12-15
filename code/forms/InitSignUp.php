@@ -1,5 +1,5 @@
 <?php
-namespace Modular\Forms;
+namespace Modular\Forms\Social;
 use Convert;
 use DataObject;
 use EmailField;

@@ -1,15 +1,17 @@
 <?php
-namespace Modular\UI\Components;
+namespace Modular\UI\Components\Social;
 
 use Config;
+use DataList;
 use DataObject;
 use FieldList;
 use FormField;
+use Modular\Types\Social\OrganisationProductAndServiceType;
 use Modular\Types\SocialOrganisationProductAndServiceType;
 use Modular\UI\Component;
 use Select2TagField;
 
-class SocialProductAndServiceChooser extends Component {
+class ProductAndServiceChooser extends Component {
 	const IDFieldName = 'OrganisationProductsAndServices';
 
 	protected static $field_name = self::IDFieldName;
@@ -17,7 +19,7 @@ class SocialProductAndServiceChooser extends Component {
 	protected static $value_seperator = ',';
 
 	public function __construct($selectedProductAndServices = null, $allProductAndServices = null) {
-		$allProductAndServices = $allProductAndServices ?: SocialOrganisationProductAndServiceType::get()->sort('Title')->map()->toArray();
+		$allProductAndServices = $allProductAndServices ?: OrganisationProductAndServiceType::get()->sort('Title')->map()->toArray();
 
 		list($fieldName, $fieldLabel) = self::get_field_config();
 
@@ -34,9 +36,8 @@ class SocialProductAndServiceChooser extends Component {
 	 * If model passed in is an SocialOrganisation then update this field from model fields.
 	 *
 	 * @param DataObject $model
-	 * @param FieldList $fields
-	 * @param $mode
-	 * @param array $requiredFields
+	 * @param            $mode
+	 * @param            $fieldInfo
 	 */
 	public function updateFieldFromModel(DataObject $model, $mode, $fieldInfo) {
 		if ($model->hasField('ToProductAndServiceTypeID')) {
@@ -65,7 +66,7 @@ class SocialProductAndServiceChooser extends Component {
 	 */
 	public static function decode($sentValue) {
 		$titles = explode(self::tag_seperator(), $sentValue);
-		return SocialOrganisationProductAndServiceType::get()
+		return OrganisationProductAndServiceType::get()
 			->filter('Title', $titles)
 			->column('ID');
 	}

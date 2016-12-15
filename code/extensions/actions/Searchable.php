@@ -15,16 +15,16 @@ use Modular\Models\SocialModel as SocialModel;
 use Modular\Extensions\Controller\SocialAction;
 
 class Searchable extends SocialAction  {
-    const Action = 'search';
-    const WhatFieldName = 'SearcheableWhat';
+    const ActionName              = 'search';
+    const WhatFieldName           = 'SearcheableWhat';
     const ModelClassAttributeName = 'data-model';
-    const RelationshipName = 'SCH';
+    const RelationshipName        = 'SCH';
 
     private static $url_handlers = [
-        self::Action => self::Action
+        self::ActionName => self::ActionName
     ];
     private static $allowed_actions = [
-        self::Action => '->canSearch("action")'
+        self::ActionName => '->canSearch("action")'
     ];
 
     public function canSearch($source = null) {
@@ -33,7 +33,7 @@ class Searchable extends SocialAction  {
 
 
     public function search(SS_HTTPRequest $request) {
-        return $this()->renderTemplates(self::Action);
+        return $this()->renderTemplates(self::ActionName);
     }
     /**
      * Return a form with fields which are obtained from other extensions (e.g. HasOrganisations) depending on what
@@ -50,7 +50,7 @@ class Searchable extends SocialAction  {
         );
 
         $actions = new FieldList([
-            new FormAction('Search', self::Action)
+            new FormAction('Search', self::ActionName)
         ]);
 
         $form = new SocialForm($this(), 'SearchForm', $searchFields, $actions);
@@ -148,7 +148,7 @@ class Searchable extends SocialAction  {
         $searchFields = new FieldList();
         $csvWhat = is_array($csvWhat) ? $csvWhat : explode(',', $csvWhat);
 
-        $this()->getModelInstance(self::Action)->extend('updateSearchFields', $searchFields, $csvWhat);
+        $this()->getModelInstance(self::ActionName)->extend('updateSearchFields', $searchFields, $csvWhat);
 
         return $searchFields;
     }

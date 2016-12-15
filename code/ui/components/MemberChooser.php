@@ -1,5 +1,5 @@
 <?php
-namespace Modular\UI\Components;
+namespace Modular\UI\Components\Social;
 
 use Config;
 use DataObject;
@@ -8,7 +8,7 @@ use Member;
 use Modular\UI\Component;
 use Select2Field;
 
-class SocialMemberChooser extends Component {
+class MemberChooser extends Component {
 	const IDFieldName = 'Members';
 
 	protected static $field_name = self::IDFieldName;

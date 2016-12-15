@@ -1,13 +1,16 @@
 <?php
 namespace Modular\Relationships\Social;
-
-
+use DataList;
+use DataObject;
+use FieldList;
+use Modular\Actions\NewsFeed;
+use Modular\Models\Social\Organisation;
 
 /**
  *
  * Support functions for Classes which has_many MemberOrganisationAction.
  */
-class HasOrganisations extends SocialHasManyMany {
+class HasOrganisations extends HasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialOrganisation';
 
 	/**
@@ -96,7 +99,7 @@ class HasOrganisations extends SocialHasManyMany {
 	 * @return array|null
 	 */
 	public function provideListItemsForAction($mode, $actionCodes = []) {
-		if ($mode === NewsFeedExtension::Action) {
+		if ($mode === NewsFeed::ActionName) {
 			$related = parent::related($actionCodes);
 			$exclusionList = [];
 			foreach ($related as $org) {
@@ -141,10 +144,10 @@ class HasOrganisations extends SocialHasManyMany {
 	 * @param array $requiredFields
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, &$requiredFields = []) {
-		if ($chooserField = $fields->fieldByName('SocialOrganisationSubType')) {
+		if ($chooserField = $fields->fieldByName('OrganisationSubType')) {
 			$chooserField->setTypeID($model->OrganisationTypeID)->setSubTypeID($model->OrganisationSubTypeID);
 		}
-		/** @var UploadField $uploadField */
+		/** @var \UploadField $uploadField */
 		if ($uploadField = $fields->fieldByName('Logo')) {
 			$uploadField->setAllowedMaxFileNumber(1);
 			$uploadField->setCanAttachExisting(false);

@@ -1,10 +1,11 @@
 <?php
-namespace Modular\Forms;
+namespace Modular\Forms\Social;
 use FieldList;
 use Form;
 use FormAction;
 use Member;
-use Organisation;
+use Modular\Forms\SocialForm;
+use Modular\Models\Social\Organisation;
 use RequiredFields;
 use Select2Field;
 use SS_HTTPRequest;

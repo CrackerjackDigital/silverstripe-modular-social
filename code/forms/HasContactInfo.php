@@ -1,10 +1,12 @@
 <?php
-namespace Modular\Forms;
+namespace Modular\Forms\Social;
 use EmailField;
 use FieldList;
 use FormAction;
 use HiddenField;
 use Modular\Actions\Editable;
+use Modular\Forms\SocialForm;
+use Modular\Relationships\Social\HasContactInfo;
 use RequiredFields;
 use TextField;
 
@@ -36,7 +38,7 @@ class HasContactInfoForm extends SocialForm {
 		$validator = new RequiredFields(["Address", "Location", "PhoneNumber", "Email"]);
 		parent::__construct($controller, $name, $fields, $actions, $validator);
 
-		if ($model = $controller->getModelInstance(Editable::Action)) {
+		if ($model = $controller->getModelInstance(Editable::ActionName)) {
 			$this->setFormAction($model->ActionLink(static::Action));
 		}
 

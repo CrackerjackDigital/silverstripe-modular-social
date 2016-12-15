@@ -3,6 +3,7 @@ namespace Modular\Extensions\Model;
 
 use ArrayData;
 use ConfirmedPasswordField;
+use DataList;
 use DataObject;
 use FieldList;
 use Member;
@@ -10,14 +11,14 @@ use Modular\Actions\Approveable;
 use Modular\Actions\Createable;
 use Modular\Actions\Editable;
 use Modular\Actions\Registerable;
-use SocialOrganisationChooser;
-use OrganisationTypesChooser;
+use Modular\UI\Components\Social\OrganisationChooser;
+use Modular\UI\Components\Social\OrganisationSubTypeChooser;
 use ValidationResult;
 
 /**
  * Adds fields, relationships and functionality to the SilverStripe framework Member object.
  */
-class SocialMember extends SocialModel  {
+class SocialMember extends SocialModel {
 	const GuestMemberField = 'GuestMemberFlag';
 	const GuestMemberYes   = 1;
 
@@ -46,14 +47,14 @@ class SocialMember extends SocialModel  {
 	];
 	// fields to show by action.
 	private static $fields_for_mode = [
-		\Modular\Actions\Registerable::Action => [
+		\Modular\Actions\Registerable::ActionName => [
 			'FirstName'        => true,
 			'Surname'          => true,
 			'Email'            => ['EmailField', true],
 			'MembershipTypeID' => ['Select2Field', true],
 			// SocialOrganisation chooser gets added by updateFieldsForMode
 		],
-		\Modular\Actions\Createable::Action   => [
+		\Modular\Actions\Createable::ActionName   => [
 			'FirstName'        => true,
 			'Surname'          => true,
 			'Email'            => ['EmailField', true],
@@ -61,14 +62,14 @@ class SocialMember extends SocialModel  {
 			'MembershipTypeID' => ['Select2Field', true],
 			// SocialOrganisation chooser gets added by updateFieldsForMode
 		],
-		\Modular\Actions\Editable::Action     => [
+		\Modular\Actions\Editable::ActionName     => [
 			'FirstName' => true,
 			'Surname'   => true,
 			'Email'     => ['EmailField', true],
 			'Phone'     => true,
 			'Bio'       => ['TextareaField', true],
 		],
-		\Modular\Actions\Viewable::Action     => [
+		\Modular\Actions\Viewable::ActionName     => [
 			'FirstName'        => false,
 			'Surname'          => false,
 			'Email'            => false,
@@ -77,7 +78,7 @@ class SocialMember extends SocialModel  {
 			'Interests'        => false,
 			'MembershipTypeID' => false,
 		],
-		\Modular\Actions\Listable::Action     => [
+		\Modular\Actions\Listable::ActionName     => [
 			'FirstName'    => false,
 			'Surname'      => false,
 			'Email'        => ['EmailField', false],
@@ -86,7 +87,7 @@ class SocialMember extends SocialModel  {
 			'ProfileImage' => 'ImageField',
 			'Interests'    => false,
 		],
-		\Modular\Actions\Searchable::Action   => [
+		\Modular\Actions\Searchable::ActionName   => [
 			'FirstName'        => false,
 			'Surname'          => false,
 			'MembershipTypeID' => 'Select2Field',
@@ -107,18 +108,16 @@ class SocialMember extends SocialModel  {
 	/**
 	 * Return form component used to modify this relationship.
 	 *
-	 * @return SocialOrganisationChooser
+	 * @return OrganisationChooser
 	 */
 	protected function OrganisationChooser() {
-		return (new SocialOrganisationChooser(
+		return (new OrganisationChooser(
 			$this()->getOrganisationID()
 		));
 	}
 
 	protected function OrganisationTypesChooser() {
-		$chooser = new OrganisationTypesChooser();
-
-		return $chooser;
+		return new OrganisationSubTypeChooser();
 	}
 
 	public function Title() {
@@ -167,15 +166,15 @@ class SocialMember extends SocialModel  {
 		if (in_array(
 			$mode,
 			[
-				Registerable::Action,
-				Createable::Action,
-				Editable::Action,
+				Registerable::ActionName,
+				Createable::ActionName,
+				Editable::ActionName,
 			]
 		)) {
 
 			if (in_array($mode, [
-				Createable::Action,
-				Registerable::Action,
+				Createable::ActionName,
+				Registerable::ActionName,
 			])
 			) {
 				if ($this()->hasExtension('\Modular\Actions\Approveable')) {
@@ -195,8 +194,8 @@ class SocialMember extends SocialModel  {
 
 				// only show create new if we are registering or creating a new organisation
 				if (!in_array($mode, [
-					Createable::Action,
-					Registerable::Action,
+					Createable::ActionName,
+					Registerable::ActionName,
 				])
 				) {
 
@@ -351,10 +350,12 @@ class SocialMember extends SocialModel  {
 	}
 
 	/**
+	 * Return a list of people in the 'Administrator' group
 	 * @return DataList
 	 */
 	public static function getAdmins() {
-		$clientsGroup = DataObject::get_one('Group', "Title = 'Administrators'");
+		/** @var \Group $clientsGroup */
+		$clientsGroup = DataObject::get_one('Group', "Code = 'admin'");
 		return $clientsGroup->Members();
 
 	}

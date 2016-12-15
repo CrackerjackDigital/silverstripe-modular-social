@@ -10,29 +10,29 @@ use HiddenField;
 use Modular\Controllers\SocialModel_Controller;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Types\SocialActionType;
+use Modular\Types\Social\ActionType as SocialActionType;
 use Modular\UI\Controls\ActionLinkField;
 use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;
 
 class Viewable extends SocialAction  {
 	const ActionCode = 'VEW';
-	const Action = 'view';
+	const ActionName = 'view';
 
 	private static $url_handlers = [
-		'$ID/view' => self::Action,
+		'$ID/view' => self::ActionName,
 	];
 
 	private static $allowed_actions = [
-		self::Action => '->canView("action")',
+		self::ActionName => '->canView("action")',
 	];
 
 	private static $action_templates = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	private static $action_modes = [
-		self::Action => self::Action,
+		self::ActionName => self::ActionName,
 	];
 
 	/**
@@ -41,7 +41,7 @@ class Viewable extends SocialAction  {
 	 * @return bool
 	 */
 	public function canView($source = null) {
-		if (!$model = $this()->getModelInstance(self::Action)) {
+		if (!$model = $this()->getModelInstance(self::ActionName)) {
 			$this()->httpError(404);
 		}
 		if ($creator = $this()->LastActor('CRT')) {
@@ -66,7 +66,7 @@ class Viewable extends SocialAction  {
 	 * @param $mode
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
-		if ($mode === self::Action) {
+		if ($mode === self::ActionName) {
 			if (!$fields->fieldByName('ID')) {
 				$fields->push(
 					new HiddenField('ID', '', $model->ID)
@@ -80,16 +80,16 @@ class Viewable extends SocialAction  {
 	 * @param $mode
 	 */
 	public function updateActionsForMode(DataObject $model, FieldList $actions, $mode) {
-		if ($mode === self::Action) {
+		if ($mode === self::ActionName) {
 			$allowed = SocialActionType::check_permission(
 				Editable::ActionCode,
 				SocialMember::current_or_guest(),
-				$this()->getModelInstance(self::Action)
+				$this()->getModelInstance(self::ActionName)
 			);
 
 			if ($allowed) {
 
-				$href = $this()->getModelInstance(self::Action)->ActionLink(Editable::Action);
+				$href = $this()->getModelInstance(self::ActionName)->ActionLink(Editable::ActionName);
 				$label = 'Edit';
 
 				$actions->merge([
@@ -101,7 +101,7 @@ class Viewable extends SocialAction  {
 
 	public function ViewForm() {
 		/** @var Form $form */
-		$form = $this()->formForModel(self::Action);
+		$form = $this()->formForModel(self::ActionName);
 		// NB this is overridded in SocialForm to apply DisabledTransformation not ReadonlyTransformation
 		$form->makeReadonly();
 		return $form;
@@ -113,11 +113,11 @@ class Viewable extends SocialAction  {
 	 * @returns Form|SS_HTTPResponse_Exception
 	 */
 	public function view(SS_HTTPRequest $request) {
-		$mode = self::Action;
+		$mode = self::ActionName;
 		/** @var SocialModel_Controller $controller */
 		$controller = $this();
 
-		$model = $controller->getModelInstance(self::Action);
+		$model = $controller->getModelInstance(self::ActionName);
 
 		if ($request->httpMethod() === 'GET') {
 			$responses = $controller->extend('beforeView', $request, $model, $mode);
@@ -138,7 +138,7 @@ class Viewable extends SocialAction  {
 	 * @return mixed
 	 */
 	public function beforeView() {
-		return $this()->renderTemplates(self::Action);
+		return $this()->renderTemplates(self::ActionName);
 	}
 
 	/**

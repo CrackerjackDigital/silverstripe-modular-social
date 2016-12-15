@@ -1,10 +1,15 @@
 <?php
 namespace Modular\Relationships\Social;
 
-use Modular\Relationships\SocialHasMany;
-use Modular\UI\Components\SocialProductAndServiceChooser;
+use ArrayList;
+use DataList;
+use DataObject;
+use Modular\Types\Social\ActionType;
+use Modular\UI\Components\Social\ProductAndServiceChooser;
+use SS_HTTPRequest;
+use SS_HTTPResponse_Exception;
 
-class SocialHasOrganisationProductsAndServices extends SocialHasMany {
+class HasOrganisationProductsAndServices extends HasMany  {
 
 	protected static $other_class = 'SocialOrganisationProductAndServiceType';
 
@@ -17,14 +22,14 @@ class SocialHasOrganisationProductsAndServices extends SocialHasMany {
 	protected static $value_seperator = ',';
 
 	// name of field added to form
-	protected static $field_name = Modular\UI\Components\SocialProductAndServiceChooser::IDFieldName;
+	protected static $field_name = \Modular\UI\Components\Social\ProductAndServiceChooser::IDFieldName;
 
 	protected static $remove_field_name = 'ProductsAndServices';
 
 	/**
 	 * Return form component used to modify this action.
 	 *
-	 * @return SocialProductAndServiceChooser
+	 * @return ProductAndServiceChooser
 	 */
 	public function Chooser() {
 		$ProductsAndServices = $this->ProductsAndServices();
@@ -36,7 +41,7 @@ class SocialHasOrganisationProductsAndServices extends SocialHasMany {
 			$ProductsAndServices = [];
 		}
 
-		return (new SocialProductAndServiceChooser(
+		return (new ProductAndServiceChooser(
 			$ProductsAndServices,
 			$this->getAllowedActionTypes()->map()->toArray()
 		));
@@ -101,7 +106,7 @@ class SocialHasOrganisationProductsAndServices extends SocialHasMany {
 	}
 
 	/**
-	 * Add the SocialProductAndServiceChooser.IDFieldName to the list of fields to remove from subsequent processing as POST data.
+	 * Add the ProductAndServiceChooser.IDFieldName to the list of fields to remove from subsequent processing as POST data.
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject $model
@@ -109,8 +114,8 @@ class SocialHasOrganisationProductsAndServices extends SocialHasMany {
 	 * @param array $fieldsHandled
 	 */
 	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
-		// $fieldsHandled[SocialProductAndServiceChooser::IDFieldName] = SocialProductAndServiceChooser::IDFieldName;
-		$products = $request->postVar(SocialProductAndServiceChooser::IDFieldName);
+		// $fieldsHandled[ProductAndServiceChooser::IDFieldName] = ProductAndServiceChooser::IDFieldName;
+		$products = $request->postVar(ProductAndServiceChooser::IDFieldName);
 		if ($products) {
 			$productSplit = explode(self::$value_seperator, $products);
 
@@ -120,7 +125,7 @@ class SocialHasOrganisationProductsAndServices extends SocialHasMany {
 				if (!$checkProductInList) {
 					$newProductService = new self::$other_class;
 					$newProductService->Title = $value;
-					$newProductService->AllowedFrom = "SocialOrganisation";
+					$newProductService->{ActionType::FromModelFieldName} = "SocialOrganisation";
 					$newProductService->write();
 				}
 			}

@@ -1,8 +1,9 @@
 <?php
-namespace Modular\Forms;
+namespace Modular\Forms\Social;
 use ArrayList;
 use FieldList;
 use FileAttachmentField;
+use Modular\Forms\SocialForm;
 use Modular\Relationships\HasImages;
 
 /**

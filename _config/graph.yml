@@ -5,14 +5,14 @@ Name: modular-social-graph-config
 # field and class names are picked up e.g. 'FromNode' and 'ToNode' instead of 'NodeA' and 'NodeB'
 Modular\Edges\Directed:
   extensions:
-    - Modular\Extensions\Model\GraphEdge
+    - Modular\Extensions\Model\Edge
   from_class_name: 'Modular\Models\SocialModel'
   to_class_name: 'Modular\Models\SocialModel'
   from_field_name: 'FromModel'
   to_field_name: 'ToModel'
 
 
-# now add GraphNode extension to the Models
+# now add Node extension to the Models
 Member:
   extensions:
-    - Modular\Extensions\Model\GraphNode
+    - Modular\Extensions\Model\Graph\Node

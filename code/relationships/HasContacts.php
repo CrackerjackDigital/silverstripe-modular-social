@@ -3,13 +3,13 @@ namespace Modular\Relationships\Social;
 use ArrayData;
 use DataList;
 use Modular\Edges\SocialRelationship;
-use SocialOrganisationChooser;
+use Modular\UI\Components\Social\OrganisationChooser;
 
 /**
  * class SocialHasContactsExtension
  */
-class HasContacts extends SocialHasManyMany {
-	const RelatedClassName = 'Modular\Models\SocialContactInfo';
+class HasContacts extends HasManyMany {
+	const RelatedClassName = 'Modular\Models\Social\ContactInfo';
 
 	/**
 	 * Returns extension related data for use in e.g. an ExpandoWidget
@@ -47,7 +47,7 @@ class HasContacts extends SocialHasManyMany {
 	/**
 	 * Return form component used to modify this action. If no self::$chooser_field set then return null.
 	 *
-	 * @return SocialOrganisationChooser
+	 * @return OrganisationChooser
 	 */
 	public function ContactChooser() {
 		return parent::Chooser();
@@ -56,7 +56,7 @@ class HasContacts extends SocialHasManyMany {
 	/**
 	 * Return related instances with an optional action type.
 	 *
-	 * @param null $actionCode
+	 * @param null $actionCodes
 	 * @return DataList
 	 */
 	public function Contacts($actionCodes = null) {

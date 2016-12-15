@@ -3,7 +3,10 @@ namespace Modular\Relationships\Social;
 
 
 
-class HasPosts extends SocialHasManyMany {
+use DataList;
+use Modular\UI\Components\Social\OrganisationChooser;
+
+class HasPosts extends HasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialPost';
 
 	public function HasPosts($actionCodes = null) {
@@ -26,7 +29,7 @@ class HasPosts extends SocialHasManyMany {
 	/**
 	 * Return form component used to modify this action. If no self::$chooser_field set then return null.
 	 *
-	 * @return SocialOrganisationChooser
+	 * @return OrganisationChooser
 	 */
 	public function PostChooser() {
 		return parent::Chooser();
@@ -35,7 +38,7 @@ class HasPosts extends SocialHasManyMany {
 	/**
 	 * Return related instances with an optional action type.
 	 *
-	 * @param null $actionCode
+	 * @param null $actionCodes
 	 * @return DataList
 	 */
 	public function Posts($actionCodes = null) {

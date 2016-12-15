@@ -5,6 +5,8 @@ use ArrayData;
 use CompaniesEntityDetails;
 use Member;
 use Modular\Models\SocialModel;
+use Modular\Types\Social\OrganisationSubType;
+use Modular\Types\Social\OrganisationType;
 use Modular\Types\SocialOrganisationSubType;
 use Modular\Types\SocialOrganisationType;
 use Permission;
@@ -13,7 +15,7 @@ use ValidationResult;
 
 /**
  * An SocialOrganisation public model.
- * @method SocialOrganisationSubType OrganisationSubType()
+ * @method OrganisationSubType OrganisationSubType()
  * @method \SS_List OrganisationSubTypes()
  * @method \DataList RelatedMembers()
  * @method \DataList RelatedInterests()
@@ -21,17 +23,21 @@ use ValidationResult;
  * @method \DataList RelatedPosts()
  * @method \DataList RelatedContactInfos()
  * @method \Image FeaturedImage()
- * @property string Street
- * @property string Suburb
- * @property string City
- * @property string Country
- * @property string PhoneNumber
- * @property string MobilePhoneNumber
- * @property string Email
- * @property string Website
- * @property string MbieRegistrationNumber
+ * @method \Image Logo()
+ *
+ * @property string   Title
+ * @property string   Street
+ * @property string   Suburb
+ * @property string   City
+ * @property string   Country
+ * @property string   PhoneNumber
+ * @property string   MobilePhoneNumber
+ * @property string   Email
+ * @property string   Website
+ * @property string   MbieRegistrationNumber
+ * @property int|null LogoID
  */
-class Organisation extends SocialModel  {
+class Organisation extends SocialModel {
 	private static $db = [
 		'Street'                 => 'Varchar(255)',
 		'Suburb'                 => 'Varchar(255)',
@@ -45,7 +51,7 @@ class Organisation extends SocialModel  {
 	];
 	private static $has_one = [
 		"FeaturedImage"       => "Image",
-		"OrganisationSubType" => "SocialOrganisationSubType",
+		"OrganisationSubType" => "OrganisationSubType",
 	];
 	private static $has_many = [
 		'RelatedMembers'             => 'MemberOrganisation.ToModel',
@@ -56,7 +62,7 @@ class Organisation extends SocialModel  {
 	];
 
 	private static $many_many = [
-		"OrganisationSubTypes" => "SocialOrganisationSubType",
+		"OrganisationSubTypes" => "OrganisationSubType",
 	];
 	// private static $default_sort = 'Sort,Title';
 
@@ -66,16 +72,16 @@ class Organisation extends SocialModel  {
 
 	// fields to show by mode.
 	private static $fields_for_mode = [
-		\Modular\Actions\Registerable::Action => [
+		\Modular\Actions\Registerable::ActionName => [
 			'MbieRegistrationNumber' => false,
 		],
-		\Modular\Actions\Createable::Action   => [
+		\Modular\Actions\Createable::ActionName   => [
 			'Title'       => true,
 			'Logo'        => 'FileAttachmentField',
 			'Website'     => false,
 			'Description' => 'TextAreaField',
 		],
-		\Modular\Actions\Editable::Action     => [
+		\Modular\Actions\Editable::ActionName     => [
 			'Title'               => true,
 			'PhoneNumber'         => true,
 			'MobilePhoneNumber'   => true,
@@ -84,24 +90,24 @@ class Organisation extends SocialModel  {
 			'Description'         => 'TextAreaField',
 			'ProductsAndServices' => false,
 		],
-		\Modular\Actions\Viewable::Action     => [
+		\Modular\Actions\Viewable::ActionName     => [
 			'Title'                 => true,
 			'Logo'                  => 'ImageField',
 			'Website'               => false,
 			'Description'           => true,
 			'OrganisationSubTypeID' => true,
 		],
-		\Modular\Actions\Listable::Action     => [
+		\Modular\Actions\Listable::ActionName     => [
 			'Images'      => 'HasImagesField',
 			'Logo'        => 'ImageField',
 			'Title'       => true,
 			'Description' => false,
 		],
-		\Modular\Actions\Searchable::Action   => [
+		\Modular\Actions\Searchable::ActionName   => [
 			'Title'                 => ['TextField', false, 'Organisation Title'],
 			'OrganisationSubTypeID' => true,
 		],
-		\Modular\Actions\Joinable::Action     => [
+		\Modular\Actions\Joinable::ActionName     => [
 			// fields for join modal
 			'Body' => ['TextAreaField', true, 'Reason for joining'],
 		],
@@ -131,7 +137,7 @@ class Organisation extends SocialModel  {
 			$typeIDs[] = $subType->OrganisationTypeID;
 		}
 		if (count($typeIDs) != 0) {
-			return SocialOrganisationType::get()->filter(["ID" => $typeIDs]);
+			return OrganisationType::get()->filter(["ID" => $typeIDs]);
 		} else {
 			return false;
 		}
@@ -146,7 +152,7 @@ class Organisation extends SocialModel  {
 				$subTypes = $this->OrganisationSubTypes();
 			}
 		}
-		return \GroupedList::create($subTypes)->Groupedby('OrganisationTypeTitle');
+		return \GroupedList::create($subTypes)->groupBy('OrganisationTypeTitle');
 	}
 
 	public function getOrganisationSubTypes() {

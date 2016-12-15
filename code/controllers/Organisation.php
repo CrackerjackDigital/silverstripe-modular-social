@@ -11,6 +11,7 @@ use Modular\Controllers\SocialModelController;
 use Modular\Edges\MemberOrganisation;
 use Modular\Edges\OrganisationContactInfo;
 use Modular\Extensions\Model\SocialMember;
+use Modular\Forms\SocialForm;
 use Modular\Models\Social\ContactInfo;
 use Modular\Models\Social\Organisation;
 
@@ -105,8 +106,8 @@ class Organisation_Controller extends SocialModelController {
 	}
 
 	/**
-	 * If we have a field called 'SocialOrganisationSubType' then set it's values from the model as its
-	 * probably an SocialOrganisationSubType field.
+	 * If we have a field called 'OrganisationSubType' then set it's values from the model as its
+	 * probably an OrganisationSubType field.
 	 *
 	 * @param DataObject $model
 	 * @param FieldList  $fields

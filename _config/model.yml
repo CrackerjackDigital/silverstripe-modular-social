@@ -1,19 +1,6 @@
 ---
 Name: modular-social-model-config
 ---
-Member:
-  extensions:
-    - Modular\Actions\Approveable
-    - Modular\Actions\Confirmable
-    - HasOrganisationsExtension
-    - HasForumsExtension
-    - HasContactsExtension
-    - HasFavouritesExtension
-    - HasPostsExtension
-    - HasForumTopicsExtension
-    - HasImagesExtension
-    - HasProfilePictureExtension
-    - HasRssFeedsExtension
 
 # edges
 Modular\Edges\Social:

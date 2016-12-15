@@ -12,7 +12,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Likeable extends SocialAction {
     const ActionCode = 'LIK';
-    const Action = 'like';
+    const ActionName = 'like';
 
     private static $url_handlers = [
         '$ID/like' => 'like',

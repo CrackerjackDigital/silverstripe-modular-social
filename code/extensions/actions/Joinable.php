@@ -1,17 +1,24 @@
 <?php
-
-/**
- * This extension implements the 'Membership' interface, internally relationship code is 'MEM' not JON or some such.
- */
 namespace Modular\Actions;
 
-use \Modular\Extensions\Controller\SocialAction;
+use Controller;
+use FieldList;
+use FormAction;
+use LiteralField;
+use Member;
+use Modular\Extensions\Controller\SocialAction;
+use Modular\Forms\SocialForm;
+use Modular\Interfaces\SocialModel;
 use Modular\Interfaces\UIModalProvider;
+use Modular\Models\Graph\Edge;
+use RequiredFields;
+use SS_HTTPRequest;
+use SS_HTTPResponse;
 
 class Joinable extends SocialAction
 	implements UIModalProvider {
 	const ActionCode = 'JOI';
-	const Action     = 'join';
+	const ActionName = 'join';
 
 	private static $url_handlers = [
 		'$ID/join/modal' => 'joinReasons',
@@ -52,18 +59,18 @@ class Joinable extends SocialAction
 		if (!$currentMemberId = Member::currentUserID()) {
 			return $this()->httpError("You need to be logged in to join an organisation");
 		}
-		parent::makeRelationship(self::ActionCode, $request->postVars());
+		Edge::make(Member::currentUser(), $this(), self::ActionCode, $request->postVars());
 
 		return $this()->redirectBack();
 	}
 
 	public function leave() {
-		parent::breakRelationship(self::ActionCode);
+		Edge::remove(Member::currentUser(), $this(), self::ActionCode);
 		return Controller::curr()->redirectBack();
 	}
 
 	public function isJoined() {
-		return parent::checkRelationship(self::ActionCode);
+		return Edge::exists_by_type(Member::currentUser(), $this(), self::ActionCode);
 	}
 
 	/**
@@ -75,7 +82,7 @@ class Joinable extends SocialAction
 	 * @param $id
 	 * @param $mode
 	 *
-	 * @return SocialModelInterface|null
+	 * @return SocialModel|null
 	 */
 	public function provideModel($modelClass, $id, $mode) {
 		return parent::provideModelByID($modelClass, $id, $mode);
@@ -86,7 +93,7 @@ class Joinable extends SocialAction
 	 * extensions mode.
 	 *
 	 * @param SS_HTTPRequest $request
-	 * @return SocialModelForm|null
+	 * @return SocialForm|null
 	 */
 	public function provideUIModal(SS_HTTPRequest $request) {
 		$mode = $request->param('Mode');
@@ -97,7 +104,7 @@ class Joinable extends SocialAction
 	}
 
 	public function joinReasons(SS_HTTPRequest $request) {
-		list($fields, $requiredFields) = $this()->getFieldsForMode(self::Action);
+		list($fields, $requiredFields) = $this()->getFieldsForMode(self::ActionName);
 
 		$actions = FieldList::create(
 			FormAction::create('Submit')
@@ -108,7 +115,7 @@ class Joinable extends SocialAction
 				->addExtraClass("btn btn-gray")
 		);
 
-		$form = new SocialModelForm(
+		$form = new SocialForm(
 			$this(),
 			__FUNCTION__,
 			$fields,
@@ -116,7 +123,7 @@ class Joinable extends SocialAction
 			new RequiredFields($requiredFields)
 		);
 		$form->setFormAction(
-			$this()->getModelInstance($this->action())->ActionLink($this->action())
+			$this()->getModelInstance(static::action_code())->ActionLink(static::action_code())
 		);
 
 		return $this()->renderWith(["OrganisationModel_joinModal"], compact("form"));

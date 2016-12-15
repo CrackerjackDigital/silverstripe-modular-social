@@ -12,7 +12,7 @@ use Modular\Exceptions\Social as Exception;
 use Modular\Fields\HasManyManyGridField;
 use Modular\Interfaces\GraphEdgeType;
 use Modular\Object;
-use Modular\Types\SocialActionType;
+use Modular\Types\Social\ActionType as SocialActionType;
 use Modular\UI\Component;
 use SS_List;
 
@@ -34,9 +34,9 @@ use SS_List;
  *
  *
  */
-class SocialHasManyMany extends HasManyManyGridField {
+class HasManyMany extends HasManyManyGridField {
 	const RelatedClassName    = '';             # e.g. 'Modular\Models\SocialOrganisation
-	const ChooserClassName    = '';             # e.g. 'Modular\UI\Components\SocialOrganisationChooser'
+	const ChooserClassName    = '';             # e.g. 'Modular\UI\Components\OrganisationChooser'
 	const GridFieldConfigName = 'Modular\GridField\Configs\SocialModelGridFieldConfig';
 	const RelationshipPrefix  = 'Related';      // will try and build one from this and the sanitised class name being related to
 
@@ -234,7 +234,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 			? $action->ID
 			: (is_numeric($action)
 				? $action
-				: SocialActionType::get_by_identity($action));
+				: SocialActionType::get_by_code($action));
 
 		/** @var string|SocialRelationship $relationshipClassName */
 		$relationshipClassName = static::relationship_class_name($this());

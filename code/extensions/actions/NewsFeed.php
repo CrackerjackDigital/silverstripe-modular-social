@@ -9,16 +9,16 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class NewsFeed extends SocialAction  {
 	const ActionCode = 'VEW';
-	const Action           = 'newsfeed';
+	const ActionName = 'newsfeed';
 
-	private static $template_name = self::Action;
+	private static $template_name = self::ActionName;
 
 	private static $newsfeed_type_limit = 0;
 
 	private static $url_handlers = [
-		'index'        => 'index',
-		self::Action   => 'index',
-		'$ID/newsfeed' => 'index',
+		'index'          => 'index',
+		self::ActionName => 'index',
+		'$ID/newsfeed'   => 'index',
 	];
 
 	private static $allowed_actions = [
@@ -26,8 +26,8 @@ class NewsFeed extends SocialAction  {
 	];
 
 	private static $action_templates = [
-		'index'      => self::Action,
-		self::Action => self::Action,
+		'index'          => self::ActionName,
+		self::ActionName => self::ActionName,
 	];
 
 	/**
@@ -43,7 +43,7 @@ class NewsFeed extends SocialAction  {
 		if (!$member = Member::currentUser()) {
 			$this()->httpError(403);
 		}
-		if (!$model = $this()->getModelInstance($mode = self::Action)) {
+		if (!$model = $this()->getModelInstance($mode = self::ActionName)) {
 			$this()->httpError(404);
 		}
 		return parent::canDoIt(self::ActionCode, $source);
@@ -123,7 +123,7 @@ class NewsFeed extends SocialAction  {
 	 * @return DataList|Modular\Collections\RoundRobinMultipleArrayList
 	 */
 	private function newsFeedList($actionTypeCodes) {
-		$mode = self::Action;
+		$mode = self::ActionName;
 		$filters = $this()->request->getVar('filter');
 		/**
 		 *
@@ -131,7 +131,7 @@ class NewsFeed extends SocialAction  {
 		 * - Apply filter to news feeds
 		 **/
 
-		if (!$model = $this()->getModelInstance(self::Action)) {
+		if (!$model = $this()->getModelInstance(self::ActionName)) {
 			return $this()->redirect('/Security/login');
 		}
 		// TODO make this per item type for each model type returned in list
@@ -175,7 +175,7 @@ class NewsFeed extends SocialAction  {
 	 * @return mixed
 	 */
 	public function providListItemsForAction($mode, $actionTypeCodes) {
-		if ($mode === NewsFeed::Action) {
+		if ($mode === NewsFeed::ActionName) {
 			if ($model = $this()->getModelInstance($mode)) {
 				return $model->related($actionTypeCodes);
 			}

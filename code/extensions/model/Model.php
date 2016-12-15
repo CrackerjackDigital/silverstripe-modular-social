@@ -56,6 +56,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 
 		$canDoIt = SocialActionType::check_permission(
 			$actionCodes,
+			SocialMember::current_or_guest(),
 			$this->getModelInstance()
 		);
 		if ($source && !$canDoIt) {

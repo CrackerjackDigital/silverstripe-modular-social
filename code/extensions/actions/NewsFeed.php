@@ -9,7 +9,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class NewsFeed extends SocialAction  {
 	const ActionCode = 'VEW';
-	// const Action           = 'newsfeed';
+	const Action           = 'newsfeed';
 
 	private static $template_name = self::Action;
 

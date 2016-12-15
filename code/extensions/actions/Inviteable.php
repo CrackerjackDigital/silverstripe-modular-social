@@ -11,7 +11,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Inviteable extends SocialAction {
     const ActionCode = 'IVT';
-    // const Action = 'invite';
+    const Action = 'invite';
 
     private static $url_handlers = [
         '$ID/invite' => 'invite',

@@ -1,10 +1,11 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
+use Modular\Models\SocialModel;
 
 /**
  * A forum public model.
  */
-class SocialForum extends SocialModel {
+class Forum extends SocialModel {
 	private static $singular_name = 'Forum';
 
 	private static $route_part = 'forum';
@@ -42,7 +43,7 @@ class SocialForum extends SocialModel {
 	}
 
 	public function Replies() {
-		return SocialPost::get()
+		return Post::get()
 			->leftJoin('ForumTopic', 'Post.ForumTopicID = ForumTopic.ID')
 			->filter('ForumTopic.ForumID', $this->ID)
 			->count();

@@ -12,7 +12,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Replyable extends SocialAction {
     const ActionCode = 'REP';
-    // const Action = 'reply';
+    const Action = 'reply';
     const ReverseMode = 'unreply';
 
     private static $url_handlers = [

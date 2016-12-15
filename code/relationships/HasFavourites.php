@@ -1,10 +1,11 @@
 <?php
-use Modular\Relationships\SocialHasManyMany;
+namespace Modular\Relationships\Social;
+use ArrayData;
 
 /**
  * Extension which can report on a model's 'favourites', that is other models which have a LIK or FOL action
  */
-class HasFavouritesExtension extends SocialHasManyMany {
+class HasFavourites extends SocialHasManyMany {
 	/**
 	 * Returns a list of
 	 */

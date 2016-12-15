@@ -5,6 +5,7 @@ use Controller;
 use EmailNotifier;
 use Member;
 use Modular\Edges\MemberMember;
+use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Controller\SocialAction;
 use SS_HTTPRequest;
 
@@ -43,10 +44,10 @@ class Confirmable extends SocialAction  {
 	}
 
 	public function Confirmed() {
-		return MemberMember::nodeBForAction(
+		return SocialRelationship::to(
 			$this(),
 			'CRT'
-		)->first();
+		);
 	}
 
 	/**

@@ -1,8 +1,10 @@
 <?php
+namespace Modular\Relationships\Social;
+
 use Modular\UI\Components\SocialInterestChooser;
 use Modular\Relationships\SocialHasMany;
 
-class HasInterestsExtension extends SocialHasMany {
+class HasInterests extends SocialHasMany {
 
 	protected static $other_class = 'SocialInterestType';
 

@@ -5,7 +5,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Editable extends SocialAction  {
 	const ActionCode = 'EDT';
-	// const Action = 'edit';
+	const Action = 'edit';
 
 	private static $url_handlers = [
 		'$ID/edit' => self::Action,

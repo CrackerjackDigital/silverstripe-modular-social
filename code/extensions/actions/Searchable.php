@@ -15,7 +15,7 @@ use Modular\Models\SocialModel as SocialModel;
 use Modular\Extensions\Controller\SocialAction;
 
 class Searchable extends SocialAction  {
-    // const Action = 'search';
+    const Action = 'search';
     const WhatFieldName = 'SearcheableWhat';
     const ModelClassAttributeName = 'data-model';
     const RelationshipName = 'SCH';

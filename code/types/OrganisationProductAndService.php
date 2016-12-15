@@ -1,7 +1,9 @@
 <?php
-namespace Modular\Types;
+namespace Modular\Types\Social;
 
-class SocialOrganisationProductAndServiceType extends SocialType {
+use Modular\Types\SocialType;
+
+class OrganisationProductAndServiceType extends SocialType {
 	private static $db = [
 		'AllowedFrom' => 'Varchar(32)',
 	];

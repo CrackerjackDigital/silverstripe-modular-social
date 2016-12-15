@@ -1,14 +1,17 @@
 <?php
-namespace Modular\Controllers;
+namespace Modular\Controllers\Social;
 
 use ArrayData;
 use ArrayList;
 use Member;
+use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
+use Modular\Models\Social\Forum;
+use Modular\Models\Social\ForumTopic;
 use Modular\Models\SocialForum;
 use Modular\Models\SocialForumTopic;
 
-class SocialForum_Controller extends SocialModel_Controller {
+class Forum_Controller extends SocialModelController {
 	private static $model_class = 'Forum';
 
 	// type of approval needed to view.
@@ -41,7 +44,7 @@ class SocialForum_Controller extends SocialModel_Controller {
 	public function RelatedItems() {
 		return new ArrayData([
 			'Title'     => singleton('ForumTopic')->plural_name(),
-			'ListItems' => SocialForumTopic::get()->filter([
+			'ListItems' => ForumTopic::get()->filter([
 				'ForumID' => $this()->getModelID(),
 			]),
 		]);
@@ -83,6 +86,6 @@ class SocialForum_Controller extends SocialModel_Controller {
 			$forumArray[] = $item->ToModelID;
 		}
 
-		return SocialForum::get()->filter(["ID" => $forumArray]);
+		return Forum::get()->filter(["ID" => $forumArray]);
 	}
 }

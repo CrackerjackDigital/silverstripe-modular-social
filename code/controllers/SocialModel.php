@@ -6,9 +6,12 @@ use Config;
 use DataObject;
 use FieldList;
 use Member;
+use Modular\Extensions\Model\SocialMember;
 use Modular\Forms\SocialForm;
-use Modular\Interfaces\SocialModelController;
+use Modular\Interfaces\SocialModelController as SocialModelControllerInterface;
 use Modular\json;
+use Modular\Models\SocialOrganisation;
+use MosaicFormControllerInterface as FormControllerInterface;
 use RequiredFields;
 use Requirements;
 use Session;
@@ -18,7 +21,7 @@ use Session;
  *
  * SocialActionType methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
  */
-class SocialModel_Controller extends GraphNode_Controller implements SocialModelController , \MosaicFormControllerInterface {
+class SocialModelController extends GraphNode_Controller implements SocialModelControllerInterface, FormControllerInterface {
 	use json;
 
 	// what url's this controller handles. Added to by extensions such as Editable.
@@ -455,7 +458,7 @@ JS
 		}
 
 		//check if user has completed profile info
-		/** @var \Member|SocialModelMember $member */
+		/** @var \Member|SocialMember $member */
 		$member = $this->CurrentMember();
 		if (!$member->isProfileCompleted()) {
 			//set flash message
@@ -473,7 +476,7 @@ JS
 
 		//check if user is an organisation admin and redirect if profile is incomplete
 		if ($member->MemberCreatedOrganisation() != false) {
-			/** @var \Organisation $org */
+			/** @var SocialOrganisation $org */
 			$org = $member->MemberCreatedOrganisation();
 			if (!$org->isProfileCompleted()) {
 				$this->setSessionMessage("Please complete your organisation's profile", "notice");

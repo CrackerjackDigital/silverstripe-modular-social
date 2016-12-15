@@ -11,7 +11,7 @@ use Modular\Interfaces\UIModalProvider;
 class Joinable extends SocialAction
 	implements UIModalProvider {
 	const ActionCode = 'JOI';
-	// const Action     = 'join';
+	const Action     = 'join';
 
 	private static $url_handlers = [
 		'$ID/join/modal' => 'joinReasons',

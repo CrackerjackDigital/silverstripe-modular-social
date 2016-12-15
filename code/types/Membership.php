@@ -1,7 +1,9 @@
 <?php
-namespace Modular\Types;
+namespace Modular\Types\Social;
 
-class SocialMembershipType extends SocialType {
+use Modular\Types\SocialType;
+
+class MembershipType extends SocialType {
 	private static $has_many = [
 		'Members' => 'Member',
 	];

@@ -1,8 +1,10 @@
 <?php
-use Modular\Actions\NewsFeed;
-use Modular\Relationships\SocialHasManyMany;
+namespace Modular\Relationships\Social;
 
-class HasForumTopicsExtension extends SocialHasManyMany {
+use Modular\Actions\NewsFeed;
+
+
+class HasForumTopics extends SocialHasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialForumTopic';
 
 	public function HasForumTopics($actionCodes = null) {

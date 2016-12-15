@@ -1,14 +1,15 @@
 <?php
-namespace Modular\Controllers;
+namespace Modular\Controllers\Social;
 
 use Application;
 use FieldList;
 use GroupedList;
 use Member;
 use Modular\Actions\Approveable;
+use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
 
-class SocialMember_Controller extends SocialModel_Controller  {
+class Member_Controller extends SocialModelController   {
 	private static $model_class = 'Member';
 
 	// type of approval needed to view.
@@ -23,6 +24,15 @@ class SocialMember_Controller extends SocialModel_Controller  {
 
 	public function __construct($dataRecord = []) {
 		parent::__construct($dataRecord);
+	}
+
+	/**
+	 *
+	 * new member registration form
+	 *
+	 **/
+	public function MemberCreate() {
+		return $this->CreateForm()->renderWith(array("MemberRegisterForm"));
 	}
 
 	/**
@@ -46,7 +56,7 @@ class SocialMember_Controller extends SocialModel_Controller  {
 
 	public function ViewRedirect() {
 
-		if (!Application::isMobile()) {
+		if (!Application::is_mobile()) {
 			if ($this->getModelID() == Member::currentUserID()) {
 				return $this->redirect("/member/#tab_myPersonalProfileTab");
 			}
@@ -65,14 +75,6 @@ class SocialMember_Controller extends SocialModel_Controller  {
 		return $fields;
 	}
 
-	/**
-	 *
-	 * new member registration form
-	 *
-	 **/
-	public function MemberCreate() {
-		return $this->CreateForm()->renderWith(array("MemberRegisterForm"));
-	}
 
 	/**
 	 * Override to return the logged in member if parent call fails, e.g. for index action.

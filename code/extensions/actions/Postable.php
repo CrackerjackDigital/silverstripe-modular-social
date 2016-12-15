@@ -11,7 +11,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Postable extends SocialAction {
 	const ActionCode = 'POS';
-	// const Action = 'post';
+	const Action = 'post';
 
 	private static $url_handlers = [
 		'$ID/post' => 'post',

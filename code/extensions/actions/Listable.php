@@ -8,7 +8,7 @@ use \Modular\Extensions\Controller\SocialAction;
 
 class Listable extends SocialAction  {
 	const ActionCode = 'VEW';
-	// const Action = 'list';
+	const Action = 'list';
 
 	private static $url_handlers = [
 		'list' => 'dolist',

@@ -1,7 +1,9 @@
 <?php
-use Modular\Relationships\SocialHasManyMany;
+namespace Modular\Relationships\Social;
 
-class HasPostsExtension extends SocialHasManyMany {
+
+
+class HasPosts extends SocialHasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialPost';
 
 	public function HasPosts($actionCodes = null) {

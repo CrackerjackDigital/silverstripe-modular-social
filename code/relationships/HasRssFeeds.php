@@ -1,7 +1,7 @@
 <?php
-use Modular\Relationships\SocialHasManyMany;
+namespace Modular\Relationships\Social;
 
-class HasRssFeedsExtension extends SocialHasManyMany {
+class HasRssFeeds extends SocialHasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialRSSFeed';
 	const RelationshipName = '';
 

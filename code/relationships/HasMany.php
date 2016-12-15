@@ -1,5 +1,5 @@
 <?php
-namespace Modular\Relationships;
+namespace Modular\Relationships\Social;
 use ArrayList;
 use Config;
 use DataObject;

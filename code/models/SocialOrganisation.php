@@ -1,9 +1,10 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
 
 use ArrayData;
 use CompaniesEntityDetails;
 use Member;
+use Modular\Models\SocialModel;
 use Modular\Types\SocialOrganisationSubType;
 use Modular\Types\SocialOrganisationType;
 use Permission;
@@ -30,7 +31,7 @@ use ValidationResult;
  * @property string Website
  * @property string MbieRegistrationNumber
  */
-class SocialOrganisation extends SocialModel {
+class Organisation extends SocialModel  {
 	private static $db = [
 		'Street'                 => 'Varchar(255)',
 		'Suburb'                 => 'Varchar(255)',
@@ -161,7 +162,7 @@ class SocialOrganisation extends SocialModel {
 	 */
 	public function validate() {
 		if (!$this->isInDB()) {
-			if (SocialOrganisation::get()->filterAny(['Title' => $this->Title, 'MbieRegistrationNumber' => $this->MbieRegistrationNumber])->count()) {
+			if (Organisation::get()->filterAny(['Title' => $this->Title, 'MbieRegistrationNumber' => $this->MbieRegistrationNumber])->count()) {
 				throw new ValidationException("Sorry, an organisation with that name already exists", 400);
 			}
 		}
@@ -325,6 +326,6 @@ class SocialOrganisation extends SocialModel {
 		foreach ($locationList as $loc) {
 			$locationId[] = $loc->ToContactInfo()->ID;
 		}
-		return SocialContactInfo::get()->filter(['ID' => $locationId]);
+		return ContactInfo::get()->filter(['ID' => $locationId]);
 	}
 }

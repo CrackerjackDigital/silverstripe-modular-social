@@ -1,14 +1,15 @@
 <?php
-namespace Modular\Controllers;
+namespace Modular\Controllers\Social;
 
 use ArrayData;
 use ArrayList;
 use HiddenField;
 use Modular\Actions\Approveable;
+use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
 use Post;
 
-class SocialForumTopic_Controller extends SocialModel_Controller {
+class ForumTopic_Controller extends SocialModelController {
 	private static $model_class = 'ForumTopic';
 
 	// type of approval needed to view.

@@ -61,7 +61,7 @@ abstract class SocialActionMenu extends SocialController  {
 				}
 			}
 
-			if (SocialActionType::check_permission($actionRelationshipType->Code, $model, $member)) {
+			if (SocialActionType::check_permission($actionRelationshipType->Code, $member, $model)) {
 
 				// if the model was created by the currently logged in person then don't show the action
 

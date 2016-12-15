@@ -12,7 +12,7 @@ class Preference extends SocialAction {
 	// Re-use the edit code here for permissions etc
 	const ActionCode = 'EDT';
 	// url for action, e.g. 'post'
-	// const Action = 'settings';
+	const Action = 'settings';
 
 	private static $url_handlers = [
 		'$ID/settings' => self::Action,

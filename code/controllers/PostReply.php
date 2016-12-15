@@ -1,12 +1,13 @@
 <?php
-namespace Modular\Controllers;
+namespace Modular\Controllers\Social;
 
 use DataObject;
 use FieldList;
+use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
 use SS_HTTPRequest;
 
-class SocialPostReply_Controller extends SocialModel_Controller {
+class PostReply_Controller extends SocialModelController {
 	private static $model_class = 'PostReply';
 
 	private static $allowed_actions = [

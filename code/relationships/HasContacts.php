@@ -1,10 +1,14 @@
 <?php
-use Modular\Relationships\SocialHasManyMany;
+namespace Modular\Relationships\Social;
+use ArrayData;
+use DataList;
+use Modular\Edges\SocialRelationship;
+use SocialOrganisationChooser;
 
 /**
- * Class HasContactsExtension
+ * class SocialHasContactsExtension
  */
-class HasContactsExtension extends SocialHasManyMany {
+class HasContacts extends SocialHasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialContactInfo';
 
 	/**
@@ -88,7 +92,7 @@ class HasContactsExtension extends SocialHasManyMany {
 	 *
 	 * @param int    $ContactID
 	 * @param string $actionCode
-	 * @return bool
+	 * @return SocialRelationship
 	 */
 	public function addContact($ContactID, $actionCode) {
 		return parent::addRelated($ContactID, $actionCode);

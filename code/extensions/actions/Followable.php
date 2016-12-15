@@ -12,7 +12,7 @@ use Modular\Extensions\Controller\SocialAction;
 
 class Followable extends SocialAction {
     const ActionCode = 'FOL';
-    // const Action = 'follow';
+    const Action = 'follow';
 
     private static $url_handlers = [
         '$ID/follow' => 'follow',

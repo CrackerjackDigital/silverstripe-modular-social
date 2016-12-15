@@ -8,6 +8,7 @@
 namespace Modular\Actions;
 
 use Controller;
+use Convert;
 use DataObject;
 use EmailNotifier;
 use FieldList;
@@ -26,9 +27,9 @@ use SocialOrganisationChooser;
 use SS_HTTPRequest;
 use ValidationException;
 
-class Registerable extends Createable implements ModelWriteHandlers  {
-	const ActionCode   = 'REG';
-	// const Action             = 'register';
+class Registerable extends Createable implements ModelWriteHandlers {
+	const ActionCode = 'REG';
+	const Action             = 'register';
 	const HasRegisteredFlag  = 'HasRegisteredFlag';
 	const ThanksURLSegment   = 'thanks';
 	const SessionTempVarName = 'RegisteringMemberID';
@@ -36,11 +37,13 @@ class Registerable extends Createable implements ModelWriteHandlers  {
 	private static $default_member_security_group_code = 'social-default';
 
 	private static $url_handlers = [
+		'signup'               => 'signup',
 		self::Action           => self::Action,
 		self::ThanksURLSegment => self::ThanksURLSegment,
 	];
 
 	private static $allowed_actions = [
+		'signup'               => '->canRegister("action")',
 		'register'             => '->canRegister("action")',
 		self::ThanksURLSegment => true,
 	];
@@ -83,6 +86,30 @@ class Registerable extends Createable implements ModelWriteHandlers  {
 			'Email'                  => Session::get(InitSignUpForm::transient_key(InitSignUpForm::EmailFieldName)),
 			'MbieRegistrationNumber' => $organisationName,
 		]);
+	}
+
+	/**
+	 * @param SS_HTTPRequest $request
+	 * @return bool|\SS_HTTPResponse
+	 */
+	public function signup($request = null) {
+		$data = $request->postVars();
+
+		//Check for existing member email address
+		if ($member = DataObject::get_one("Member", "`Email` = '" . Convert::raw2sql($data[ InitSignUpForm::EmailFieldName ]) . "'")) {
+			//Set form data from submitted values
+			Session::set("FormInfo.InitSignupForm.data", $data);
+
+			//Set error message
+			Session::setFormMessage('InitSignupForm', "Sorry, that email address already exists. \nPlease choose another.", 'bad');
+			//Return back to form
+			return $this()->redirectBack();
+		}
+		// save info into session for Registerable extension to pick up
+		Session::set(InitSignUpForm::transient_key(InitSignUpForm::EmailFieldName), $data[ InitSignUpForm::EmailFieldName ]);
+		Session::set(InitSignUpForm::transient_key(InitSignUpForm::OrganisationFieldName), $data[ InitSignUpForm::OrganisationFieldName ]);
+
+		return $this()->redirect("member/register");
 	}
 
 	/**
@@ -354,6 +381,5 @@ class Registerable extends Createable implements ModelWriteHandlers  {
 		$notifier->setEmailTemplateData(["Member" => $member]);
 		$notifier->send();
 	}
-
 
 }

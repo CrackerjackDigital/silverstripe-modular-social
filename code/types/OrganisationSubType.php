@@ -1,13 +1,14 @@
 <?php
-namespace Modular\Types;
+namespace Modular\Types\Social;
+use Modular\Types\SocialType;
 
 /**
  * SocialOrganisationSubType
- * @method SocialOrganisationType SocialOrganisationType
+ * @method OrganisationType SocialOrganisationType
  * @method \SS_List Organisations
- * @method SocialOrganisationType OrganisationType
+ * @method OrganisationType OrganisationType
  */
-class SocialOrganisationSubType extends SocialType {
+class OrganisationSubType extends SocialType {
 	private static $has_one = [
 		'OrganisationType' => 'Modular\Types\SocialOrganisationType',
 	];

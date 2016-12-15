@@ -1,10 +1,11 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
+use Modular\Models\SocialModel;
 
 /**
  * A Forum Topic public model.
  */
-class SocialForumTopic extends SocialModel
+class ForumTopic extends SocialModel
 {
 	private static $singular_name = 'Forum Topic';
 
@@ -75,7 +76,7 @@ class SocialForumTopic extends SocialModel
 
 	//Get last topic posted in forum
 	public function LastPost() {
-		return SocialPost::get()
+		return Post::get()
 			->filter([
 				'ForumTopicID' => $this->ID,
 			])->sort("Created", "DESC")

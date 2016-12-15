@@ -1,12 +1,13 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
+use Modular\Models\SocialModel;
 
 /**
  *
  * Contact Information Model
  *
  */
-class SocialContactInfo extends SocialModel {
+class ContactInfo extends SocialModel {
 	private static $has_one = [
 	];
 

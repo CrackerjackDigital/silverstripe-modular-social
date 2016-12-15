@@ -1,18 +1,23 @@
 <?php
 namespace Modular\Actions;
 
-use ActionLinkField;
 use DataObject;
 use DateField;
 use FieldList;
 use Form;
-use \Modular\Extensions\Controller\SocialAction;
+use FormField;
+use HiddenField;
+use Modular\Controllers\SocialModel_Controller;
+use Modular\Extensions\Controller\SocialAction;
+use Modular\Extensions\Model\SocialMember;
+use Modular\Types\SocialActionType;
+use Modular\UI\Controls\ActionLinkField;
 use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;
 
 class Viewable extends SocialAction  {
 	const ActionCode = 'VEW';
-	// const Action = 'view';
+	const Action = 'view';
 
 	private static $url_handlers = [
 		'$ID/view' => self::Action,
@@ -76,9 +81,13 @@ class Viewable extends SocialAction  {
 	 */
 	public function updateActionsForMode(DataObject $model, FieldList $actions, $mode) {
 		if ($mode === self::Action) {
-			if (\Modular\Types\SocialActionType::check_permission(
+			$allowed = SocialActionType::check_permission(
 				Editable::ActionCode,
-				$this()->getModelInstance(self::Action))) {
+				SocialMember::current_or_guest(),
+				$this()->getModelInstance(self::Action)
+			);
+
+			if ($allowed) {
 
 				$href = $this()->getModelInstance(self::Action)->ActionLink(Editable::Action);
 				$label = 'Edit';
@@ -91,9 +100,10 @@ class Viewable extends SocialAction  {
 	}
 
 	public function ViewForm() {
+		/** @var Form $form */
 		$form = $this()->formForModel(self::Action);
 		// NB this is overridded in SocialForm to apply DisabledTransformation not ReadonlyTransformation
-		$form->makeReadOnly();
+		$form->makeReadonly();
 		return $form;
 	}
 	/**
@@ -104,6 +114,7 @@ class Viewable extends SocialAction  {
 	 */
 	public function view(SS_HTTPRequest $request) {
 		$mode = self::Action;
+		/** @var SocialModel_Controller $controller */
 		$controller = $this();
 
 		$model = $controller->getModelInstance(self::Action);

@@ -1,8 +1,10 @@
 <?php
+namespace Modular\Relationships\Social;
+
 use Modular\Relationships\SocialHasMany;
 use Modular\UI\Components\SocialProductAndServiceChooser;
 
-class HasOrganisationProductsAndServicesExtension extends SocialHasMany {
+class SocialHasOrganisationProductsAndServices extends SocialHasMany {
 
 	protected static $other_class = 'SocialOrganisationProductAndServiceType';
 

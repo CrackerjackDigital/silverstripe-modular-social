@@ -1,22 +1,20 @@
 <?php
-namespace Modular\Controllers;
+namespace Modular\Controllers\Social;
 
 use Application;
 use ArrayList;
-use ContactInfo;
 use DataObject;
 use FieldList;
 use Image;
 use Member;
-use MemberOrganisationAction;
+use Modular\Controllers\SocialModelController;
 use Modular\Edges\MemberOrganisation;
 use Modular\Edges\OrganisationContactInfo;
-use Modular\Models\SocialContactInfo;
-use Organisation;
-use OrganisationContactInfoAction;
-use SocialOrganisationSubType;
+use Modular\Extensions\Model\SocialMember;
+use Modular\Models\Social\ContactInfo;
+use Modular\Models\Social\Organisation;
 
-class SocialOrganisation_Controller extends SocialModel_Controller {
+class Organisation_Controller extends SocialModelController {
 	private static $model_class = 'SocialOrganisation';
 
 	private static $file_upload_path = [
@@ -63,10 +61,10 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 	}
 
 	public function ViewRedirect() {
-		$currenUserOrganisation = Member::current_or_guest()->MemberOrganisation();
+		$currenUserOrganisation = SocialMember::current_or_guest()->MemberOrganisation();
 		if ($currenUserOrganisation) {
 			$memberOrgID = $currenUserOrganisation->OrgModel->ID;
-			if (!Application::isMobile()) {
+			if (!Application::is_mobile()) {
 				if ($this->getModelID() == $memberOrgID) {
 					return $this->redirect("/member/#tab_organisationTab");
 				}
@@ -94,6 +92,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 	 * @param $request
 	 * @param $model
 	 * @param $mode
+	 * @return \SS_HTTPResponse
 	 */
 	public function afterCreate($request, $model, $mode) {
 		if ($model) {
@@ -175,7 +174,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 
 			$location = (int) $request->Param("SubID");
 		}
-		$contact = SocialContactInfo::get()->byID($location);
+		$contact = ContactInfo::get()->byID($location);
 		if ($contact) {
 			return $contact;
 		} else {
@@ -196,7 +195,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 			return $this()->httpError(404);
 		}
 
-		$contact = SocialContactInfo::get()->byID($contactid);
+		$contact = ContactInfo::get()->byID($contactid);
 		$contact->delete();
 		$action->delete();
 		$this->setSessionMessage("SocialOrganisation location removed");
@@ -298,7 +297,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 			return $this->redirectBack();
 		}
 
-		$orgSubType = SocialOrganisationSubType::get()->byID($type_id);
+		$orgSubType = OrganisationSubType::get()->byID($type_id);
 
 		if ($orgSubType) {
 			$id = $this->getModelID();

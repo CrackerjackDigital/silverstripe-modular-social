@@ -1,11 +1,13 @@
 <?php
-namespace Modular\Types;
+namespace Modular\Types\Social;
+use Modular\Types\SocialType;
+
 /**
  * User: wakes
  * Date: 15/12/14
  * Time: 10:32 AM
  */
-class SocialInterestType extends SocialType {
+class InterestType extends SocialType {
 	private static $db = [
 		'AllowedFrom' => 'Varchar(32)',
 	];

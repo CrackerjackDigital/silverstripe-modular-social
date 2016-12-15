@@ -1,12 +1,13 @@
 <?php
-namespace Modular\Types;
-use Modular\Models\SocialOrganisation;
+namespace Modular\Types\Social;
+use Modular\Models\Social\Organisation;
+use Modular\Types\SocialType;
 
 /**
  * SocialOrganisationType
  * @method \DataList OrganisationSubTypes()
  */
-class SocialOrganisationType extends SocialType {
+class OrganisationType extends SocialType {
 	private static $has_many = [
 		'OrganisationSubTypes' => 'Modular\Types\SocialOrganisationSubType',
 	];
@@ -30,13 +31,13 @@ class SocialOrganisationType extends SocialType {
 	public function Organisations() {
 		$subTypes = $this->OrganisationSubTypes();
 		$orgs = [];
-		/** @var SocialOrganisationSubType $subType */
+		/** @var OrganisationSubType $subType */
 		foreach ($subTypes as $subType) {
 			foreach ($subType->Organisations() as $org) {
 				$orgs[] = $org->ID;
 			}
 		}
-		return SocialOrganisation::get()->filter(["ID" => $orgs]);
+		return Organisation::get()->filter(["ID" => $orgs]);
 	}
 
 	public function OrganisationTypeTitle() {

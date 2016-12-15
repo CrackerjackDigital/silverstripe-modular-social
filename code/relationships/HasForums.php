@@ -1,7 +1,13 @@
 <?php
-use Modular\Relationships\SocialHasManyMany;
+namespace Modular\Relationships\Social;
 
-class HasForumsExtension extends SocialHasManyMany {
+
+
+use DataList;
+use Modular\Edges\SocialRelationship;
+use SocialOrganisationChooser;
+
+class HasForums extends SocialHasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialForum';
 
 	public function HasForums($actionCodes = null) {
@@ -69,7 +75,7 @@ class HasForumsExtension extends SocialHasManyMany {
 	 *
 	 * @param int $ForumID
 	 * @param string $actionCode
-	 * @return bool
+	 * @return SocialRelationship
 	 */
 	public function addForum($ForumID, $actionCode) {
 		return parent::addRelated($ForumID, $actionCode);

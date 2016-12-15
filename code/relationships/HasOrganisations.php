@@ -1,11 +1,13 @@
 <?php
-use Modular\Relationships\SocialHasManyMany;
+namespace Modular\Relationships\Social;
+
+
 
 /**
  *
  * Support functions for Classes which has_many MemberOrganisationAction.
  */
-class HasOrganisationsExtension extends SocialHasManyMany {
+class HasOrganisations extends SocialHasManyMany {
 	const RelatedClassName = 'Modular\Models\SocialOrganisation';
 
 	/**

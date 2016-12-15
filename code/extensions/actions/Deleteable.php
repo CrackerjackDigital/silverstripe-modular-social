@@ -7,7 +7,7 @@ use SS_HTTPResponse_Exception;
 
 class Deleteable extends SocialAction  {
     const ActionCode = 'DEL';
-    // const Action = 'delete';
+    const Action = 'delete';
 
     private static $url_handlers = [
         '$ID/delete' => self::Action

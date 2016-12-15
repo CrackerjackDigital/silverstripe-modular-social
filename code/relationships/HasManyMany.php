@@ -1,5 +1,5 @@
 <?php
-namespace Modular\Relationships;
+namespace Modular\Relationships\Social;
 
 use ArrayList;
 use ClassInfo;
@@ -234,7 +234,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 			? $action->ID
 			: (is_numeric($action)
 				? $action
-				: SocialActionType::get_by_code($action));
+				: SocialActionType::get_by_identity($action));
 
 		/** @var string|SocialRelationship $relationshipClassName */
 		$relationshipClassName = static::relationship_class_name($this());

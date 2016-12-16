@@ -1,10 +1,13 @@
 <?php
 namespace Modular\Relationships\Social;
+
 use ArrayList;
 use Config;
+use DataList;
 use DataObject;
 use FieldList;
 use Modular\Interfaces\ModelWriteHandlers;
+use Modular\Types\Social\ActionType;
 use SS_HTTPRequest;
 
 /**
@@ -154,12 +157,11 @@ abstract class HasMany extends \Modular\ModelExtension implements ModelWriteHand
 	/**
 	 * Return related types allowed for this owner's class e.g. InterestTypes allowed from a Member.
 	 *
-	 * @param $foreignClass
 	 * @return DataList
 	 */
 	protected function getAllowedActionTypes() {
 		$filters = [
-			'AllowedFrom' => $this->owner->class,
+			ActionType::FromModelFieldName => $this->owner->class,
 		];
 		$query = DataObject::get(static::$other_class)->filter($filters);
 

@@ -1,9 +1,8 @@
 <?php
 namespace Modular\Relationships\Social;
 
-use HasGalleryForm;
 use Modular\Actions\Uploadable;
-use Modular\Relationships\HasImages;
+use Modular\Forms\Social\HasGalleryForm;
 use SS_HTTPRequest;
 
 /**

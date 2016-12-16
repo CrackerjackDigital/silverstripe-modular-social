@@ -8,8 +8,6 @@ use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
 use Modular\Models\Social\Forum;
 use Modular\Models\Social\ForumTopic;
-use Modular\Models\SocialForum;
-use Modular\Models\SocialForumTopic;
 
 class Forum_Controller extends SocialModelController {
 	private static $model_class = 'Forum';

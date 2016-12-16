@@ -5,7 +5,7 @@ use Modular\Types\SocialType;
 
 class OrganisationProductAndServiceType extends SocialType {
 	private static $db = [
-		'AllowedFrom' => 'Varchar(32)',
+		\Modular\Types\Social\ActionType::FromModelFieldName => 'Varchar(32)',
 	];
 
 	private static $has_many = [
@@ -18,6 +18,8 @@ class OrganisationProductAndServiceType extends SocialType {
 	private static $default_sort = 'Sort,Title';
 
 	private static $summary_fields = [
-		'Title', 'AllowedFrom', 'Approved',
+		'Title',
+		\Modular\Types\Social\ActionType::FromModelFieldName,
+		'Approved'
 	];
 }

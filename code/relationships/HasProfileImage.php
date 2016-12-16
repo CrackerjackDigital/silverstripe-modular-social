@@ -2,6 +2,8 @@
 namespace Modular\Relationships\Social;
 
 use Modular\Actions\Uploadable;
+use Modular\Forms\Social\HasProfilePictureForm;
+use SS_HTTPRequest;
 
 /**
  * Add ProfileImage functionality to a Model

@@ -1,6 +1,7 @@
 <?php
+namespace Modular\Relationships\Social;
+
 use Modular\Actions\Uploadable;
-use Modular\Relationships\Social\HasImage;
 
 /**
  * Add Logo functionality to a Model

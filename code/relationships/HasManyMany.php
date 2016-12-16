@@ -10,7 +10,6 @@ use FormField;
 use Modular\Edges\SocialRelationship;
 use Modular\Exceptions\Social as Exception;
 use Modular\Fields\HasManyManyGridField;
-use Modular\Interfaces\GraphEdgeType;
 use Modular\Object;
 use Modular\Types\Social\ActionType as SocialActionType;
 use Modular\UI\Component;
@@ -35,7 +34,7 @@ use SS_List;
  *
  */
 class HasManyMany extends HasManyManyGridField {
-	const RelatedClassName    = '';             # e.g. 'Modular\Models\SocialOrganisation
+	const RelatedClassName    = '';             # e.g. 'Modular\Models\Social\Organisation
 	const ChooserClassName    = '';             # e.g. 'Modular\UI\Components\OrganisationChooser'
 	const GridFieldConfigName = 'Modular\GridField\Configs\SocialModelGridFieldConfig';
 	const RelationshipPrefix  = 'Related';      // will try and build one from this and the sanitised class name being related to
@@ -305,7 +304,7 @@ class HasManyMany extends HasManyManyGridField {
 	 * Return relationship types which can be created from this model to any other model
 	 *
 	 * @param string $actionCode e.g. 'CRT', 'REG'
-	 * @return GraphEdgeType|SocialActionType|DataObject
+	 * @return Edg“eType|SocialActionType|DataObject
 	 */
 	protected function action_for_code($actionCode) {
 		return SocialActionType::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();

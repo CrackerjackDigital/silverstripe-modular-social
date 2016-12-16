@@ -14,7 +14,6 @@ class Confirmable extends SocialAction  {
 
 	const ActionCode = 'CFM';
 
-	const ConfirmedFieldName         = 'ConfirmedFlag';
 	const ConfirmationTokenFieldName = 'ConfirmationToken';
 
 	private static $url_handlers = [
@@ -89,25 +88,20 @@ class Confirmable extends SocialAction  {
 			Approveable::enable($reenable);
 
 			if ($member) {
-				if ($member->{self::ConfirmedFieldName} == 0) {
-					$member->{self::ConfirmedFieldName} = 1;
-					$member->write();
-
-					$this->sendConfirmationSuccessEmail($member);
-
-					$this()->setSessionMessage("You have successfully confirmed your account.");
-
-				} else {
+				if ($this->existsFrom($member)) {
 					$this()->setSessionMessage("You have already confirmed your account.", "notice");
+				} else {
+					if (SocialRelationship::make($member, $this(), static::ActionCode, 'approve')) {
+						$this->sendConfirmationSuccessEmail($member);
+
+						$this()->setSessionMessage("You have successfully confirmed your account.");
+					}
 				}
-				//automatic login
 				return $this()->redirect('/Security/login');
-			} else {
-				return $this()->httpError(404);
 			}
-		} else {
-			return $this()->httpError(405);
 		}
+		$this()->setSessionMessage("Sorry, there was a problem confirming your account, please try again");
+		return $this()->redirectBack();
 	}
 
 	/**

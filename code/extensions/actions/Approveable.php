@@ -61,14 +61,16 @@ class Approveable extends SocialAction {
 		$this->queueRequestNotification('CRT');
 	}
 
-	public function approve() {
-		if (SocialRelationship::make(\Member::currentUser(), $this(), static::ActionCode, 'approve')) {
+	public function approve($member = null) {
+		$member = ($member instanceof $member) ? $member : \Member::currentUser();
+		if (SocialRelationship::make($member, $this(), static::ActionCode, 'approve')) {
 			$this->queueResponseNotification('CRT');
 		}
 	}
 
-	public function decline() {
-		if (SocialRelationship::remove(\Member::currentUser(), $this(), static::ActionCode, 'decline')) {
+	public function decline($member = null) {
+		$member = ($member instanceof $member) ? $member : \Member::currentUser();
+		if (SocialRelationship::remove($member, $this(), static::ActionCode, 'decline')) {
 			$this->queueResponseNotification('CRT');
 		}
 	}
@@ -77,14 +79,14 @@ class Approveable extends SocialAction {
 	 * Check for an 'APP' action to the extended Model
 	 */
 	public function Approved() {
-		return SocialRelationship::latest(null, $this(), static::ActionCode, 'approve')->count();
+		return SocialRelationship::latest(null, $this(), static::ActionCode)->count();
 	}
 
 	/**
 	 * Check that an 'APP' action to the extended Model doesn't exist
 	 */
 	public function Declined() {
-		return !SocialRelationship::latest(null, $this(), static::ActionCode, 'decline')->count();
+		return !SocialRelationship::latest(null, $this(), static::ActionCode)->count();
 	}
 	/**
 	 * Send an email to approvers asking for approval of an action.

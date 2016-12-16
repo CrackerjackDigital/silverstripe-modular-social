@@ -6,7 +6,7 @@ namespace Modular\Edges;
  */
 class MemberOrganisation extends SocialRelationship {
 	const FromModelClass = 'Member';
-	const ToModelClass   = 'Modular\Models\SocialOrganisation';
+	const ToModelClass   = 'Modular\Models\Social\Organisation';
 	// const FromFieldName = 'FromModel';
 	// const ToFieldName = 'ToOrganisation';
 

@@ -7,8 +7,6 @@ use Member;
 use Modular\Models\SocialModel;
 use Modular\Types\Social\OrganisationSubType;
 use Modular\Types\Social\OrganisationType;
-use Modular\Types\SocialOrganisationSubType;
-use Modular\Types\SocialOrganisationType;
 use Permission;
 use ValidationException;
 use ValidationResult;
@@ -51,7 +49,7 @@ class Organisation extends SocialModel {
 	];
 	private static $has_one = [
 		"FeaturedImage"       => "Image",
-		"OrganisationSubType" => "OrganisationSubType",
+		"OrganisationSubType" => 'Modular\Models\Social\OrganisationSubType',
 	];
 	private static $has_many = [
 		'RelatedMembers'             => 'MemberOrganisation.ToModel',
@@ -62,7 +60,7 @@ class Organisation extends SocialModel {
 	];
 
 	private static $many_many = [
-		"OrganisationSubTypes" => "OrganisationSubType",
+		"OrganisationSubTypes" => 'Modular\Models\Social\OrganisationSubType',
 	];
 	// private static $default_sort = 'Sort,Title';
 

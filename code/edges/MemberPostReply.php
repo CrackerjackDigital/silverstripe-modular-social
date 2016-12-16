@@ -6,7 +6,7 @@ namespace Modular\Edges;
  */
 class MemberPostReply extends SocialRelationship {
 	const FromModelClass = 'Member';
-	const ToModelClass = 'Modular\Models\SocialPostReply';
+	const ToModelClass = 'Modular\Models\Social\PostReply';
 	// const FromFieldName = 'FromModel';
 	// const ToFieldName = 'ToModelReply';
 }

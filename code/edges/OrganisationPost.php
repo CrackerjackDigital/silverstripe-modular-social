@@ -2,8 +2,8 @@
 namespace Modular\Edges;
 
 class OrganisationPost extends SocialRelationship {
-	const FromModelClass = 'Modular\Models\SocialOrganisation';
-	const ToModelClass = 'Modular\Models\SocialPost';
+	const FromModelClass = 'Modular\Models\Social\Organisation';
+	const ToModelClass = 'Modular\Models\Social\Post';
 	// const FromFieldName = 'FromModel';
 	// const ToFieldName = 'ToPost';
 }

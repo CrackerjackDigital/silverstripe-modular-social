@@ -10,10 +10,10 @@ use Modular\Types\SocialType;
  */
 class OrganisationSubType extends SocialType {
 	private static $has_one = [
-		'OrganisationType' => 'Modular\Types\SocialOrganisationType',
+		'OrganisationType' => 'Modular\Types\Social\OrganisationType',
 	];
 	private static $belongs_many_many = [
-		'Organisations' => 'Modular\Models\SocialOrganisation',
+		'Organisations' => 'Modular\Models\Social\Organisation',
 	];
 	private static $singular_name = 'SocialOrganisation Sub-type';
 

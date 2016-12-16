@@ -1,13 +1,13 @@
 <?php
 namespace Modular\Relationships\Social;
 
-
-
 use DataList;
+use Modular\Actions\NewsFeed;
+use Modular\Types\Social\ActionType;
 use Modular\UI\Components\Social\OrganisationChooser;
 
 class HasPosts extends HasManyMany {
-	const RelatedClassName = 'Modular\Models\SocialPost';
+	const RelatedClassName = 'Modular\Models\Social\Post';
 
 	public function HasPosts($actionCodes = null) {
 		return $this->PostList($actionCodes)->count();
@@ -107,9 +107,9 @@ class HasPosts extends HasManyMany {
 	 * @return mixed
 	 */
 	public function provideListItemsForAction($mode, $actionCodes = []) {
-		if ($mode === NewsFeedExtension::Action) {
+		if ($mode === NewsFeed::ActionName) {
 			$related = parent::related(
-				Action::merge_code_lists($actionCodes, ['MPM', 'MCP', 'MFM'])
+				ActionType::merge_code_lists($actionCodes, ['MPM', 'MCP', 'MFM'])
 			);
 
 			return $related;

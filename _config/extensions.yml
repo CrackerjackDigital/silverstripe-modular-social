@@ -12,17 +12,17 @@ Member:
     - Modular\Extensions\Model\Historical
     - Modular\Actions\Approveable
     - Modular\Actions\Confirmable
-    - HasOrganisations
-    - HasForums
-    - HasContacts
-    - HasFavourites
-    - HasPosts
-    - HasForumTopics
-    - HasImages
-    - HasProfilePicture
-    - HasRssFeeds
+    - Modular\Relationships\Social\HasOrganisations
+    - Modular\Relationships\Social\HasForums
+    - Modular\Relationships\Social\HasContacts
+    - Modular\Relationships\Social\HasFavourites
+    - Modular\Relationships\Social\HasPosts
+    - Modular\Relationships\Social\HasForumTopics
+    - Modular\Relationships\Social\HasImages
+    - Modular\Relationships\Social\HasProfilePicture
+    - Modular\Relationships\Social\HasRssFeeds
 
-Modular\Types\SocialMembershipType:
+Modular\Types\Social\MembershipType:
   extensions:
     - Modular\Extensions\Acting
 
@@ -38,23 +38,23 @@ Modular\Types\SocialType:
   extensions:
     - Modular\Extensions\Model\Historical
 
-Modular\Types\SocialInterestType:
+Modular\Types\Social\InterestType:
   extensions:
     - Modular\Actions\Approveable
 
-Modular\Types\SocialOrganisationType:
+Modular\Types\Social\OrganisationType:
   extensions:
     - Modular\Actions\Approveable
 
-Modular\Types\SocialOrganisationSubType:
+Modular\Types\Social\OrganisationSubType:
   extensions:
     - Modular\Actions\Approveable
 
-Modular\Types\SocialOrganisationProductAndServiceType:
+Modular\Types\Social\OrganisationProductAndServiceType:
   extensions:
     - Modular\Actions\Approveable
 
-Modular\Types\SocialAction:
+Modular\Types\Social\Action:
   extensions:
     - Modular\Extensions\Model\Historical
 
@@ -92,16 +92,16 @@ Modular\Controllers\SocialMember_Controller:
 
 Modular\Controllers\SocialOrganisation_Controller:
   extensions:
-    - HasImages
-    - HasCoverImage
-    - HasLogo
-    - HasGallery
-    - HasContactInfo
-    - HasOrganisationCategories
+    - Modular\Relationships\Social\HasImages
+    - Modular\Relationships\Social\HasCoverImage
+    - Modular\Relationships\Social\HasLogo
+    - Modular\Relationships\Social\HasGallery
+    - Modular\Relationships\Social\HasContactInfo
+    - Modular\Relationships\Social\HasOrganisationCategories
 
 Modular\Controllers\SocialPost_Controller:
   extensions:
-    - HasImages
+    - Modular\Relationships\Social\HasImages
 
 
 # Forum:

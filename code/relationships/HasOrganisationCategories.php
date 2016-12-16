@@ -5,8 +5,8 @@ use EmailNotifier;
 use Member;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Extensions\Model\SocialModel;
-use Modular\Forms\CategoryRequestForm;
-use Modular\Forms\OrganisationCategoriesForm;
+use Modular\Forms\Social\CategoryRequestForm;
+use Modular\Forms\Social\OrganisationCategoriesForm;
 use Modular\Models\Social\Organisation;
 use SS_HTTPRequest;
 

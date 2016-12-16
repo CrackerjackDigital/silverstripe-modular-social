@@ -6,7 +6,7 @@ namespace Modular\Extensions\Admin;
  */
 class SecurityGroup extends \DataExtension {
     private static $belongs_many_mnay = [
-        'NotifyActionTypes' => 'Modular\Types\SocialAction'
+        'NotifyActionTypes' => 'Modular\Types\Social\Action'
     ];
 
 }

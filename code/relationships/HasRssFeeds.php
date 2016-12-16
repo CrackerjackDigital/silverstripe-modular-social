@@ -1,6 +1,7 @@
 <?php
 namespace Modular\Relationships\Social;
 
+use ArrayList;
 use DataList;
 use Modular\Actions\NewsFeed;
 use Modular\Models\Social\Post;
@@ -8,7 +9,7 @@ use Modular\Types\Social\ActionType;
 use Modular\UI\Components\Social\OrganisationChooser;
 
 class HasRssFeeds extends HasManyMany {
-	const RelatedClassName = 'Modular\Models\SocialRSSFeed';
+	const RelatedClassName = 'Modular\Models\Social\RSSFeed';
 	const RelationshipName = '';
 
 	public function HasRssFeeds($actionCodes = null) {

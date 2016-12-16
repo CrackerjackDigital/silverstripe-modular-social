@@ -7,7 +7,6 @@ use DataObject;
 use FieldList;
 use FormField;
 use Modular\Types\Social\OrganisationProductAndServiceType;
-use Modular\Types\SocialOrganisationProductAndServiceType;
 use Modular\UI\Component;
 use Select2TagField;
 

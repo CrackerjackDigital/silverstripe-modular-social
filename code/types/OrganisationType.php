@@ -9,7 +9,7 @@ use Modular\Types\SocialType;
  */
 class OrganisationType extends SocialType {
 	private static $has_many = [
-		'OrganisationSubTypes' => 'Modular\Types\SocialOrganisationSubType',
+		'OrganisationSubTypes' => 'Modular\Types\Social\OrganisationSubType',
 	];
 	private static $singular_name = 'SocialOrganisation Type';
 	private static $plural_name = 'SocialOrganisation Types';

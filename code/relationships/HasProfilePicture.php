@@ -1,8 +1,8 @@
 <?php
 namespace Modular\Relationships\Social;
 
-use HasProfilePictureForm;
 use Modular\Actions\Uploadable;
+use Modular\Forms\Social\HasProfilePictureForm;
 use SS_HTTPRequest;
 
 /**

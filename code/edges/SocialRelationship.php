@@ -12,14 +12,6 @@ class SocialRelationship extends Directed {
 	const NodeAClassName = 'Modular\Models\SocialModel';
 	const NodeBClassName = 'Modular\Models\SocialModel';
 
-	private static $from_model_class = self::NodeAClassName;
-	private static $to_model_class = self::NodeBClassName;
-
-	// keep these in sync then we should be able to create a new relationship
-	// with an 'update' from the Action being created (providing 'ID' is being added to the field name)
-	private static $from_field_name = \Modular\Types\Social\ActionType::FromModelFieldName;
-	private static $to_field_name = \Modular\Types\Social\ActionType::ToModelFieldName;
-
 	private static $db = [
 		'Action' => 'Varchar(32)'        // what was the actual action, or was it the 'reverse' action e.g. 'approve' or 'decline'?
 	];

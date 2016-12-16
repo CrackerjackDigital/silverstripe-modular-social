@@ -1,6 +1,7 @@
 <?php
 namespace Modular\Extensions\Controller;
 
+use DataObject;
 use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Interfaces\SocialModelProvider;
@@ -90,17 +91,44 @@ abstract class SocialAction extends SocialController
 	 *
 	 * @param $fromModel
 	 * @param $toModel
+	 * @return SocialRelationship
 	 */
-	public static function make($fromModel, $toModel) {
-		/** @var string $implementor class name */
-		foreach (SocialRelationship::implementors($fromModel, $toModel) as $implementor) {
-			/** @var SocialRelationship $instance */
-			$instance = new $implementor();
-			$instance->setFrom($fromModel);
-			$instance->setTo($toModel);
-			$instance->setEdgeType(static::ActionCode);
-			$instance->write();
+	public static function make($fromModel, $toModel, $extraData = []) {
+		/** @var string $implementorClassName class name */
+		foreach (SocialRelationship::implementors($fromModel, $toModel) as $implementorClassName) {
+			/** @var SocialRelationship $relationship */
+			$relationship = new $implementorClassName();
+			$relationship->update($extraData);
+
+			$relationship->setFrom($fromModel);
+			$relationship->setTo($toModel);
+			$relationship->setEdgeType(static::ActionCode);
+			$relationship->write();
+			return $relationship;
 		}
+	}
+
+	/**
+	 * Remove all edges that exist between two models of this actions edge type
+	 * @param $fromModel
+	 * @param $toModel
+	 * @return bool true if none removed or all removed succesfully, false if anything fails
+	 */
+	public static function remove($fromModel, $toModel) {
+		$ok = true;
+		/** @var SocialRelationship $relationship */
+		foreach (SocialRelationship::get_for_models($fromModel, $toModel, static::ActionCode) as $relationship) {
+			$ok = $ok && $relationship->prune();
+		}
+		return $ok;
+	}
+
+	protected function existsFrom(DataObject $fromModel) {
+		return SocialRelationship::exists_by_type($fromModel, $this(), static::ActionCode);
+	}
+
+	protected function existsTo(DataObject $toModel) {
+		return SocialRelationship::exists_by_type($this(), $toModel, static::ActionCode);
 	}
 
 }

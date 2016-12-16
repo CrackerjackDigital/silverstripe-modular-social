@@ -11,7 +11,7 @@ use Modular\Models\Social\Organisation;
  * Support functions for Classes which has_many MemberOrganisationAction.
  */
 class HasOrganisations extends HasManyMany {
-	const RelatedClassName = 'Modular\Models\SocialOrganisation';
+	const RelatedClassName = 'Modular\Models\Social\Organisation';
 
 	/**
 	 * Return related Organisations with an optional action type.

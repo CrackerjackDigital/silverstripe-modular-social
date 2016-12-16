@@ -35,7 +35,7 @@ class SocialMember extends SocialModel {
 		'MembershipType' => 'SocialMembershipType',
 	];
 	private static $belongs_many_many = [
-		'NotifyRelationshipTypes' => '\Modular\Types\SocialAction',
+		'NotifyRelationshipTypes' => '\Modular\Types\Social\Action',
 	];
 	private static $has_many = [
 		'RelatedMembers'       => 'MemberMemberRelationship.FromModel',

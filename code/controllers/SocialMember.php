@@ -5,10 +5,10 @@ use Application;
 use FieldList;
 use GroupedList;
 use Member;
-use Modular\Controllers\SocialModelController;
+use Modular\Controllers\SocialModel;
 use Modular\Forms\SocialForm;
 
-class Member_Controller extends SocialModelController   {
+class Member_ extends SocialModel   {
 	private static $model_class = 'Member';
 
 	// type of approval needed to view.

@@ -10,7 +10,7 @@ use HiddenField;
 use Modular\Controllers\SocialModel_Controller;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Types\Social\ActionType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialActionType;
 use Modular\UI\Controls\ActionLinkField;
 use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;

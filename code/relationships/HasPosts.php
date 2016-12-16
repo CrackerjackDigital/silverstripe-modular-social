@@ -3,7 +3,7 @@ namespace Modular\Relationships\Social;
 
 use DataList;
 use Modular\Actions\NewsFeed;
-use Modular\Types\Social\ActionType;
+use Modular\Types\SocialEdgeType;
 use Modular\UI\Components\Social\OrganisationChooser;
 
 class HasPosts extends HasManyMany {

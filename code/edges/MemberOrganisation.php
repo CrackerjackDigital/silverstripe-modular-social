@@ -2,7 +2,7 @@
 namespace Modular\Edges;
 
 /**
- * ActionType record between a member and an organisation.
+ * SocialEdgeType record between a member and an organisation.
  */
 class MemberOrganisation extends SocialRelationship {
 	const FromModelClass = 'Member';

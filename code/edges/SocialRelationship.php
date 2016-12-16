@@ -3,7 +3,7 @@ namespace Modular\Edges;
 
 use DataObject;
 use Modular\Exceptions\Social as Exception;
-use Modular\Types\Social\ActionType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialActionType;
 
 /**
  * SocialModel between two models with a relationship type, used to track historical actions and relationships made/broken.

@@ -4,7 +4,7 @@ namespace Modular\Relationships\Social;
 use ArrayList;
 use DataList;
 use DataObject;
-use Modular\Types\Social\ActionType;
+use Modular\Types\SocialEdgeType;
 use Modular\UI\Components\Social\ProductAndServiceChooser;
 use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;

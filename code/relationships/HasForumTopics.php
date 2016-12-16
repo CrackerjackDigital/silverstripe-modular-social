@@ -5,7 +5,7 @@ use ArrayList;
 use DataList;
 use Modular\Actions\NewsFeed;
 use Modular\Edges\SocialRelationship;
-use Modular\Types\Social\ActionType;
+use Modular\Types\SocialEdgeType;
 use Modular\UI\Component;
 
 class HasForumTopics extends HasManyMany {
@@ -71,7 +71,7 @@ class HasForumTopics extends HasManyMany {
 	/**
 	 * Relate a ForumTopic to this object by supplied action.
 	 *
-	 * Creates a action class object if Instane and ActionType records
+	 * Creates a action class object if Instane and SocialEdgeType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int $ForumTopicID

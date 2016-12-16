@@ -5,7 +5,7 @@ use ArrayList;
 use DataList;
 use Modular\Actions\NewsFeed;
 use Modular\Models\Social\Post;
-use Modular\Types\Social\ActionType;
+use Modular\Types\SocialEdgeType;
 use Modular\UI\Components\Social\OrganisationChooser;
 
 class HasRssFeeds extends HasManyMany {

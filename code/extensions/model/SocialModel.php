@@ -23,7 +23,7 @@ use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\ModelExtension;
 use Modular\reflection;
-use Modular\Types\Social\ActionType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialActionType;
 use RequiredFields;
 use UploadField;
 

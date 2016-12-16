@@ -179,7 +179,7 @@ class Preference extends SocialAction {
 		} else {
 			SocialModelForm::set_message('PreferencesSavedMessage', SocialModelForm::Good);
 			return $this()->redirectBack();
-//			return $this()->redirect($model->ActionLink(Viewable::ActionType));
+//			return $this()->redirect($model->ActionLink(Viewable::SocialEdgeType));
 		}
 	}
 

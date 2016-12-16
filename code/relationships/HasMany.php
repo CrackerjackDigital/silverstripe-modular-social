@@ -7,7 +7,7 @@ use DataList;
 use DataObject;
 use FieldList;
 use Modular\Interfaces\ModelWriteHandlers;
-use Modular\Types\Social\ActionType;
+use Modular\Types\SocialEdgeType;
 use SS_HTTPRequest;
 
 /**

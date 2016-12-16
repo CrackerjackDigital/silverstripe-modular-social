@@ -2,7 +2,7 @@
 namespace Modular\Edges;
 
 /**
- * ActionType between a Member and a PostReply.
+ * SocialEdgeType between a Member and a PostReply.
  */
 class MemberPostReply extends SocialRelationship {
 	const FromModelClass = 'Member';

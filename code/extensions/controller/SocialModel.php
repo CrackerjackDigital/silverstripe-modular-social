@@ -2,7 +2,7 @@
 namespace Modular\Extensions\Controller;
 
 use Modular\ModelExtension;
-use Modular\Types\Social\ActionType;
+use Modular\Types\SocialEdgeType;
 
 /**
  * Extension to add to a controller which controls a SocialModel

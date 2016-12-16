@@ -7,7 +7,7 @@ use DataObject;
 use FieldList;
 use Image;
 use Member;
-use Modular\Controllers\SocialModelController;
+use Modular\Controllers\SocialModel;
 use Modular\Edges\MemberOrganisation;
 use Modular\Edges\OrganisationContactInfo;
 use Modular\Extensions\Model\SocialMember;
@@ -15,7 +15,7 @@ use Modular\Forms\SocialForm;
 use Modular\Models\Social\ContactInfo;
 use Modular\Models\Social\Organisation;
 
-class Organisation_Controller extends SocialModelController {
+class Organisation_ extends SocialModel {
 	private static $model_class = 'SocialOrganisation';
 
 	private static $file_upload_path = [

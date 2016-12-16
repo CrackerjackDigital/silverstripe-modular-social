@@ -4,11 +4,11 @@ namespace Modular\Controllers\Social;
 use ArrayData;
 use ArrayList;
 use HiddenField;
-use Modular\Controllers\SocialModelController;
+use Modular\Controllers\SocialModel;
 use Modular\Forms\SocialForm;
 use Modular\Models\Social\Post;
 
-class ForumTopic_Controller extends SocialModelController {
+class ForumTopic_ extends SocialModel {
 	private static $model_class = 'ForumTopic';
 
 	// type of approval needed to view.

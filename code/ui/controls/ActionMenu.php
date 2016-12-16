@@ -7,7 +7,7 @@ use DataObject;
 use Modular\Actions\Createable;
 use Modular\Extensions\Controller\SocialController;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Types\Social\ActionType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialActionType;
 
 /**
  * Base class for menus which display a list of available and permitted actions such as Like, Follow, Edit etc
@@ -84,7 +84,7 @@ abstract class SocialActionMenu extends SocialController  {
 						'ReverseTitle' => "$actionRelationshipType->Action $singularName",
 						'Link' => $model->ActionLink($actionRelationshipType->ReverseAction),
 						'ReverseLink' => $model->ActionLink($actionRelationshipType->Action),
-						'ActionType' => $actionRelationshipType->Action,
+						'SocialEdgeType' => $actionRelationshipType->Action,
 						'ReverseAction' => $actionRelationshipType->ReverseAction,
 						'ActionLinkType' => $actionRelationshipType->ActionLinkType,
 						'SingularName' => $singularName,
@@ -100,7 +100,7 @@ abstract class SocialActionMenu extends SocialController  {
 						'ReverseTitle' => "$actionRelationshipType->ReverseAction $singularName",
 						'Link' => $model->ActionLink($actionRelationshipType->Action),
 						'ReverseLink' => $model->ActionLink($actionRelationshipType->ReverseAction),
-						'ActionType' => $actionRelationshipType->Action,
+						'SocialEdgeType' => $actionRelationshipType->Action,
 						'ReverseAction' => $actionRelationshipType->ReverseAction,
 						'ActionLinkType' => $actionRelationshipType->ActionLinkType,
 						'SingularName' => $singularName,

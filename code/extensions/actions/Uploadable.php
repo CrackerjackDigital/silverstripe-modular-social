@@ -21,8 +21,8 @@ class Uploadable extends SocialAction
 	const ActionName = 'upload';
 
 	private static $url_handlers = [
-		'$ID/$Mode/field/$FieldName//$ActionType!' => 'field',
-		'$Mode/field/$FieldName//$ActionType!' => 'field',
+		'$ID/$Mode/field/$FieldName//$SocialEdgeType!' => 'field',
+		'$Mode/field/$FieldName//$SocialEdgeType!' => 'field',
 	];
 	private static $allowed_actions = [
 		'field' => '->canUpload("action")',

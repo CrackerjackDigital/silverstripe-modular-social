@@ -21,7 +21,7 @@ use Session;
  *
  * SocialActionType methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
  */
-class SocialModelController extends GraphNode_Controller implements SocialModelControllerInterface, FormControllerInterface {
+class SocialModel extends GraphNode implements SocialModelControllerInterface, FormControllerInterface {
 	use json;
 
 	// what url's this controller handles. Added to by extensions such as Editable.
@@ -185,7 +185,7 @@ JS
 	 * can add their own fields/required fields.
 	 */
 	public function getFieldsForMode($mode) {
-		/** @var SocialModelController $model */
+		/** @var SocialModel $model */
 		if ($model = $this->getModelInstance($mode)) {
 			list($fields, $requiredFields) = $model->getFieldsForMode($mode);
 

@@ -9,7 +9,7 @@ use Modular\Types\SocialType;
  */
 class InterestType extends SocialType {
 	private static $db = [
-		\Modular\Types\Social\ActionType::FromModelFieldName => 'Varchar(32)',
+		\Modular\Types\SocialEdgeType::FromModelFieldName => 'Varchar(32)',
 	];
 	private static $has_one = [
 
@@ -24,7 +24,7 @@ class InterestType extends SocialType {
 
 	private static $summary_fields = [
 		'Title',
-		\Modular\Types\Social\ActionType::FromModelFieldName,
+		\Modular\Types\SocialEdgeType::FromModelFieldName,
 		'Approved',
 	];
 	private static $singular_name = 'Interest';

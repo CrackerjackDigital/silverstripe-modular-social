@@ -2,11 +2,11 @@
 namespace Modular\Controllers\Social;
 
 use Member;
-use Modular\Controllers\SocialModelController;
+use Modular\Controllers\SocialModel;
 use Modular\Forms\SocialForm;
 use Modular\Models\Social\PostReply;
 
-class Post_Controller extends SocialModelController {
+class Post_ extends SocialModel {
 	private static $model_class = 'Post';
 
 	// type of approval needed to view.

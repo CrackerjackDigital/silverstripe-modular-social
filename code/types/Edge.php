@@ -1,19 +1,12 @@
 <?php
-namespace Modular\Types\Social;
+namespace Modular\Types;
 
 use ArrayList;
-use DataList;
 use DataObject;
-use Member;
 use Modular\config;
 use Modular\Edges\SocialRelationship;
-use Modular\Extensions\Model\SocialMember;
-use Modular\Fields\SystemData;
 use Modular\Interfaces\Graph\EdgeType;
 use Modular\reflection;
-use Modular\Types\SocialType;
-use Permission;
-use SS_List;
 use TreeDropdownField;
 
 /**
@@ -26,7 +19,7 @@ use TreeDropdownField;
  * @property string ActionName
  * @property string ReverseActionName
  * @property string ReverseTitle
- * @property string ActionType
+ * @property string SocialEdgeType
  * @property string FromModel
  * @property string ToModel
  * @property string Code
@@ -40,10 +33,10 @@ use TreeDropdownField;
  * @method \SS_List NotifyMembers()
  * @method \SS_List NotifyGroups()
  * @method \SS_List ImpliedActions()
- * @method ActionType|null RequirePrevious()
+ * @method SocialEdgeType|null RequirePrevious()
  *
  */
-class ActionType extends SocialType implements EdgeType {
+class SocialEdgeType extends SocialType implements EdgeType {
 	use \Modular\Traits\Graph\edgetype;
 	use reflection;
 	use config;
@@ -60,6 +53,9 @@ class ActionType extends SocialType implements EdgeType {
 
 	const FromModelFieldName = 'FromModel';
 	const ToModelFieldName   = 'ToModel';
+
+	const InjectorName = 'GraphEdgeType';
+	private static $injector_name = self::InjectorName;
 
 	private static $admin_groups = [
 		'administrators' => true,
@@ -87,16 +83,16 @@ class ActionType extends SocialType implements EdgeType {
 		'ActionLinkType'          => "enum('nav,modal,inplace')"                // when clicked what to do?
 	];
 	private static $has_one = [
-		'Parent'          => 'Modular\Types\Social\ActionType',                        // typical parent relationship
+		'Parent'          => 'Modular\Types\SocialEdgeType',                        // typical parent relationship
 		'Permission'      => 'Permission',                                      // what permission is required to make/break a relationship
 		'NotifyFrom'      => 'Member',                                          // who emails are sent from when one is made/broken
-		'RequirePrevious' => 'Modular\Types\Social\ActionType'                         // e.g. for 'EDT' then a 'CRT' MemberPost relationship must exist
+		'RequirePrevious' => 'Modular\Types\SocialEdgeType'                         // e.g. for 'EDT' then a 'CRT' MemberPost relationship must exist
 	];
 	private static $has_many = [
 		'Relationships' => 'Modular\Edges\SocialRelationship',
 	];
 	private static $many_many = [
-		'ImpliedActions' => 'Modular\Types\Social\ActionType',
+		'ImpliedActions' => 'Modular\Types\SocialEdgeType',
 		// when this relationship is created also create these between member and model
 		'NotifyMembers'  => 'Member',
 		// who (Members) get notified when made/broken
@@ -104,14 +100,14 @@ class ActionType extends SocialType implements EdgeType {
 		// who (Security Groups) get notified
 	];
 	private static $belongs_many_many = [
-		'TriggerAction' => 'Modular\Types\Social\ActionType'                           // back relationship to 'ImpliedActions'
+		'TriggerAction' => 'Modular\Types\SocialEdgeType'                           // back relationship to 'ImpliedActions'
 	];
 	private static $summary_fields = [
 		'Title',
 		'ReverseTitle',
 		self::CodeFieldName,
-		\Modular\Types\Social\ActionType::FromModelFieldName,
-		\Modular\Types\Social\ActionType::ToModelFieldName,
+		\Modular\Types\SocialEdgeType::FromModelFieldName,
+		\Modular\Types\SocialEdgeType::ToModelFieldName,
 		'ActionName',
 		'ReverseActionName',
 		'ActionLinkType',
@@ -124,6 +120,10 @@ class ActionType extends SocialType implements EdgeType {
 		return $this;
 	}
 
+	public static function create() {
+
+	}
+
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->addFieldToTab(
@@ -131,7 +131,7 @@ class ActionType extends SocialType implements EdgeType {
 			new TreeDropdownField(
 				'RequirePreviousID',
 				'Require previous relationship',
-				'ActionType'
+				'SocialEdgeType'
 			)
 		);
 
@@ -223,14 +223,14 @@ class ActionType extends SocialType implements EdgeType {
 	 * @return \ArrayList
 	 */
 	public function createImpliedRelationships(DataObject $fromModel, DataObject $toModel, $variantData = []) {
-		// add additional relationships between models as listed in ActionType.ImpliedActions
+		// add additional relationships between models as listed in SocialEdgeType.ImpliedActions
 
 		$created = new \ArrayList();
 
 		foreach ($this->ImpliedActions() as $impliedAction) {
 			// we might have a parent code so look up the suitable 'real' code.
-			/** @var ActionType $implied */
-			$implieds = ActionType::get_heirarchy(
+			/** @var SocialEdgeType $implied */
+			$implieds = SocialEdgeType::get_heirarchy(
 				$fromModel,
 				$toModel,
 				$impliedAction->Code

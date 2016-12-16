@@ -87,7 +87,7 @@ class HasContacts extends HasManyMany {
 	/**
 	 * Relate a ContactModel to this object by supplied action.
 	 *
-	 * Creates a action class object if Instane and ActionType records
+	 * Creates a action class object if Instane and SocialEdgeType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int    $ContactID

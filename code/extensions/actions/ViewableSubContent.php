@@ -12,8 +12,8 @@ class ViewableSubContent extends SocialAction  {
 	const Mode = "view";
 
 	private static $url_handlers = [
-		'$ID/view-content/$ActionType/$SubID' => self::ExtraAction,
-		'$ID/view-content/$ActionType' => self::ExtraAction,
+		'$ID/view-content/$SocialEdgeType/$SubID' => self::ExtraAction,
+		'$ID/view-content/$SocialEdgeType' => self::ExtraAction,
 	];
 
 	private static $allowed_actions = [
@@ -52,7 +52,7 @@ class ViewableSubContent extends SocialAction  {
 		$controller = $this();
 
 		$model = $controller->getModelInstance(self::Mode);
-		$viewContent = $request->param("ActionType");
+		$viewContent = $request->param("SocialEdgeType");
 		if ($request->isAjax()) {
 			return $this()->renderWith([$model->ClassName . "_" . $viewContent], ["Model" => $model]);
 		}

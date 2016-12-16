@@ -11,13 +11,13 @@ use Modular\Edges\SocialRelationship;
 use Modular\Exceptions\Social as Exception;
 use Modular\Fields\HasManyManyGridField;
 use Modular\Object;
-use Modular\Types\Social\ActionType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialActionType;
 use Modular\UI\Component;
 use SS_List;
 
 /**
  * Base class for action classes which consist of one object with an intermediate action record with a
- * ActionType and ID for another object.
+ * SocialEdgeType and ID for another object.
  *
  * Concrete classes should declare functions (using hasOnePosts for example):
  *

@@ -6,7 +6,7 @@ use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Interfaces\SocialModelProvider;
 use Modular\Models\SocialModel;
-use Modular\Types\Social\ActionType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialActionType;
 
 /**
  * Base extension for actions which can be performed by the logged in Member to establish

@@ -14,7 +14,7 @@ use Modular\enabler;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Extensions\Model\SocialMember;
 use Modular\notifies;
-use Modular\Types\Social\ActionType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialActionType;
 use OptionsetField;
 
 class Approveable extends SocialAction {

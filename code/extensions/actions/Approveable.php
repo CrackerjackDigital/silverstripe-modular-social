@@ -35,18 +35,18 @@ class Approveable extends SocialAction {
 	const ApprovalManual    = 1;
 
 	// values used for e.g. display and in forms
-	const PendingValue = 'Pending';
+	const PendingValue  = 'Pending';
 	const ApprovedValue = 'Approved';
 	const DeclinedValue = 'Declined';
 
 	private static $allowed_actions = [
 		'approve' => '->canDoIt("APP", "action")',
-		'decline' => '->canDoIt("APP", "action")'
+		'decline' => '->canDoIt("APP", "action")',
 	];
 
 	private static $url_handlers = [
 		'$ID/approve' => 'approve',
-	    '$ID/decline' => 'decline'
+		'$ID/decline' => 'decline',
 	];
 	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;
 
@@ -88,63 +88,67 @@ class Approveable extends SocialAction {
 	public function Declined() {
 		return !SocialRelationship::latest(null, $this(), static::ActionCode);
 	}
+
 	/**
 	 * Send an email to approvers asking for approval of an action.
 	 *
 	 * @param string $forAction
 	 */
 	public function queueRequestNotification($forAction) {
-		$actionClassName = get_called_class();      // e.g. Approveable
+		if (static::notifies_enabled()) {
 
-		$subject = _t(
-			"$actionClassName.Notifications.Request.Subject", // Approveable.Notifications.Request.Subject
-			"Your {model} '{title}' {action}",
-			[
-				'model'  => $this()->i18n_singular_name(),
-				'title'  => $this()->Title,
-				'action' => _t(
-					"$actionClassName.Request",
-					"requires approval"
-				),
-			]
-		);
-		$message = _t(
-			"$actionClassName.Notifications.Request.Message",    // Approveable.Notifications.Request.Message
-			"{action} for {model} '{title}': {link}",
-			[
-				'model'  => $this()->i18n_singular_name(),
-				'title'  => $this()->Title,
-				'link'   => $this()->ActionLink('view'),
-				'action' => _t(
-					"$actionClassName.Request",
-					"Approval required"
-				),
-			]
-		);
-		$approvers = $this->Approvers($forAction);
+			$actionClassName = get_called_class();      // e.g. Approveable
 
-		if ($approvers->count() == 0) {
-			$subject = "Problem sending approval request for: $subject";
-			$message = "No approvers could be found to send this message to: $message";
-			$approvers->push(\Member::default_admin());
+			$subject = _t(
+				"$actionClassName.Notifications.Request.Subject", // Approveable.Notifications.Request.Subject
+				"Your {model} '{title}' {action}",
+				[
+					'model'  => $this()->i18n_singular_name(),
+					'title'  => $this()->Title,
+					'action' => _t(
+						"$actionClassName.Request",
+						"requires approval"
+					),
+				]
+			);
+			$message = _t(
+				"$actionClassName.Notifications.Request.Message",    // Approveable.Notifications.Request.Message
+				"{action} for {model} '{title}': {link}",
+				[
+					'model'  => $this()->i18n_singular_name(),
+					'title'  => $this()->Title,
+					'link'   => $this()->ActionLink('view'),
+					'action' => _t(
+						"$actionClassName.Request",
+						"Approval required"
+					),
+				]
+			);
+			$approvers = $this->Approvers($forAction);
+
+			if ($approvers->count() == 0) {
+				$subject = "Problem sending approval request for: $subject";
+				$message = "No approvers could be found to send this message to: $message";
+				$approvers->push(\Member::default_admin());
+			}
+
+			// Approveable_Pending
+			$template = "{$actionClassName}_Request";
+
+			if ($this() instanceof \Member) {
+				$initiator = $this()->Email;
+			} else {
+				$initiator = SocialMember::current_or_guest()->Email;
+			}
+
+			$this->notify(
+				$initiator,                         // sender is whoever is creating the model
+				$approvers,                         // recipients are the approvers for this action on these models
+				$subject,
+				$message,
+				$template
+			);
 		}
-
-		// Approveable_Pending
-		$template = "{$actionClassName}_Request";
-
-		if ($this() instanceof \Member) {
-			$initiator = $this()->Email;
-		} else {
-			$initiator = SocialMember::current_or_guest()->Email;
-		}
-
-		$this->notify(
-			$initiator,                         // sender is whoever is creating the model
-			$approvers,                         // recipients are the approvers for this action on these models
-			$subject,
-			$message,
-			$template
-		);
 	}
 
 	/**
@@ -153,57 +157,60 @@ class Approveable extends SocialAction {
 	 * @param string $forAction
 	 */
 	public function queueResponseNotification($forAction = 'CRT') {
-		$status = $this()->Approved();
-		$actionClassName = get_called_class();      // e.g. Approveable
+		if (static::notifies_enabled()) {
 
-		$subject = _t(
-			"$actionClassName.Notifications.$status.Subject", // Approveable.Notifications.NotApproved.Subject
-			"Your {model} '{title}' has {action}: {link}",
-			[
-				'model'  => $this()->i18n_singular_name(),
-				'title'  => $this()->Title,
-				'link'   => $this()->ActionLink('view'),
-				'action' => _t(
-					"$actionClassName.$status",
-					$status == self::ApprovedValue ? 'been approved' : 'not been approved'
-				),
-			]
-		);
-		$message = _t(
-			"$actionClassName.Notifications.$status.Message",    // Approveable.Notifications.Approved.Message
-			"Your {model} '{title}' has {action}",
-			[
-				'model'  => $this()->i18n_singular_name(),
-				'title'  => $this()->Title,
-				'action' => _t(
-					"$actionClassName.$status",
-					$status == self::ApprovedValue ? 'been approved' : 'not been approved'
-				),
-			]
-		);
-		// get the person who performed last 'CRT' action that was performed on the extended model
-		if (!$initiator = $this()->LastActor('CRT')) {
-			// otherwise we send to approvers with a hint that couldn't find the 'real' person to notify
-			$initiator = Application::admin_email();
-			$subject = "Problem sending approval response for: $subject";
-			$message = "No initiator could be identified to send this message to: $message";
+			$status = $this()->Approved();
+			$actionClassName = get_called_class();      // e.g. Approveable
+
+			$subject = _t(
+				"$actionClassName.Notifications.$status.Subject", // Approveable.Notifications.NotApproved.Subject
+				"Your {model} '{title}' has {action}: {link}",
+				[
+					'model'  => $this()->i18n_singular_name(),
+					'title'  => $this()->Title,
+					'link'   => $this()->ActionLink('view'),
+					'action' => _t(
+						"$actionClassName.$status",
+						$status == self::ApprovedValue ? 'been approved' : 'not been approved'
+					),
+				]
+			);
+			$message = _t(
+				"$actionClassName.Notifications.$status.Message",    // Approveable.Notifications.Approved.Message
+				"Your {model} '{title}' has {action}",
+				[
+					'model'  => $this()->i18n_singular_name(),
+					'title'  => $this()->Title,
+					'action' => _t(
+						"$actionClassName.$status",
+						$status == self::ApprovedValue ? 'been approved' : 'not been approved'
+					),
+				]
+			);
+			// get the person who performed last 'CRT' action that was performed on the extended model
+			if (!$initiator = $this()->LastActor('CRT')) {
+				// otherwise we send to approvers with a hint that couldn't find the 'real' person to notify
+				$initiator = Application::admin_email();
+				$subject = "Problem sending approval response for: $subject";
+				$message = "No initiator could be identified to send this message to: $message";
+			}
+
+			// e.g. Approveable_Approved or Approveable_NotApproved
+			$template = "{$actionClassName}_{$status}";
+
+			// TODO work out where we store approvers/emails
+			$this->notify(
+				SocialMember::current_or_guest()->Email,             // sender is whoever is approving
+				$initiator,                         // recipient
+				$subject,
+				$message,
+				$template,
+				[
+					'ACTION'  => $this()->LatestAction('CRT'),
+					'TOMODEL' => $this(),
+				]
+			);
 		}
-
-		// e.g. Approveable_Approved or Approveable_NotApproved
-		$template = "{$actionClassName}_{$status}";
-
-		// TODO work out where we store approvers/emails
-		$this->notify(
-			SocialMember::current_or_guest()->Email,             // sender is whoever is approving
-			$initiator,                         // recipient
-			$subject,
-			$message,
-			$template,
-			[
-				'ACTION'  => $this()->LatestAction('CRT'),
-				'TOMODEL' => $this(),
-			]
-		);
 	}
 
 	/**
@@ -284,7 +291,7 @@ class Approveable extends SocialAction {
 		);
 
 		$composite = new CompositeField([
-			new OptionsetField('ApprovalStatus', 'Approval', [self::PendingValue, self::ApprovedValue, self::DeclinedValue])
+			new OptionsetField('ApprovalStatus', 'Approval', [self::PendingValue, self::ApprovedValue, self::DeclinedValue]),
 		]);
 
 		if (!SocialEdgeType::check_permission(SocialMember::current_or_guest(), $this(), self::ActionCode)) {

@@ -34,11 +34,6 @@ abstract class SocialActionMenu extends SocialController  {
 		$actions = new ArrayList();
 		/** @var SocialEdgeType $actionRelationshipType */
 		foreach ($possibleActions as $actionRelationshipType) {
-			// for each possible action check we can apply it against the model instance.
-			// so e.g. for action 'EDT' we can only do if current member has action 'CRT' or 'EDT' (or admin) or
-			// action 'FOL'
-			$requirementTally = [];
-
 			$createRelationshipType = SocialEdgeType::get_heirarchy(
 				$member,
 				$model,

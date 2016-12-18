@@ -125,7 +125,7 @@ class HasOrganisationProductsAndServices extends HasMany  {
 				if (!$checkProductInList) {
 					$newProductService = new self::$other_class;
 					$newProductService->Title = $value;
-					$newProductService->{ActionType::FromModelFieldName} = "SocialOrganisation";
+					$newProductService->{SocialEdgeType::NodeAFieldName} = "SocialOrganisation";
 					$newProductService->write();
 				}
 			}

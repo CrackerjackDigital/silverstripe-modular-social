@@ -72,7 +72,7 @@ class HasRssFeeds extends HasManyMany {
 	/**
 	 * Relate a RssFeed to this object by supplied action.
 	 *
-	 * Creates a action class object if Instane and SocialActionType records
+	 * Creates a action class object if Instane and SocialEdgeType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int $RssFeedID
@@ -114,7 +114,7 @@ class HasRssFeeds extends HasManyMany {
 		if ($mode === NewsFeed::ActionName) {
 			// get ids of feeds the user is following
 			$feedIDs = parent::related(
-				ActionType::merge_code_lists($actionCodes, 'MFR')
+				SocialEdgeType::merge_code_lists($actionCodes, 'MFR')
 			)->column();
 
 			return Post::get()->filter('FeedMeFeedID', $feedIDs);

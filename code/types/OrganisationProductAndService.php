@@ -5,7 +5,7 @@ use Modular\Types\SocialType;
 
 class OrganisationProductAndServiceType extends SocialType {
 	private static $db = [
-		\Modular\Types\SocialEdgeType::FromModelFieldName => 'Varchar(32)',
+		\Modular\Types\Graph\DirectedEdgeType::NodeAFieldName => 'Varchar(32)',
 	];
 
 	private static $has_many = [
@@ -19,7 +19,7 @@ class OrganisationProductAndServiceType extends SocialType {
 
 	private static $summary_fields = [
 		'Title',
-		\Modular\Types\SocialEdgeType::FromModelFieldName,
+		\Modular\Types\Graph\DirectedEdgeType::NodeAFieldName,
 		'Approved'
 	];
 }

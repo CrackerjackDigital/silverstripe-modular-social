@@ -161,7 +161,7 @@ abstract class HasMany extends \Modular\ModelExtension implements ModelWriteHand
 	 */
 	protected function getAllowedActionTypes() {
 		$filters = [
-			ActionType::FromModelFieldName => $this->owner->class,
+			SocialEdgeType::NodeAFieldName => $this->owner->class,
 		];
 		$query = DataObject::get(static::$other_class)->filter($filters);
 

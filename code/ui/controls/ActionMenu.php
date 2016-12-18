@@ -7,7 +7,7 @@ use DataObject;
 use Modular\Actions\Createable;
 use Modular\Extensions\Controller\SocialController;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Types\SocialEdgeType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialEdgeType;
 
 /**
  * Base class for menus which display a list of available and permitted actions such as Like, Follow, Edit etc
@@ -23,7 +23,7 @@ abstract class SocialActionMenu extends SocialController  {
 		$member = SocialMember::current_or_guest();
 
 		// get the list of all possible actions between the two objects (no permission checks)
-		$possibleActions = SocialActionType::get_possible_actions(
+		$possibleActions = SocialEdgeType::get_possible_actions(
 			$member,
 			$model,
 			$restrictTo
@@ -32,14 +32,14 @@ abstract class SocialActionMenu extends SocialController  {
 		]);
 
 		$actions = new ArrayList();
-		/** @var SocialActionType $actionRelationshipType */
+		/** @var SocialEdgeType $actionRelationshipType */
 		foreach ($possibleActions as $actionRelationshipType) {
 			// for each possible action check we can apply it against the model instance.
 			// so e.g. for action 'EDT' we can only do if current member has action 'CRT' or 'EDT' (or admin) or
 			// action 'FOL'
 			$requirementTally = [];
 
-			$createRelationshipType = SocialActionType::get_heirarchy(
+			$createRelationshipType = SocialEdgeType::get_heirarchy(
 				$member,
 				$model,
 				Createable::ActionCode
@@ -61,7 +61,7 @@ abstract class SocialActionMenu extends SocialController  {
 				}
 			}
 
-			if (SocialActionType::check_permission($actionRelationshipType->Code, $member, $model)) {
+			if (SocialEdgeType::check_permission($member, $model, $actionRelationshipType->Code)) {
 
 				// if the model was created by the currently logged in person then don't show the action
 

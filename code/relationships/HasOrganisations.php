@@ -57,7 +57,7 @@ class HasOrganisations extends HasManyMany {
 	/**
 	 * Relate an organisation to this object by supplied action.
 	 *
-	 * Creates a MemberOrganisationAction object if SocialOrganisation and SocialActionType records
+	 * Creates a MemberOrganisationAction object if SocialOrganisation and SocialEdgeType records
 	 * exits for supplied parameters and adds it to RelatedOrganisations collection.
 	 *
 	 * @param int $organisationID

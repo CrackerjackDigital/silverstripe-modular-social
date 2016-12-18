@@ -2,9 +2,9 @@
 namespace Modular\Edges;
 
 class MemberForumTopic extends SocialRelationship {
-	const FromModelClass = 'Member';
+	const NodeAClassName = 'Member';
 	// const FromFieldName = 'FromMember';
 
-	const ToModelClass   = 'Modular\Models\Social\ForumTopic';
+	const NodeBClassName   = 'Modular\Models\Social\ForumTopic';
 	// const ToFieldName = 'ToModel';
 }

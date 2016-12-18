@@ -10,7 +10,7 @@ use Modular\Extensions\Controller\SocialAction;
 use Modular\Forms\SocialForm;
 use Modular\Interfaces\SocialModel;
 use Modular\Interfaces\UIModalProvider;
-use Modular\Models\Graph\Edge;
+use Modular\Edges\Edge;
 use RequiredFields;
 use SS_HTTPRequest;
 use SS_HTTPResponse;

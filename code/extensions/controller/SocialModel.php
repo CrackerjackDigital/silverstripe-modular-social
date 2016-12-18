@@ -26,8 +26,8 @@ class SocialModelController extends ModelExtension {
 		foreach ($extensions as $extension) {
 			if ($extension instanceof SocialAction) {
 				$typeCode = $extension::ActionCode;
-				/** @var ActionType $type */
-				if ($type = ActionType::get_by_code($typeCode)) {
+				/** @var SocialEdgeType $type */
+				if ($type = SocialEdgeType::get_by_code($typeCode)) {
 					$handlers[ '$ID/' . $type->ActionName ] = $type->ActionName;
 					$handlers[ '$ID/' . $type->ReverseActionName ] = $type->ReverseActionName;
 				}

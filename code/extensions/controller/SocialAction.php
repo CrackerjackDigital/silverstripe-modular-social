@@ -6,7 +6,7 @@ use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Interfaces\SocialModelProvider;
 use Modular\Models\SocialModel;
-use Modular\Types\SocialEdgeType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialEdgeType;
 
 /**
  * Base extension for actions which can be performed by the logged in Member to establish
@@ -43,12 +43,10 @@ abstract class SocialAction extends SocialController
 			}
 
 		}
-		$canDoIt = SocialActionType::check_permission(
-			$actionCodes,
-			SocialMember::current_or_guest(),
-			$this()->getModelID()
-				? $this()->getModelInstance($action)
-				: $this()->getModelClass()
+		$canDoIt = SocialEdgeType::check_permission(
+			SocialMember::current_or_guest(), $this()->getModelID()
+			? $this()->getModelInstance($action)
+			: $this()->getModelClass(), $actionCodes
 		);
 		if ($source && !$canDoIt) {
 			if ($source == 'action') {

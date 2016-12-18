@@ -19,7 +19,7 @@ use Session;
 /**
  * Base controller for SocialModel derived classes.
  *
- * SocialActionType methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
+ * SocialEdgeType methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
  */
 class SocialModel extends GraphNode implements SocialModelControllerInterface, FormControllerInterface {
 	use json;

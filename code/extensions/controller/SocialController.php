@@ -9,7 +9,7 @@ use Modular\json;
 /**
  * Extension for Social Controllers, also base class for Action controller extension, and so ultimately Social Actions, e.g. Approveable, Creatable etc
  *
- * SocialActionType extensions such as Viewable, Listable, Postable etc should derive
+ * SocialEdgeType extensions such as Viewable, Listable, Postable etc should derive
  * from this.
  *
  */
@@ -50,7 +50,7 @@ class SocialController extends GraphNode {
 
 	/**
 	 * Helper function will return a model of $modelClass with ID $id if $mode
-	 * is same as the derived classes static::SocialActionType.
+	 * is same as the derived classes static::SocialEdgeType.
 	 *
 	 * @param      $modelClass
 	 * @param      $id
@@ -73,7 +73,7 @@ class SocialController extends GraphNode {
 	}
 
 	/**
-	 * If mode matches derived classes SocialActionType then return a new Model of class
+	 * If mode matches derived classes SocialEdgeType then return a new Model of class
 	 * $modelClass.
 	 *
 	 * @param $modelClass

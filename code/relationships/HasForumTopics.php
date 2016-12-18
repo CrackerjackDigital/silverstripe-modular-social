@@ -113,7 +113,7 @@ class HasForumTopics extends HasManyMany {
 		if ($mode === NewsFeed::ActionName) {
 
 			$related = parent::related(
-				ActionType::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
+				SocialEdgeType::merge_code_lists($actionCodes, ['MLT', 'MFT', 'MCT'])
 			);
 			return $related;
 		}

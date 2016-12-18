@@ -11,7 +11,7 @@ use Modular\Edges\SocialRelationship;
 use Modular\Exceptions\Social as Exception;
 use Modular\Fields\HasManyManyGridField;
 use Modular\Object;
-use Modular\Types\SocialEdgeType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialEdgeType;
 use Modular\UI\Component;
 use SS_List;
 
@@ -233,7 +233,7 @@ class HasManyMany extends HasManyManyGridField {
 			? $action->ID
 			: (is_numeric($action)
 				? $action
-				: SocialActionType::get_by_code($action));
+				: SocialEdgeType::get_by_code($action));
 
 		/** @var string|SocialRelationship $relationshipClassName */
 		$relationshipClassName = static::relationship_class_name($this());
@@ -242,9 +242,9 @@ class HasManyMany extends HasManyManyGridField {
 			return new $relationshipClassName(array_merge(
 				$data,
 				[
-					$relationshipClassName::from_field_name('ID') => $this()->ID,
-					$relationshipClassName::to_field_name('ID')   => $toModelID,
-					$relationshipClassName::type_field_name('ID') => $actionID,
+					$relationshipClassName::from_field_name('ID')      => $this()->ID,
+					$relationshipClassName::to_field_name('ID')        => $toModelID,
+					$relationshipClassName::edge_type_field_name('ID') => $actionID,
 				]
 			));
 		} else {
@@ -273,7 +273,7 @@ class HasManyMany extends HasManyManyGridField {
 				: [$this->relationship_name()];
 
 			// get action type records which are children of the passed in code.
-			$actionTypeIDs = SocialActionType::get_by_parent($parentActionCodes)->column('ID');
+			$actionTypeIDs = SocialEdgeType::get_by_parent($parentActionCodes)->column('ID');
 
 			// for each of the action names append records which match the current action type
 			foreach ($relationshipNames as $relationshipName) {
@@ -304,10 +304,10 @@ class HasManyMany extends HasManyManyGridField {
 	 * Return relationship types which can be created from this model to any other model
 	 *
 	 * @param string $actionCode e.g. 'CRT', 'REG'
-	 * @return Edg“eType|SocialActionType|DataObject
+	 * @return Edg“eType|SocialEdgeType|DataObject
 	 */
 	protected function action_for_code($actionCode) {
-		return SocialActionType::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();
+		return SocialEdgeType::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();
 	}
 
 	/**
@@ -345,7 +345,7 @@ class HasManyMany extends HasManyManyGridField {
 	/**
 	 * Relate a model to the extended model by supplied action.
 	 *
-	 * Creates a action class object if Model and SocialActionType records
+	 * Creates a action class object if Model and SocialEdgeType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int    $modelOrID
@@ -363,7 +363,7 @@ class HasManyMany extends HasManyManyGridField {
 				: DataObject::get_by_id($relatedClassName, $modelOrID);
 
 			if ($model) {
-				// get the first action (e.g. SocialActionType) allowed between the extended model
+				// get the first action (e.g. SocialEdgeType) allowed between the extended model
 				// and the related model with the supplied action code
 				$action = static::action_for_code($actionCode);
 
@@ -376,9 +376,9 @@ class HasManyMany extends HasManyManyGridField {
 						array_merge(
 							$extraData,
 							[
-								$relationshipClassName::type_field_name('ID') => $action->ID,
-								$relationshipClassName::from_field_name('ID') => $this()->ID,
-								$relationshipClassName::to_field_name('ID')   => $model->ID,
+								$relationshipClassName::edge_type_field_name('ID') => $action->ID,
+								$relationshipClassName::from_field_name('ID')      => $this()->ID,
+								$relationshipClassName::to_field_name('ID')        => $model->ID,
 							]
 						)
 					);

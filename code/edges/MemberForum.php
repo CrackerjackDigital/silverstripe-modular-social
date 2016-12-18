@@ -2,7 +2,7 @@
 namespace Modular\Edges;
 
 class MemberForum extends SocialRelationship {
-	const FromModelClass = 'Member';
-	const ToModelClass = 'Modular\Models\Social\Forum';
+	const NodeAClassName = 'Member';
+	const NodeBClassName = 'Modular\Models\Social\Forum';
 
 }

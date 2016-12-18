@@ -1,6 +1,7 @@
 <?php
 namespace Modular\Models;
 
+use Modular\Edges\SocialRelationship;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\Models\Graph\Node;
 
@@ -17,6 +18,15 @@ class SocialModel extends Node implements SocialModelInterface {
 
 	public function endpoint() {
 		return $this->config()->get('route_part');
+	}
+
+	/**
+	 * Return the latest action that was performed To this model of the particular type code.
+	 * @param $typeCode
+	 * @return \DataObject
+	 */
+	public function latest($typeCode) {
+		return SocialRelationship::latest(null, $this(), $typeCode);
 	}
 
 }

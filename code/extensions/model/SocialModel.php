@@ -23,7 +23,7 @@ use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\ModelExtension;
 use Modular\reflection;
-use Modular\Types\SocialEdgeType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialEdgeType;
 use RequiredFields;
 use UploadField;
 
@@ -45,7 +45,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	/**
 	 * Checks:
 	 *  -   The current user is the model's Creator
-	 *  -   via SocialActionType.check_permission if we can perform the requested action.
+	 *  -   via SocialEdgeType.check_permission if we can perform the requested action.
 	 *
 	 * @param        $actionCodes
 	 * @param string $source where call is being made from, e.g. a controller will set this to 'action' on checking allowed_actions
@@ -55,10 +55,8 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	public function canDoIt($actionCodes, $source = '') {
 		$source = $source ?: \Member::currentUser();
 
-		$canDoIt = SocialActionType::check_permission(
-			$actionCodes,
-			SocialMember::current_or_guest(),
-			$this->getModelInstance()
+		$canDoIt = SocialEdgeType::check_permission(
+			SocialMember::current_or_guest(), $this->getModelInstance(), $actionCodes
 		);
 		if ($source && !$canDoIt) {
 			if ($source == 'action') {
@@ -623,8 +621,8 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		if ($otherModelOrClassName instanceof DataObject) {
 			$otherModelOrClassName = $otherModelOrClassName->class;
 		}
-		/** @var SocialActionType $Action */
-		$Action = SocialActionType::get_heirarchy(
+		/** @var SocialEdgeType $Action */
+		$Action = SocialEdgeType::get_heirarchy(
 			$this->getModelClass(),
 			$otherModelOrClassName,
 			$actionCode

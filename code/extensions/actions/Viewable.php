@@ -10,7 +10,7 @@ use HiddenField;
 use Modular\Controllers\SocialModel_Controller;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Types\SocialEdgeType as SocialActionType;
+use Modular\Types\SocialEdgeType as SocialEdgeType;
 use Modular\UI\Controls\ActionLinkField;
 use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;
@@ -81,10 +81,8 @@ class Viewable extends SocialAction  {
 	 */
 	public function updateActionsForMode(DataObject $model, FieldList $actions, $mode) {
 		if ($mode === self::ActionName) {
-			$allowed = SocialActionType::check_permission(
-				Editable::ActionCode,
-				SocialMember::current_or_guest(),
-				$this()->getModelInstance(self::ActionName)
+			$allowed = SocialEdgeType::check_permission(
+				SocialMember::current_or_guest(), $this()->getModelInstance(self::ActionName), Editable::ActionCode
 			);
 
 			if ($allowed) {

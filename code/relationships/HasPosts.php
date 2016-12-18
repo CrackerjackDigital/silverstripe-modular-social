@@ -69,7 +69,7 @@ class HasPosts extends HasManyMany {
 	/**
 	 * Relate a Post to this object by supplied action.
 	 *
-	 * Creates a action class object if Instane and SocialActionType records
+	 * Creates a action class object if Instane and SocialEdgeType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int $postID
@@ -109,7 +109,7 @@ class HasPosts extends HasManyMany {
 	public function provideListItemsForAction($mode, $actionCodes = []) {
 		if ($mode === NewsFeed::ActionName) {
 			$related = parent::related(
-				ActionType::merge_code_lists($actionCodes, ['MPM', 'MCP', 'MFM'])
+				SocialEdgeType::merge_code_lists($actionCodes, ['MPM', 'MCP', 'MFM'])
 			);
 
 			return $related;

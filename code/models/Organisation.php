@@ -261,7 +261,7 @@ class Organisation extends SocialModel {
 			return false;
 		}
 
-		// $checkAction_Edit = SocialActionType::check_permission("EDT", $this);
+		// $checkAction_Edit = SocialEdgeType::check_permission("EDT", $this);
 
 		$relatedMembers = $this->relatedMembers();
 		if ($relatedMembers->count() > 0) {

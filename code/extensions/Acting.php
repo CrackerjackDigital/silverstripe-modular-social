@@ -54,7 +54,30 @@ class Acting extends ModelExtension {
 	}
 
 	/**
-	 * Return all the Actors who performed actions on the extended model, by default Members.
+	 * Return the latest action from Actions of the matching type.
+	 *
+	 * @param        $actionCode
+	 * @param string $actorModels
+	 * @return \DataObject
+	 */
+	public function LatestAction($actionCode, $actorModels = 'Member') {
+		return $this->Actions($actionCode, $actorModels)->sort('Created DESC')->first();
+	}
+
+	/**
+	 * Return the oldest action from Actions of the matching type.
+	 *
+	 * @param        $actionCode
+	 * @param string $actorModels
+	 * @return \DataObject
+	 */
+	public function OldestAction($actionCode, $actorModels = 'Member') {
+		return $this->Actions($actionCode, $actorModels)->sort('Created ASC')->first();
+	}
+
+	/**
+	 * Return all the Actors who performed actions on the extended model
+	 * (generally and by default Members but may be e.g. Organisations).
 	 *
 	 * @param string $forAction
 	 * @param string $actorModel
@@ -68,7 +91,8 @@ class Acting extends ModelExtension {
 		/** @var string|SocialRelationship $relationshipClass */
 		$relationshipClass = current(SocialRelationship::implementors(
 			$actorModel,
-			$actionModelClass
+			$actionModelClass,
+			true
 		));
 
 		if ($relationshipClass) {

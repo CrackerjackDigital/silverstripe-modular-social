@@ -127,7 +127,7 @@ class HasInterests extends HasMany {
 				if (!$checkInList) {
 					$newInterest = new self::$other_class;
 					$newInterest->Title = $value;
-					$newInterest->{SocialEdgeType::FromModelFieldName} = "GroupModel";
+					$newInterest->{SocialEdgeType::FromFieldName} = "GroupModel";
 					$newInterest->write();
 				}
 			}

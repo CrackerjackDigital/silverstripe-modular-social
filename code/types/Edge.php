@@ -3,10 +3,13 @@ namespace Modular\Types;
 
 use ArrayList;
 use DataObject;
+use Modular\Collections\Graph\EdgeTypeList;
 use Modular\config;
 use Modular\Edges\SocialRelationship;
-use Modular\Interfaces\Graph\EdgeType;
+use Modular\Types\Graph\DirectedEdgeType;
 use Modular\reflection;
+use Modular\Traits\custom_create;
+use Modular\Traits\custom_get;
 use TreeDropdownField;
 
 /**
@@ -24,7 +27,6 @@ use TreeDropdownField;
  * @property string ToModel
  * @property string Code
  * @property string ParentCode
- * @property string LastBuildResult
  * @property string ShowInActionLinks
  * @property string ShowInActionButtons
  * @property string PermissionPrefix
@@ -36,26 +38,22 @@ use TreeDropdownField;
  * @method SocialEdgeType|null RequirePrevious()
  *
  */
-class SocialEdgeType extends SocialType implements EdgeType {
-	use \Modular\Traits\Graph\edgetype;
-	use reflection;
-	use config;
-
+class SocialEdgeType extends DirectedEdgeType {
 	const ActionCode                  = '';
 	const RelationshipClassNamePrefix = '';
 	const RelationshipClassNameSuffix = '';
 	const RelationshipNamePrefix      = '';
 	const RelationshipNameSuffix      = '';
 
-	const CodeFieldName       = \Modular\Fields\Code::SingleFieldName;
-	const CodeFieldSchema     = \Modular\Fields\Code::SingleFieldSchema;
+	const CodeFieldName   = \Modular\Fields\Code::SingleFieldName;
+	const CodeFieldSchema = \Modular\Fields\Code::SingleFieldSchema;
+
 	const ParentCodeFieldName = self::CodeFieldName;
 
-	const FromModelFieldName = 'FromModel';
-	const ToModelFieldName   = 'ToModel';
+	private static $code_field_name = self::CodeFieldName;
 
-	const InjectorName = 'GraphEdgeType';
-	private static $injector_name = self::InjectorName;
+	private static $custom_class_name = 'Modular\Types\SocialEdgeType';
+	private static $custom_list_class_name = 'Modular\Collections\Graph\DirectedEdgeTypeList';
 
 	private static $admin_groups = [
 		'administrators' => true,
@@ -63,7 +61,7 @@ class SocialEdgeType extends SocialType implements EdgeType {
 	];
 
 	private static $indexes = [
-		'AllowedClassNames'       => 'FromModel,ToModel',
+		self::CodeFieldName       => true,
 		self::ParentCodeFieldName => true,
 	];
 
@@ -73,12 +71,9 @@ class SocialEdgeType extends SocialType implements EdgeType {
 		'ActionName'              => 'Varchar(12)',                             // e.g. 'Follow'
 		'ReverseActionName'       => 'Varchar(12)',                             // e.g. 'Unfollow'
 		'ReverseTitle'            => 'Varchar(64)',                             // e.g for Title of 'Follows' would be 'Followed by'
-		self::FromModelFieldName  => 'Varchar(64)',                             // e.g. 'Member'
-		self::ToModelFieldName    => 'Varchar(64)',                             // e.g. 'SocialOrganisation'
-		'LastBuildResult'         => 'Varchar(32)',                             // if this record was created, changed or unchanged by last build
+		self::ParentCodeFieldName => self::CodeFieldSchema,                     // Code of Parent (e.g. 'LIK' for 'MLM'), for simplicity, not in record
 		'ShowInActionLinks'       => 'Int',                                     // show this action in action-link menus if not 0
 		'ShowInActionButtons'     => 'Int',                                     // show this action in action-button menus if not 0
-		self::ParentCodeFieldName => self::CodeFieldSchema,   // Code of Parent (e.g. 'LIK' for 'MLM'), for simplicity, not in record
 		'PermissionPrefix'        => 'Varchar(32)',                             // e.g. 'CAN_APPROVE_' for approval relationships, not in record,
 		'ActionLinkType'          => "enum('nav,modal,inplace')"                // when clicked what to do?
 	];
@@ -106,8 +101,8 @@ class SocialEdgeType extends SocialType implements EdgeType {
 		'Title',
 		'ReverseTitle',
 		self::CodeFieldName,
-		\Modular\Types\SocialEdgeType::FromModelFieldName,
-		\Modular\Types\SocialEdgeType::ToModelFieldName,
+		\Modular\Types\Graph\DirectedEdgeType::NodeAFieldName,
+		\Modular\Types\Graph\DirectedEdgeType::NodeBFieldName,
 		'ActionName',
 		'ReverseActionName',
 		'ActionLinkType',
@@ -120,8 +115,13 @@ class SocialEdgeType extends SocialType implements EdgeType {
 		return $this;
 	}
 
-	public static function create() {
-
+	/**
+	 * Return the name of the field used as the unique identity for this edge type, in this case 'Code'.
+	 *
+	 * @return string
+	 */
+	public static function code_field_name($suffix = '') {
+		return static::config()->get('code_field_name') . $suffix;
 	}
 
 	public function getCMSFields() {
@@ -156,11 +156,11 @@ class SocialEdgeType extends SocialType implements EdgeType {
 
 	/**
 	 * Returns an array of information used to build records around this type of relationship:
-	 * -    FromModel                e.g. 'Member'
-	 * -    ToModel               e.g. 'Modular\' (not SocialOrganisation)
-	 * -    FromFieldName           e.g. 'FromModelID'
-	 * -    ToFieldName             e.g. 'ToModelID'
-	 * -    RelationshipClassName   e.g. 'MemberOrganisationRelationship'
+	 * -    FromFieldName           e.g. 'FromModel'
+	 * -    ToFieldName             e.g. 'ToModel'
+	 * -    FromModel               e.g. 'Member'
+	 * -    ToModel                 e.g. 'Modular\Modela\Social\Organisation'
+	 * -    RelationshipClassName   e.g. 'MemberOrganisation'
 	 * -    RelationshipName        e.g. 'RelatedMembers'
 	 *
 	 * NB you can use list(,,$useThisOne,,,$andThisOne) to ignore ones you're not using.
@@ -170,10 +170,10 @@ class SocialEdgeType extends SocialType implements EdgeType {
 	 */
 	public function getEdgeInfo($fieldNameSuffix = 'ID') {
 		return [
-			$this->getFromName(),
-			$this->getToName(),
-			static::from_field_name($fieldNameSuffix),
-			static::to_field_name($fieldNameSuffix),
+			static::from_field_name(),
+			static::to_field_name(),
+			$this->{static::from_field_name()},
+			$this->{static::to_field_name()},
 			$this->getRelationshipClassName(),
 			$this->getRelationshipName(),
 		];
@@ -199,7 +199,7 @@ class SocialEdgeType extends SocialType implements EdgeType {
 	 * @return bool|int
 	 */
 	public function checkPermission(DataObject $fromModel, DataObject $toModel) {
-		return self::check_permission($this->Code, $fromModel, $toModel, false);
+		return self::check_permission($fromModel, $toModel, $this->Code, false);
 	}
 
 	/**
@@ -280,6 +280,5 @@ class SocialEdgeType extends SocialType implements EdgeType {
 	public static function admin_groups() {
 		return array_keys(array_filter(static::config()->get('admin_groups')));
 	}
-
 
 }

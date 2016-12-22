@@ -4,10 +4,10 @@ namespace Modular\Forms\Social;
 use FieldList;
 use FileAttachmentField;
 use FormAction;
-use HasLogo;
 use HiddenField;
 use Modular\Actions\Editable;
 use Modular\Forms\SocialForm;
+use Modular\Relationships\Social\HasLogo;
 use RequiredFields;
 
 /**
@@ -17,7 +17,7 @@ use RequiredFields;
  **/
 
 class HasLogoForm extends SocialForm {
-	const Action = HasLogo::Action;
+	const ActionName = HasLogo::ActionName;
 
 	public function __construct($controller, $name, $id) {
 
@@ -36,7 +36,7 @@ class HasLogoForm extends SocialForm {
 		parent::__construct($controller, $name, $fields, $actions, $validator);
 
 		if ($model = $controller->getModelInstance(Editable::ActionName)) {
-			$this->setFormAction($model->ActionLink(self::Action));
+			$this->setFormAction($model->ActionLink(self::ActionName));
 		}
 	}
 

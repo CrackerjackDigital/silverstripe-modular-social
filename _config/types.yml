@@ -1,0 +1,36 @@
+---
+Name: modular-social-types
+---
+# types
+Modular\Types\SocialEdgeType:
+  extensions:
+    - Modular\Extensions\Model\Historical
+
+# base types
+Modular\Types\SocialType:
+  extensions:
+    - Modular\Extensions\Acting
+    - Modular\Extensions\Model\Historical
+    - Modular\Fields\Title
+    - Modular\Fields\Code
+    - Modular\Fields\Description
+    - Modular\Fields\ModelTag
+    - Modular\Fields\SystemData
+    - Modular\Fields\HiddenSort
+
+Modular\Types\Social\InterestType:
+  extensions:
+    - Modular\Actions\Approveable
+
+Modular\Types\Social\OrganisationType:
+  extensions:
+    - Modular\Actions\Approveable
+
+Modular\Types\Social\OrganisationSubType:
+  extensions:
+    - Modular\Actions\Approveable
+
+Modular\Types\Social\OrganisationProductAndServiceType:
+  extensions:
+    - Modular\Actions\Approveable
+

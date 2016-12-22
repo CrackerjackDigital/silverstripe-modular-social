@@ -1,9 +1,9 @@
 <?php
 namespace Modular\Interfaces;
+use Modular\Interfaces\Graph\EdgeType;
 
 /**
- * Interface for CurrentMemberRelationshipExtensions, partly to ensure they implement an actionTaken method which
- * can be used to determine if an action has been done and so the reverse action is 'next'.
+ * Interface for Actions which can be performed on a model.
  */
 interface SocialAction {
     /**
@@ -26,13 +26,13 @@ interface SocialAction {
     public function getTo();
 
     /**
-     * @return RelationshipType
+     * @return EdgeType
      */
     public function getAction();
 
     /**
      * Return the top-level 'Parent' action or this action if it is the top level.
-     * @return RelationshipType
+     * @return EdgeType
      */
     public function getRootAction();
 }

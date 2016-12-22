@@ -9,7 +9,7 @@ use SS_HTTPRequest;
  * Add ProfileImage functionality to a Model
  */
 class HasProfileImage extends HasImage {
-    const Action = 'uploadProfileImage';
+    const ActionName = 'uploadProfileImage';
     const ActionCode = Uploadable::ActionCode;
     const RelationshipName = 'ProfileImage';
     const FieldName = 'ProfileImageID';

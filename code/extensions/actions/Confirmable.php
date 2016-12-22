@@ -2,6 +2,7 @@
 namespace Modular\Actions;
 
 use Controller;
+use DataObject;
 use EmailNotifier;
 use Member;
 use Modular\Edges\MemberMember;
@@ -13,6 +14,7 @@ class Confirmable extends SocialAction  {
 	use \Modular\enabler;
 
 	const ActionCode = 'CFM';
+	const ActionName = 'confirm';
 
 	const ConfirmationTokenFieldName = 'ConfirmationToken';
 
@@ -43,9 +45,9 @@ class Confirmable extends SocialAction  {
 	}
 
 	public function Confirmed() {
-		return SocialRelationship::to(
+		return SocialRelationship::to_models(
 			$this(),
-			'CRT'
+			static::ActionCode
 		);
 	}
 
@@ -61,11 +63,11 @@ class Confirmable extends SocialAction  {
 	 */
 	public function checkPermissions($fromModel, $toModel, $actionTypeCode) {
 		if ($confirmed = !static::enabled()) {
-			$registrants = MemberMember::nodeBForAction($toModel, 'REG');
+			$registrants = MemberMember::graph($fromModel, $toModel, 'REG');
 
 			/** @var Confirmable $registrant */
 			foreach ($registrants as $registrant) {
-				if (!$confirmed = $registrant->isConfirmed()) {
+				if (!$confirmed = $registrant->Confirmed()) {
 					break;
 				}
 			}

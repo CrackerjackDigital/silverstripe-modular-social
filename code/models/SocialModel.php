@@ -16,6 +16,9 @@ class SocialModel extends Node implements SocialModelInterface {
 
 	private static $has_one = [];
 
+	// classes derived from this use their own class name
+	private static $custom_class_name = '';
+
 	public function endpoint() {
 		return $this->config()->get('route_part');
 	}

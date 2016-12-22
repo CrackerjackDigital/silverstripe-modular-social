@@ -7,7 +7,16 @@ Modular\Edges\Directed:
   extensions:
     - Modular\Extensions\Model\GraphEdge
 
-# now add Node extension to the Models
-Member:
+# edges
+Modular\Edges\Social:
   extensions:
-    - Modular\Extensions\Model\GraphNode
+    - Modular\Extensions\Model\SocialModel
+    - Modular\Extensions\Model\Historical
+
+Modular\Edges\SocialRelationship:
+  extensions:
+    - Modular\Fields\Description
+    - Modular\Fields\HiddenSort
+    - Modular\Fields\ModelTag
+
+

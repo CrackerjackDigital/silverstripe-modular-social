@@ -1,0 +1,33 @@
+---
+Name: modular-social-model-config
+---
+# base models
+Modular\Models\SocialModel:
+  extensions:
+    - Modular\Extensions\Acting
+    - Modular\UI\Controls\SocialActionButtons
+    - Modular\Extensions\Model\Historical
+    - Modular\Fields\Title
+    - Modular\Fields\Description
+    - Modular\Fields\HiddenSort
+
+## silverstripe models
+Member:
+  extensions:
+    - Modular\Extensions\Acting
+    - Modular\UI\Controls\SocialActionButtons
+    - Modular\Extensions\Model\GraphNode
+    - Modular\Extensions\Model\SocialMember
+    - Modular\Extensions\Model\Historical
+    - Modular\Actions\Approveable
+    - Modular\Actions\Confirmable
+    - Modular\Relationships\Social\HasOrganisations
+    - Modular\Relationships\Social\HasForums
+    - Modular\Relationships\Social\HasContacts
+    - Modular\Relationships\Social\HasFavourites
+    - Modular\Relationships\Social\HasPosts
+    - Modular\Relationships\Social\HasForumTopics
+    - Modular\Relationships\Social\HasImages
+    - Modular\Relationships\Social\HasProfilePicture
+    - Modular\Relationships\Social\HasRssFeeds
+

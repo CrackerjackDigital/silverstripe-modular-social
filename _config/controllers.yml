@@ -1,0 +1,15 @@
+---
+Name: modular-social-controllers-config
+---
+# controllers
+Modular\Controllers\SocialModelController:
+  extensions:
+    - Modular\Extensions\Acting
+    - Modular\UI\Controls\SocialActionLinks
+    - Modular\UI\Dialogs\SocialModalProvider
+    - Modular\Extensions\Controller\SocialController
+    - Modular\Extensions\Controller\Requirements
+    - Modular\Actions\Createable
+    - Modular\Actions\Listable
+    - Modular\Actions\Viewable
+    - Modular\Actions\Editable

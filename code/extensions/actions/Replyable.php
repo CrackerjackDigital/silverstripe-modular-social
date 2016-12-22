@@ -8,7 +8,15 @@ namespace Modular\Actions;
  * @url /$Model/$ID/unreply
  */
 
+use FormAction;
+use HiddenField;
+use Member;
+use Modular\Edges\SocialRelationship;
 use \Modular\Extensions\Controller\SocialAction;
+use Modular\Interfaces\SocialModel;
+use Modular\Models\Social\Post;
+use Modular\Models\Social\PostReply;
+use SS_HTTPRequest;
 
 class Replyable extends SocialAction {
     const ActionCode  = 'REP';
@@ -38,7 +46,7 @@ class Replyable extends SocialAction {
      */
     public function canUnReply($source = null) {
         // model should be a PostReply
-        return (bool)SocialRelationship::has_related(
+        return (bool)SocialRelationship::latest(
             Member::currentUser(),
             $this()->getModel(static::ReverseMode),
             'MCR'
@@ -66,10 +74,10 @@ class Replyable extends SocialAction {
     /**
      * @param $model
      * @param $actions
-     * @param $mode
+     * @param $action
      */
-    public function updateActionsForMode($model, $actions, $mode) {
-        if ($mode == $this->action()) {
+    public function updateActionsForMode($model, $actions, $action) {
+        if ($action == $this->action()) {
             if ($this->canCreate()) {
                 $actions->push(new FormAction('Save', 'Save'));
             }
@@ -104,16 +112,16 @@ class Replyable extends SocialAction {
      *
      * @param $modelClass
      * @param $id
-     * @param $mode
+     * @param $action
      *
-     * @return SocialModelInterface|null
+     * @return SocialModel|null
      */
-    public function provideModel($modelClass, $id, $mode)
+    public function provideModel($modelClass, $id, $action)
     {
         if ($id) {
-            if ($mode === $this->action()) {
+            if ($action === $this->action()) {
                 return Post::get()->byID($id);
-            } elseif ($mode === static::ReverseMode) {
+            } elseif ($action === static::ReverseMode) {
                 return PostReply::get()->byID($id);
             }
         }

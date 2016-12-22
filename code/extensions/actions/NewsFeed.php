@@ -5,9 +5,19 @@
  */
 namespace Modular\Actions;
 
-use \Modular\Extensions\Controller\SocialAction;
+use ArrayData;
+use ArrayList;
+use Config;
+use DataList;
+use HTMLText;
+use Member;
+use Modular\Collections\RoundRobinMultipleArrayList;
+use Modular\Controllers\SocialModelController;
+use Modular\Extensions\Controller\SocialAction;
+use PaginatedList;
+use SS_HTTPRequest;
 
-class NewsFeed extends SocialAction  {
+class NewsFeed extends SocialAction {
 	const ActionCode = 'VEW';
 	const ActionName = 'newsfeed';
 
@@ -33,7 +43,7 @@ class NewsFeed extends SocialAction  {
 	/**
 	 * For type-hint only.
 	 *
-	 * @return SocialModel_Controller
+	 * @return SocialModelController
 	 */
 	public function __invoke() {
 		return parent::__invoke();
@@ -43,7 +53,7 @@ class NewsFeed extends SocialAction  {
 		if (!$member = Member::currentUser()) {
 			$this()->httpError(403);
 		}
-		if (!$model = $this()->getModelInstance($mode = self::ActionName)) {
+		if (!$model = $this()->getModelInstance($action = self::ActionName)) {
 			$this()->httpError(404);
 		}
 		return parent::canDoIt(self::ActionCode, $source);
@@ -120,10 +130,10 @@ class NewsFeed extends SocialAction  {
 	 *
 	 *
 	 * @param $actionTypeCodes
-	 * @return DataList|Modular\Collections\RoundRobinMultipleArrayList
+	 * @return DataList|RoundRobinMultipleArrayList
 	 */
 	private function newsFeedList($actionTypeCodes) {
-		$mode = self::ActionName;
+		$action = self::ActionName;
 		$filters = $this()->request->getVar('filter');
 		/**
 		 *
@@ -138,7 +148,7 @@ class NewsFeed extends SocialAction  {
 		$limit = (int) static::get_config_setting('newsfeed_type_limit');
 
 		// ask model extensions to provide one or more lists/queries of items for the list
-		$sources = $model->extend('provideListItemsForAction', $mode, $actionTypeCodes);
+		$sources = $model->extend('provideListItemsForAction', $action, $actionTypeCodes);
 
 		$lists = [];
 		$feedLists = [];
@@ -160,23 +170,23 @@ class NewsFeed extends SocialAction  {
 		}
 		krsort($feedLists);
 
-		return new \Modular\Collections\RoundRobinMultipleArrayList($feedLists);
+		return new RoundRobinMultipleArrayList($feedLists);
 	}
 
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action()) {
 			return Member::currentUser();
 		}
 	}
 
 	/**
-	 * @param $mode
+	 * @param $action
 	 * @param $actionTypeCodes
 	 * @return mixed
 	 */
-	public function providListItemsForAction($mode, $actionTypeCodes) {
-		if ($mode === NewsFeed::ActionName) {
-			if ($model = $this()->getModelInstance($mode)) {
+	public function providListItemsForAction($action, $actionTypeCodes) {
+		if ($action === NewsFeed::ActionName) {
+			if ($model = $this()->getModelInstance($action)) {
 				return $model->related($actionTypeCodes);
 			}
 		}
@@ -186,7 +196,7 @@ class NewsFeed extends SocialAction  {
 	 *
 	 * Get Active Filter items list
 	 *
-	 * @return array
+	 * @return ArrayList
 	 *
 	 **/
 	public function GetActiveFilters() {
@@ -227,7 +237,7 @@ class NewsFeed extends SocialAction  {
 	 *
 	 **/
 	public function CreateFilterLink($Filterlink) {
-		$member_id = Member::CurrentUser()->ID;
+		$member_id = Member::currentUser()->ID;
 		$ActiveFilters = $this()->request->getVar('filter');
 		$filter = "";
 		if ($ActiveFilters) {

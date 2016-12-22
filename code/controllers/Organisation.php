@@ -8,15 +8,16 @@ use FieldList;
 use Image;
 use Member;
 use Modular\Controllers\SocialModel;
+use Modular\Controllers\SocialModelController;
 use Modular\Edges\MemberOrganisation;
 use Modular\Edges\OrganisationContactInfo;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Forms\SocialForm;
 use Modular\Models\Social\ContactInfo;
-use Modular\Models\Social\Organisation;
+use Modular\Types\Social\OrganisationSubType;
 
-class Organisation_ extends SocialModel {
-	private static $model_class = 'SocialOrganisation';
+class OrganisationController extends SocialModelController {
+	private static $model_class = 'Modular\Models\Social\Organisation';
 
 	private static $file_upload_path = [
 		'Logo' => 'organisations/profile/images',
@@ -81,7 +82,7 @@ class Organisation_ extends SocialModel {
 	 * SocialOrganisation creationg form
 	 *
 	 **/
-	public function OrganisationCreate() {
+	public function OrganisationRegisterForm() {
 		return $this->CreateForm()->renderWith(array("OrganisationRegisterForm"));
 	}
 

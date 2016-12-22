@@ -4,6 +4,7 @@ namespace Modular\UI\Components\Social;
 use Config;
 use FieldList;
 use GroupedDropdownField;
+use Modular\Types\Social\OrganisationSubType;
 use Modular\Types\Social\OrganisationType;
 use Modular\UI\Component;
 

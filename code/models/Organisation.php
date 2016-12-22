@@ -34,6 +34,8 @@ use ValidationResult;
  * @property string   Website
  * @property string   MbieRegistrationNumber
  * @property int|null LogoID
+ * @property int      FeaturedImageID
+ * @property int      OrganisationSubTypeID
  */
 class Organisation extends SocialModel {
 	private static $db = [
@@ -64,7 +66,7 @@ class Organisation extends SocialModel {
 	];
 	// private static $default_sort = 'Sort,Title';
 
-	private static $singular_name = 'SocialOrganisation';
+	private static $singular_name = 'Organisation';
 
 	private static $route_part = 'organisation';
 
@@ -263,7 +265,7 @@ class Organisation extends SocialModel {
 
 		// $checkAction_Edit = SocialEdgeType::check_permission("EDT", $this);
 
-		$relatedMembers = $this->relatedMembers();
+		$relatedMembers = $this->RelatedMembers();
 		if ($relatedMembers->count() > 0) {
 			$members = $relatedMembers->filter(["FromModelID" => $member->ID, "ToModelID" => $this->ID]);
 			$members = $members->filter('Type.Code', ["MCO", "MAO", "MRO"]);
@@ -325,7 +327,7 @@ class Organisation extends SocialModel {
 	 * @return \DataList
 	 */
 	public function officeLocations() {
-		$locationList = $this->RelatedContactInfo();
+		$locationList = $this->RelatedContactInfos();
 		$locationId = [];
 		foreach ($locationList as $loc) {
 			$locationId[] = $loc->ToContactInfo()->ID;

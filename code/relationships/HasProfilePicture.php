@@ -8,11 +8,11 @@ use SS_HTTPRequest;
 /**
  * Add ProfilePicture functionality to a Model
  */
-class HasProfilePicture extends HasImage  {
-	const Action = 'uploadprofilepicture';
-	const ActionCode = Uploadable::ActionCode;
+class HasProfilePicture extends HasImage {
+	const ActionName       = 'uploadprofilepicture';
+	const ActionCode       = Uploadable::ActionCode;
 	const RelationshipName = 'ProfileImage';
-	const FieldName = 'ProfileImageID';
+	const FieldName        = 'ProfileImageID';
 
 	private static $url_handlers = [
 		'$ID/uploadprofilepicture' => 'uploadProfilePicture',
@@ -27,6 +27,7 @@ class HasProfilePicture extends HasImage  {
 
 	/**
 	 * TODO: Implement proper permission check (at moment calling canDoIt results in controller being passed as $toModel)
+	 *
 	 * @param null $member
 	 * @return bool
 	 */
@@ -52,12 +53,13 @@ class HasProfilePicture extends HasImage  {
 
 	/**
 	 * Provide the ProfilePictureForm to the
+	 *
 	 * @param SS_HTTPRequest $request
-	 * @param $mode
+	 * @param                $mode
 	 * @return mixed
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return $this->UploadForm();
 		}
 	}

@@ -7,7 +7,11 @@ namespace Modular\Actions;
  * Provides ShareableLink method to link to this objects share/unshare action.
  */
 use Controller;
+use DataObject;
+use Member;
+use Modular\Edges\SocialRelationship;
 use \Modular\Extensions\Controller\SocialAction;
+use Modular\Interfaces\SocialModel;
 
 class Shareable extends SocialAction {
 	const ActionCode = 'SHA';
@@ -53,15 +57,14 @@ class Shareable extends SocialAction {
 
 	/**
 	 * Member unshares this->owner object, remove all self::$actionTypeCode relationships between them
-	 * @param null $mmeberID
 	 */
 	public function unshare() {
-		parent::breakRelationship(self::ActionCode);
+		parent::remove(Member::currentUser(), $this(), self::ActionCode);
 		return Controller::curr()->redirectBack();
 	}
 
 	public function isShared() {
-		return parent::checkRelationship(self::ActionCode);
+		return SocialRelationship::latest(Member::currentUser(), $this(), static::ActionCode);
 	}
 	/**
 	 * Return a link appropriate for this object to be shareed by logged in Member if can be shareed.
@@ -83,12 +86,12 @@ class Shareable extends SocialAction {
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 *
-	 * @return SocialModelInterface|null
+	 * @return SocialModel|DataObject|null
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action()) {
 			if ($id) {
 				return DataObject::get($modelClass)->byID($id);
 			}

@@ -9,7 +9,10 @@ use DataObject;
 use DropdownField;
 use FieldList;
 use FileAttachmentField;
+use Form;
 use FormField;
+use LeftAndMain;
+use Modular\Actions\Approveable;
 use Modular\Actions\Createable;
 use Modular\Actions\Editable;
 use Modular\Actions\Listable;
@@ -22,33 +25,29 @@ use Modular\Forms\SocialForm;
 use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\ModelExtension;
+use Modular\Models\SocialModel;
 use Modular\reflection;
 use Modular\Types\SocialEdgeType as SocialEdgeType;
 use RequiredFields;
 use UploadField;
 
 /**
- * Adds common functionality for a 'SocialModel'.
+ * Adds common functionality for a 'SocialModel' such as permission checks, form generation and
  *
  * Class SocialModel
  */
-class SocialModel extends ModelExtension implements SocialModelInterface  {
+class SocialModelExtension extends ModelExtension implements SocialModelInterface {
 	use debugging;
 	use enabler;
 	use reflection;
-
-	// models are suffixed e.g. 'SocialOrganisation', except where external such as 'Member'
-	const ModelClassNameSuffix = 'Model';
-
-	const ModelHTMLAttributeName = 'model';
 
 	/**
 	 * Checks:
 	 *  -   The current user is the model's Creator
 	 *  -   via SocialEdgeType.check_permission if we can perform the requested action.
 	 *
-	 * @param        $actionCodes
-	 * @param string $source where call is being made from, e.g. a controller will set this to 'action' on checking allowed_actions
+	 * @param string|array $actionCodes
+	 * @param string       $source where call is being made from, e.g. a controller will set this to 'action' on checking allowed_actions
 	 * @return bool|int
 	 * @throws \SS_HTTPResponse_Exception
 	 */
@@ -60,7 +59,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		);
 		if ($source && !$canDoIt) {
 			if ($source == 'action') {
-				Controller::curr()->httpError('403', "Sorry, you are not permitted to do do that");
+				Controller::curr()->httpError('403', _t('Global.ActionNotAllowed', "Sorry, you are not permitted to do that"));
 			}
 		}
 		return $canDoIt;
@@ -161,9 +160,9 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		$actions = new FieldList();
 
 		if (ClassInfo::exists($formClassName)) {
-			$form = new $formClassName($this, $this->getFormName(), $fields, $actions, $validator);
+			$form = new $formClassName($this(), $this->getFormName(), $fields, $actions, $validator);
 		} else {
-			$form = new SocialForm($this, $this->getFormName(), $fields, $actions, $validator);
+			$form = new SocialForm($this(), $this->getFormName(), $fields, $actions, $validator);
 		}
 		$form->setDataModel($this());
 		$form->disableSecurityToken();
@@ -340,13 +339,39 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 * e.g. PostReply::form_for_mode('reply') will return
 	 * form with PostReply.config.fields_for_mode['reply'] fields.
 	 *
-	 * @param SocialModelInterface|DataObject|SocialModel $model
+	 * @param SocialModelInterface|DataObject|SocialModel  $model
 	 * @param                                              $mode
 	 * @return mixed
 	 */
 	public static function form_for_mode(SocialModelInterface $model, $mode) {
 		if (!$model->hasMethod('formForMode')) {
 			return $model->formForMode($mode);
+		}
+	}
+
+	/**
+	 * Adds ApproveableWidget to fields if current member has Approval Permission for current model and we're
+	 * in the CMS.
+	 *
+	 * - before owner.config.approveable_fields_before field name
+	 * - after owner.config.approveable_fields_after field name
+	 * - at end of fields
+	 *
+	 * @patam DataObject $model
+	 * @param FieldList $fields
+	 * @param           $mode
+	 * @param array     $requiredFields
+	 */
+	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
+		if (Controller::curr() instanceof LeftAndMain) {
+			if (SocialEdgeType::check_permission(SocialMember::current_or_guest(), $this->getModelClass(), Approveable::ActionCode)) {
+				// remove db and instance fields as will be replaced by ApprovableWidget. We also need to append
+				// 'ID' to has_one field names.
+
+				self::remove_own_fields($fields);
+
+				$fields->push(Approveable::action_fields());
+			}
 		}
 	}
 
@@ -546,8 +571,6 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 			}
 		}
 	}
-
-
 
 	/**
 	 * Return the owner's route_part in the case of Model Extensions.

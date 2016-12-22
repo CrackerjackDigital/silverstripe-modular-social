@@ -7,7 +7,6 @@
  */
 namespace Modular\Actions;
 
-use Controller;
 use Convert;
 use DataObject;
 use EmailNotifier;
@@ -15,22 +14,22 @@ use FieldList;
 use Form;
 use FormAction;
 use Member;
-use Modular\Edges\MemberMember;
-use Modular\Edges\MemberOrganisation;
-use Modular\Forms\InitSignUpForm;
+use Modular\Edges\SocialRelationship;
+use Modular\Forms\Social\InitSignUpForm;
 use Modular\Interfaces\ModelWriteHandlers;
 use Modular\Models\Social\Organisation;
-use Modular\Types\Social\OrganisationSubType;
 use Modular\UI\Components\Social\OrganisationChooser;
+use Modular\UI\Components\Social\OrganisationSubTypeChooser;
 use Permission;
 use Requirements;
 use Session;
 use SS_HTTPRequest;
+use SS_HTTPResponse;
 use ValidationException;
 
 class Registerable extends Createable implements ModelWriteHandlers {
-	const ActionCode = 'REG';
-	const Action             = 'register';
+	const ActionCode         = 'REG';
+	const ActionName         = 'register';
 	const HasRegisteredFlag  = 'HasRegisteredFlag';
 	const ThanksURLSegment   = 'thanks';
 	const SessionTempVarName = 'RegisteringMemberID';
@@ -39,7 +38,7 @@ class Registerable extends Createable implements ModelWriteHandlers {
 
 	private static $url_handlers = [
 		'signup'               => 'signup',
-		self::Action           => self::Action,
+		self::ActionName       => self::ActionName,
 		self::ThanksURLSegment => self::ThanksURLSegment,
 	];
 
@@ -50,13 +49,13 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	];
 
 	private static $action_templates = [
-		self::Action           => self::Action,
-		self::ThanksURLSegment => self::Action,
+		self::ActionName       => self::ActionName,
+		self::ThanksURLSegment => self::ActionName,
 	];
 
 	private static $action_modes = [
-		self::Action           => self::Action,
-		self::ThanksURLSegment => self::Action,
+		self::ActionName       => self::ActionName,
+		self::ThanksURLSegment => self::ActionName,
 	];
 
 	/**
@@ -121,21 +120,21 @@ class Registerable extends Createable implements ModelWriteHandlers {
 		Requirements::javascript('https://www.google.com/recaptcha/api.js');
 		Requirements::javascript('themes/default/js/nzfin-register.js');
 		Requirements::block('themes/default/js/nzfin.js');
-		$mode = self::Action;
-		$model = $this()->getModelInstance(self::Action);
+		$action = self::ActionName;
+		$model = $this()->getModelInstance(self::ActionName);
 		$method = $request->httpMethod();
 
 		// let extensions do their thing and then call back to this controller for final outcome.
 		if ($method === 'POST') {
 			$responses = array_merge(
-				$this()->extend('afterRegister', $request, $model, $mode),
-//              [$this()->afterRegister($request, $model, $mode)]
+				$this()->extend('afterRegister', $request, $model, $action),
+//              [$this()->afterRegister($request, $model, $action)]
 				[]
 			);
 		} else {
 			$responses = array_merge(
-				$this()->extend('beforeRegister', $request, $model, $mode),
-//              [$this()->beforeRegister($request, $model, $mode)]
+				$this()->extend('beforeRegister', $request, $model, $action),
+//              [$this()->beforeRegister($request, $model, $action)]
 				[]
 			);
 		}
@@ -157,7 +156,7 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	public function thanks(SS_HTTPRequest $request) {
 		Requirements::block('themes/default/js/nzfin.js');
 		return $this()->renderTemplates(
-			self::Action,
+			self::ActionName,
 			[
 				self::HasRegisteredFlag => self::HasRegisteredFlag,
 			]
@@ -167,12 +166,12 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	/**
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject     $model
-	 * @param                $mode
+	 * @param                $action
 	 * @param array          $fieldsHandled
 	 * @throws \ValidationException
 	 */
-	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $mode, &$fieldsHandled = []) {
-		if ($mode == "new" || $mode == "register") {
+	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $action, &$fieldsHandled = []) {
+		if ($action == "new" || $action == "register") {
 			if ($model instanceof Member) {
 				if (!($request->postVar(OrganisationChooser::CreateNewFieldName)
 					|| $request->postVar(OrganisationChooser::IDFieldName))
@@ -188,20 +187,22 @@ class Registerable extends Createable implements ModelWriteHandlers {
 
 	}
 
-	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
+	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $action) {
 		// TODO: Implement afterModelWrite() method.
 	}
 
 	/**
 	 * Returns the 'GET' template after logging out the current user if logged in.
 	 *
-	 * @param SS_HTTPRequest $request
-	 * @param DataObject     $model
-	 * @param string         $mode
+	 * @param SS_HTTPRequest  $request
+	 * @param DataObject|null $model in this case probably nul
+	 * @param string          $action
 	 * @return mixed
 	 */
-	public function beforeRegister(SS_HTTPRequest $request, DataObject $model, $mode) {
-		if (Controller::curr()->URLSegment == "Organisation_" && Member::currentUser()) {
+	public function beforeRegister(SS_HTTPRequest $request, DataObject $model = null, $action) {
+		$modelClass = $this()->getModelClass(true);
+
+		if ($modelClass == 'Organisation' &&  Member::currentUser()) {
 			$memberOrgAvailable = Member::currentUser()->MemberOrganisation();
 			if ($memberOrgAvailable) {
 				Member::currentUser()->logOut();
@@ -212,7 +213,7 @@ class Registerable extends Createable implements ModelWriteHandlers {
 			}
 		}
 
-		return $this()->renderTemplates($mode);
+		return $this()->renderTemplates($action);
 	}
 
 	/**
@@ -228,12 +229,12 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject     $model
-	 * @param string         $mode
+	 * @param string         $action
 	 * @return SS_HTTPResponse
 	 */
-	public function afterRegister(SS_HTTPRequest $request, DataObject $model, $mode) {
+	public function afterRegister(SS_HTTPRequest $request, DataObject $model, $action) {
 		// co-opt Createable functionality to validate and write model etc
-		$result = parent::afterCreate($request, $model, $mode);
+		$result = parent::afterCreate($request, $model, $action);
 
 		// create may have returned something, if not then do custom registration handling.
 		if (!$result) {
@@ -258,7 +259,7 @@ class Registerable extends Createable implements ModelWriteHandlers {
 				Confirmable::disable();
 				Approveable::disable();
 
-				MemberMember::make($member, $member, 'REG');
+				SocialRelationship::make($member, $member, 'REG');
 
 				Approveable::enable();
 				Confirmable::enable();
@@ -288,7 +289,7 @@ class Registerable extends Createable implements ModelWriteHandlers {
 						"Global.SessionTimeoutMessage",
 						'Sorry, your session has expired, please <a href="{link}">{action}</a>{afterAction}',
 						[
-							'link'        => singleton('Member')->ActionLink(self::Action),
+							'link'        => singleton('Member')->ActionLink(self::ActionName),
 							'action'      => 'restart the registration process',
 							'afterAction' => '.',
 						]
@@ -297,12 +298,12 @@ class Registerable extends Createable implements ModelWriteHandlers {
 			}
 
 			// handle what happens after SocialOrganisation registration
-			if ($model instanceof SocialOrganisation) {
+			if ($model instanceof Organisation) {
 				/** @var Organisation $organisation */
 				$organisation = $model;
 
-				if ($request->postVar(OrganisationSubType::IDFieldName)) {
-					$subTypes = $request->postVar(OrganisationSubType::IDFieldName);
+				if ($request->postVar(OrganisationSubTypeChooser::IDFieldName)) {
+					$subTypes = $request->postVar(OrganisationSubTypeChooser::IDFieldName);
 					if (count($subTypes)) {
 						for ($i = 0; $i < count($subTypes); $i++) {
 							$organisation->OrganisationSubTypes()->add($subTypes[ $i ]);
@@ -310,8 +311,9 @@ class Registerable extends Createable implements ModelWriteHandlers {
 					}
 				}
 				Approveable::disable();
-				MemberOrganisation::make($member, $organisation, 'REG');
+				SocialRelationship::make($member, $organisation, 'REG');
 				Approveable::enable();
+
 				if (!$member = Member::currentUser()) {
 					if ($member = Member::get()->byID(Session::get(self::SessionTempVarName))) {
 						static::send_organisation_notification($member);
@@ -333,15 +335,15 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	 *
 	 * @param DataObject $model
 	 * @param FieldList  $fields
-	 * @param            $mode
+	 * @param            $action
 	 * @param array      $requiredFields
 	 */
-	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, &$requiredFields = []) {
-		if ($mode === Registerable::Action) {
-			list($fieldName, $fieldLabel) = OrganisationSubType::get_field_config();
+	public function updateFieldsForMode(DataObject $model, FieldList $fields, $action, &$requiredFields = []) {
+		if ($action === Registerable::ActionName) {
+			list($fieldName, $fieldLabel) = OrganisationSubTypeChooser::get_field_config();
 
 			if (!$chooserField = $fields->dataFieldByName($fieldName)) {
-				$chooserField = new OrganisationSubType();
+				$chooserField = new OrganisationSubTypeChooser();
 				$chooserField->setAttribute('placeholder', $fieldLabel);
 				$fields->push($chooserField);
 
@@ -358,10 +360,10 @@ class Registerable extends Createable implements ModelWriteHandlers {
 	 *
 	 * @param DataObject $model
 	 * @param FieldList  $actions
-	 * @param string     $mode
+	 * @param string     $action
 	 */
-	public function updateActionsForMode($model, $actions, $mode) {
-		if ($mode === $this->action()) {
+	public function updateActionsForMode($model, $actions, $action) {
+		if ($action === $this->action()) {
 			if ($this->canRegister()) {
 				$actions->push(FormAction::create('register', 'SUBMIT')->addExtraClass("submit"));
 			}

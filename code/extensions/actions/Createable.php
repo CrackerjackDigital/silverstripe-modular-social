@@ -22,6 +22,7 @@ use ValidationResult;
 class Createable extends SocialAction
 	implements SocialModelProvider, ModelWriteHandlers {
 	const ActionCode = 'CRT';
+	const ActionName = 'create';
 
 	// can't use new as it's a reserved word
 	private static $url_handlers = [
@@ -41,7 +42,7 @@ class Createable extends SocialAction
 	];
 
 	/**
-	 * @param null $member
+	 * @param null $source
 	 * @return bool|int|void
 	 */
 	public function canCreate($source = null) {
@@ -54,18 +55,18 @@ class Createable extends SocialAction
 	 * @return SocialForm
 	 */
 	public function CreateForm() {
-		return $this()->formForModel($this->action());
+		return $this()->formForModel($this->action_name());
 	}
 
 	/**
 	 * Provide the model for this action, in this case an empty singleton of the provided $modelClass.
 	 *
 	 * @param $modelClass
-	 * @param $mode
+	 * @param $action
 	 * @return Object
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action_name()) {
 			return singleton($modelClass);
 		}
 	}
@@ -79,20 +80,20 @@ class Createable extends SocialAction
 	 * @return mixed - a valid action response for handling by SilverStripe.
 	 */
 	public function donew(SS_HTTPRequest $request) {
-		$mode = $this->action();
-		$model = $this()->getModelInstance($mode);
+		$action = $this->action_name();
+		$model = $this()->getModelInstance($action);
 
 		// let extensions do their thing and then call back to this controller for final outcome.
 		if ($request->httpMethod() === 'POST') {
 			$responses = array_merge(
-				$this()->extend('afterCreate', $request, $model, $mode),
-//				[$this()->afterCreate($request, $model, $mode)],
+				$this()->extend('afterCreate', $request, $model, $action),
+//				[$this()->afterCreate($request, $model, $action)],
 				[]
 			);
 		} else {
 			$responses = array_merge(
-				$this()->extend('beforeCreate', $request, $model, $mode),
-//				[$this()->beforeCreate($request, $model, $mode)]
+				$this()->extend('beforeCreate', $request, $model, $action),
+//				[$this()->beforeCreate($request, $model, $action)]
 				[]
 			);
 		}
@@ -110,11 +111,11 @@ class Createable extends SocialAction
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject     $model
-	 * @param string         $mode
+	 * @param string         $action
 	 * @return mixed
 	 */
-	public function beforeCreate(SS_HTTPRequest $request, DataObject $model, $mode) {
-		return $this()->renderTemplates($mode);
+	public function beforeCreate(SS_HTTPRequest $request, DataObject $model, $action) {
+		return $this()->renderTemplates($action);
 	}
 
 	/**
@@ -122,11 +123,11 @@ class Createable extends SocialAction
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject     $model
-	 * @param string         $mode
+	 * @param string         $action
 	 * @return SS_HTTPResponse
 	 */
-	public function afterCreate(SS_HTTPRequest $request, DataObject $model, $mode) {
-		$formName = $this()->formForModel($mode)->FormName();
+	public function afterCreate(SS_HTTPRequest $request, DataObject $model, $action) {
+		$formName = $this()->formForModel($action)->FormName();
 
 		try {
 			// validation errors should throw a ValidationException to be caught later.
@@ -134,8 +135,8 @@ class Createable extends SocialAction
 			$fieldsHandled = [];
 
 			// handle any data munging e.g. by ConfirmedPasswordField needed before we write the model.
-			$this()->extend('beforeModelWrite', $request, $model, $mode, $fieldsHandled);
-			$model->extend('beforeModelWrite', $request, $model, $mode, $fieldsHandled);
+			$this()->extend('beforeModelWrite', $request, $model, $action, $fieldsHandled);
+			$model->extend('beforeModelWrite', $request, $model, $action, $fieldsHandled);
 
 			$posted = $request->postVars();
 
@@ -190,8 +191,8 @@ class Createable extends SocialAction
 			}
 
 			// handle any data manipulations to perform after model is succesfully written, e.g. update relationships.
-			$model->extend('afterModelWrite', $request, $model, $mode);
-			$this()->extend('afterModelWrite', $request, $model, $mode);
+			$model->extend('afterModelWrite', $request, $model, $action);
+			$this()->extend('afterModelWrite', $request, $model, $action);
 
 		} catch (ValidationException $e) {
 
@@ -230,10 +231,10 @@ class Createable extends SocialAction
 	 *
 	 * @param $model
 	 * @param $actions
-	 * @param $mode
+	 * @param $action
 	 */
-	public function updateActionsForMode($model, $actions, $mode) {
-		if ($mode == $this->action()) {
+	public function updateActionsForMode($model, $actions, $action) {
+		if ($action == $this->action_name()) {
 			if ($this->canCreate()) {
 				$actions->push(new FormAction('Save', 'Save'));
 			}
@@ -245,11 +246,11 @@ class Createable extends SocialAction
 	 *
 	 * @param SS_HTTPRequest $request
 	 * @param DataObject     $model
-	 * @param                $mode
+	 * @param                $action
 	 * @throws Exception
 	 */
-	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
-		if ($mode === $this->action()) {
+	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $action) {
+		if ($action === $this->action_name()) {
 			$member = SocialMember::current_or_guest();
 
 			Confirmable::disable();
@@ -262,7 +263,7 @@ class Createable extends SocialAction
 	}
 
 	// doesn't do anything
-	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $mode, &$fieldsHandled = []) {
+	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $action, &$fieldsHandled = []) {
 		// nowt to do
 	}
 
@@ -270,11 +271,11 @@ class Createable extends SocialAction
 	 * For uploads as a post we need to provide the form which handles them, in this case for a 'post' request.
 	 *
 	 * @param SS_HTTPRequest $request
-	 * @param                $mode
+	 * @param                $action
 	 * @return SocialModelForm
 	 */
-	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === self::Action) {
+	public function provideUploadFormForMode(SS_HTTPRequest $request, $action) {
+		if ($action === self::ActionName) {
 			return $this->CreateForm();
 		}
 	}

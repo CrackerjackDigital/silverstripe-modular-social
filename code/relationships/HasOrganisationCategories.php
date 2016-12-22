@@ -4,7 +4,7 @@ namespace Modular\Relationships\Social;
 use EmailNotifier;
 use Member;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Extensions\Model\SocialModel;
+use Modular\Extensions\Model\SocialModelExtension;
 use Modular\Forms\Social\CategoryRequestForm;
 use Modular\Forms\Social\OrganisationCategoriesForm;
 use Modular\Models\Social\Organisation;
@@ -13,16 +13,16 @@ use SS_HTTPRequest;
 /**
  *
  */
-class HasOrganisationCategories extends SocialModel {
-	const Action = 'categories';
+class HasOrganisationCategories extends SocialModelExtension {
+	const ActionName = 'categories';
 	const ActionCode = "CRT";
 
 	private static $url_handlers = [
-		'$ID/categories' => 'categories',
+		'$ID/categories'       => 'categories',
 		'$ID/category-request' => 'RequestCategory',
 	];
 	private static $allowed_actions = [
-		self::Action => '->canEdit',
+		self::ActionName  => '->canEdit',
 		'RequestCategory' => '->canEdit',
 	];
 
@@ -35,7 +35,7 @@ class HasOrganisationCategories extends SocialModel {
 			$cateID = $request->postVar('OrganisationSubTypeID');
 
 			for ($i = 0; $i < count($cateID); $i++) {
-				$OrgModel->OrganisationSubTypes()->add($cateID[$i]);
+				$OrgModel->OrganisationSubTypes()->add($cateID[ $i ]);
 			}
 
 			$this()->setSessionMessage("SocialOrganisation categories updated", "success");
@@ -80,12 +80,13 @@ class HasOrganisationCategories extends SocialModel {
 
 	/**
 	 * Provide the GalleryForm to the
+	 *
 	 * @param SS_HTTPRequest $request
-	 * @param $mode
+	 * @param                $mode
 	 * @return mixed
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return $this->HasOrganisationCategoriesForm();
 		}
 	}

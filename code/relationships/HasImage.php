@@ -1,22 +1,18 @@
 <?php
 namespace Modular\Relationships\Social;
 
-use HasImageForm;
-use Modular\Extensions\Model\SocialModel;
+use Modular\Extensions\Model\SocialModelExtension;
+use Modular\Forms\Social\HasImageForm;
 use SS_HTTPRequest;
 
 /**
  * Add Image functionality to a Model TODO complete from e.g. HasLogo or HasCoverImage
  */
-class HasImage extends SocialModel  {
-    const Action = '';
+abstract class HasImage extends SocialModelExtension  {
+    const ActionName = '';
     const ActionCode = '';
     const RelationshipName = '';
     const FieldName = '';
-
-    private static $has_one = [
-        self::RelationshipName => 'Image'
-    ];
 
     /**
      * TODO: Implement proper permission check (at moment calling canDoIt results in controller being passed as $toModel)
@@ -52,7 +48,7 @@ class HasImage extends SocialModel  {
      * @return mixed
      */
     public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-        if ($mode === static::Action) {
+        if ($mode === static::ActionName) {
             return $this->UploadForm();
         }
     }

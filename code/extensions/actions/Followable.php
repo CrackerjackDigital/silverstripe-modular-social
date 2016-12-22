@@ -8,6 +8,8 @@
 namespace Modular\Actions;
 
 use Controller;
+use Member;
+use Modular\Edges\SocialRelationship;
 use Modular\Extensions\Controller\SocialAction;
 
 class Followable extends SocialAction {
@@ -24,13 +26,13 @@ class Followable extends SocialAction {
         'unfollow' => '->canFollow("action")'
     ];
 
-
-    /**
-     * Checks if there is a logged in member and a valid RelationshipType exists
-     * between the member and the extended class.
-     *
-     * @return bool
-     */
+	/**
+	 * Checks if there is a logged in member and a valid RelationshipType exists
+	 * between the member and the extended class.
+	 *
+	 * @param null $source
+	 * @return bool
+	 */
     public function canFollow($source = null) {
         return parent::canDoIt(self::ActionCode, $source);
     }
@@ -49,21 +51,27 @@ class Followable extends SocialAction {
      * Member follows this->owner object, add a relationship from Member with type self::$ActionCode
      */
     public function follow() {
-        parent::makeRelationship(self::ActionCode);
+        parent::make(Member::currentUser(), $this());
         return Controller::curr()->redirectBack();
     }
 
-    /**
-     * Member unfollows this->owner object, remove all self::$ActionCode relationships between them
-     * @param null $mmeberID
-     */
+	/**
+	 * Member unfollows this->owner object, remove all self::$ActionCode relationships between them
+	 *
+	 * @return bool|\SS_HTTPResponse
+	 * @internal param null $mmeberID
+	 */
     public function unfollow() {
-        parent::breakRelationship(self::ActionCode);
+        parent::remove(Member::currentUser(), $this());
         return Controller::curr()->redirectBack();
     }
 
+	/**
+	 * Check a relationship exists of type 'FOL' between current member and extended model
+	 * @return \DataObject|\Modular\Edges\SocialRelationship
+	 */
     public function isFollowed() {
-        return parent::checkRelationship(self::ActionCode);
+        return SocialRelationship::latest(Member::currentUser(), $this(), self::ActionCode);
     }
 
     /**

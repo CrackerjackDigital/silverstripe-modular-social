@@ -15,7 +15,7 @@ class HasCoverImage extends HasImage {
 
 	const ActionCode = Uploadable::ActionCode;
 
-	const Action = 'uploadcoverimage';
+	const ActionName = 'uploadcoverimage';
 
 	private static $url_handlers = [
 		'$ID/uploadcoverimage' => 'uploadCoverImage',
@@ -60,7 +60,7 @@ class HasCoverImage extends HasImage {
 	 * @return mixed
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return $this->UploadForm();
 		}
 	}

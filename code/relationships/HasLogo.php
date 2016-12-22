@@ -2,12 +2,14 @@
 namespace Modular\Relationships\Social;
 
 use Modular\Actions\Uploadable;
+use Modular\Forms\Social\HasLogoForm;
+use SS_HTTPRequest;
 
 /**
  * Add Logo functionality to a Model
  */
 class HasLogo extends HasImage {
-	const Action           = 'uploadlogo';
+	const ActionName       = 'uploadlogo';
 	const ActionCode       = Uploadable::ActionCode;
 	const RelationshipName = 'Logo';
 	const FieldName        = 'LogoID';
@@ -58,7 +60,7 @@ class HasLogo extends HasImage {
 	 * @return mixed
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return $this->UploadForm();
 		}
 	}

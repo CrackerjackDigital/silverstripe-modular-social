@@ -4,25 +4,26 @@
  * Handles decoding posted files from a request into the model and handles upload field requests such
  * as .../field/Images/filexists and .../field/Images/upload
  *
- * Class UploadableExtension
+ * Class Uploadable
  */
 namespace Modular\Actions;
 
 use DataObject;
-use \Modular\Extensions\Controller\SocialAction;
+use Modular\Extensions\Controller\SocialAction;
 use Modular\Interfaces\ModelWriteHandlers;
 use Modular\Interfaces\SocialModelProvider;
 use SS_HTTPRequest;
 use SS_List;
 
 class Uploadable extends SocialAction
- implements ModelWriteHandlers , SocialModelProvider {
+	implements ModelWriteHandlers, SocialModelProvider
+{
 	const ActionCode = 'UPL';
 	const ActionName = 'upload';
 
 	private static $url_handlers = [
 		'$ID/$Mode/field/$FieldName//$SocialEdgeType!' => 'field',
-		'$Mode/field/$FieldName//$SocialEdgeType!' => 'field',
+		'$Mode/field/$FieldName//$SocialEdgeType!'     => 'field',
 	];
 	private static $allowed_actions = [
 		'field' => '->canUpload("action")',
@@ -48,10 +49,10 @@ class Uploadable extends SocialAction
 	public function field(SS_HTTPRequest $request) {
 
 		// extend wants variables to pass as reference
-		$mode = $request->param('Mode');
+		$action = $request->param('Mode');
 		/** @var SocialModelForm $form */
 		$form = array_reduce(
-			$this()->extend('provideUploadFormForMode', $request, $mode),
+			$this()->extend('provideUploadFormForMode', $request, $action),
 			function ($prev, $item) {
 				return $prev ?: $item;
 			}
@@ -62,21 +63,22 @@ class Uploadable extends SocialAction
 		}
 	}
 
-	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $mode, &$fieldsHandled = []) {
+	public function beforeModelWrite(SS_HTTPRequest $request, DataObject $model, $action, &$fieldsHandled = []) {
 		// do nothing
 	}
+
 	/**
 	 * Reads the request to process IDs of files previously uploaded via the UploadField and associate them with
 	 * the model.
 	 *
 	 * @param SS_HTTPRequest $request
-	 * @param DataObject $model
-	 * @param $mode
-	 * @param array $fieldsHandled
+	 * @param DataObject     $model
+	 * @param                $action
+	 * @param array          $fieldsHandled
 	 */
-	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $mode) {
+	public function afterModelWrite(SS_HTTPRequest $request, DataObject $model, $action) {
 		/** @var FieldList $fields */
-		list($fields) = $this()->getFieldsForMode($mode);
+		list($fields) = $this()->getFieldsForMode($action);
 		$files = $fields->filterByCallback(
 			function ($field) {
 				return array_key_exists(
@@ -103,7 +105,7 @@ class Uploadable extends SocialAction
 					}
 				}
 			}
-			$fieldsHandled[$name] = $name;
+			$fieldsHandled[ $name ] = $name;
 		}
 		$model->write();
 		$fieldsHandled['MAX_FILE_SIZE'] = 'MAX_FILE_SIZE';
@@ -116,12 +118,12 @@ class Uploadable extends SocialAction
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 *
 	 * @return \DataObject
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action()) {
 			if ($id) {
 				return DataObject::get($modelClass)->byID($id);
 			}

@@ -5,6 +5,9 @@ use Application;
 use DataObject;
 use Modular\config;
 use Modular\json;
+use Modular\Module;
+use Modular\reflection;
+use Modular\requirements;
 
 /**
  * Extension for Social Controllers, also base class for Action controller extension, and so ultimately Social Actions, e.g. Approveable, Creatable etc
@@ -16,9 +19,9 @@ use Modular\json;
 class SocialController extends GraphNode {
 	use config;
 	use json;
+	use reflection;
 
 	const ActionName = 'index';
-
 	/**
 	 * Test if we are in particular mode (calls extend.provideMode)
 	 *
@@ -48,29 +51,6 @@ class SocialController extends GraphNode {
 		}
 	}
 
-	/**
-	 * Helper function will return a model of $modelClass with ID $id if $mode
-	 * is same as the derived classes static::SocialEdgeType.
-	 *
-	 * @param      $modelClass
-	 * @param      $id
-	 * @param      $action
-	 * @param bool $createIfNotFound if there is an id and the model is not
-	 *                               found then return a new one.
-	 * @return DataObject|null
-	 */
-	protected function provideModel($modelClass, $id, $action, $createIfNotFound = false) {
-		if ($action === static::ActionName) {
-			if ($id) {
-				if (!$model = DataObject::get($modelClass)->byID($id)) {
-					if ($createIfNotFound) {
-						$model = DataObject::create($modelClass);
-					}
-				}
-				return $model;
-			}
-		}
-	}
 
 	/**
 	 * If mode matches derived classes SocialEdgeType then return a new Model of class

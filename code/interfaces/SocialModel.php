@@ -5,6 +5,10 @@ namespace Modular\Interfaces;
  * Interface SocialModelInterface
  */
 interface SocialModel {
+	// models are suffixed e.g. 'SocialOrganisation', except where external such as 'Member'
+	const ModelClassNameSuffix = 'Model';
+	const ModelHTMLAttributeName = 'model';
+
 	/**
 	 * @return string
 	 */

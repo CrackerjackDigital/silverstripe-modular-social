@@ -1,0 +1,6 @@
+---
+Name: modular-social-config
+---
+Modular\Actions\Approveable:
+  approveable_mode: 0     # set automatic approval on all models that don't override in their own config.
+

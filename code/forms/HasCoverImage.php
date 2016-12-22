@@ -10,7 +10,7 @@ use Modular\Relationships\Social\HasCoverImage;
  **/
 
 class HasCoverImageForm extends HasImageForm {
-    const Action = HasCoverImage::Action;
+    const ActionName = HasCoverImage::ActionName;
     const FieldName = HasCoverImage::FieldName;
 
 

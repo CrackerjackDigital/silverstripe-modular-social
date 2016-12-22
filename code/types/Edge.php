@@ -127,6 +127,15 @@ class SocialEdgeType extends DirectedEdgeType {
 		return static::config()->get('code_field_name') . $suffix;
 	}
 
+	/**
+	 * Return one of these by action name, e.g. 'follow' or 'register'
+	 * @param $actionName
+	 * @return SocialEdgeType
+	 */
+	public static function get_by_action_name($actionName) {
+		return static::get()->filter('ActionName', $actionName)->first();
+	}
+
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->addFieldToTab(
@@ -139,6 +148,14 @@ class SocialEdgeType extends DirectedEdgeType {
 		);
 
 		return $fields;
+	}
+
+	/**
+	 * If we need to render this presume it's the ActionName we want to output (e.g. for customising styles etc).
+	 * @return string
+	 */
+	public function forTemplate() {
+		return $this->ActionName;
 	}
 
 	/**
@@ -263,7 +280,7 @@ class SocialEdgeType extends DirectedEdgeType {
 	 * @return string
 	 */
 	public function getRelationshipClassName() {
-		return self::RelationshipClassNamePrefix . $this->getFromName() . $this->getToName() . self::RelationshipClassNameSuffix;
+		return self::RelationshipClassNamePrefix . static::from_field_name() . static::to_field_name() . self::RelationshipClassNameSuffix;
 	}
 
 	/**
@@ -296,29 +313,33 @@ class SocialEdgeType extends DirectedEdgeType {
 	public static function get_by_parent($parentActionCodes) {
 		return static::singleton()->get()->filter(static::code_field_name(), $parentActionCodes);
 	}
-	
+
 	public static function parent_code_field_name($suffix = '') {
 		return static::ParentCodeFieldName . $suffix;
 	}
 
 	/**
 	 * Override EdgeType archtype returned to add typeCodes if set
+	 *
 	 * @param \DataObject|string $nodeAClass
 	 * @param \DataObject|string $nodeBClass
 	 * @param array              $typeCodes
 	 * @return array
 	 */
-	public static function archtype($nodeAClass, $nodeBClass, $typeCodes = []) {
-		$archtype = parent::archtype($nodeAClass, $nodeBClass);
-		if ($typeCodes) {
-			$codeFieldName = static::code_field_name();
-			$archtype[ $codeFieldName ] = $typeCodes;
-		}
-		return $archtype;
+	public static function archtype($nodeAClass, $nodeBClass, $typeCodes = [], $extraFilters = []) {
+		return array_filter(
+			array_merge(
+				parent::archtype($nodeAClass, $nodeBClass),
+				[
+					static::code_field_name() => Code::parse_codes($typeCodes)
+				],
+				$extraFilters
+			)
+		);
 	}
 
 	/**
-	 * Returns a list of SocialEdgeType models which have the provided code or have the code as a Parent.
+	 * Returns a list of SocialEdgeType models which have the provided code or their parent has the provided code.
 	 *
 	 * @param string|DataObject $fromModelClass
 	 * @param string|DataObject $toModelClass
@@ -329,21 +350,17 @@ class SocialEdgeType extends DirectedEdgeType {
 		if (\ClassInfo::exists('SystemData')) {
 			$old = SystemData::disable();
 		}
-		$typeCodes = Code::parse_codes($typeCodes);
-		$fromModelClass = static::derive_class_name($fromModelClass);
-		$toModelClass = static::derive_class_name($toModelClass);
-
-		// get relationship types for the code and the parent matching that code.
-		$heirarchy = static::get()->filter([
-			static::node_a_field_name() => $fromModelClass,
-			static::node_b_field_name() => $toModelClass,
-		]);
-		if ($typeCodes) {
-			$heirarchy = $heirarchy->filterAny([
+		$filter = static::archtype(
+			$fromModelClass,
+			$toModelClass
+		);
+		$heirarchy = static::get()->filter($filter)->filterAny(
+			[
 				self::code_field_name() => $typeCodes,
-				self::parent_code_field_name() => $typeCodes,
-			]);
-		}
+				self::parent_code_field_name() => $typeCodes
+			]
+		);
+
 		if (\ClassInfo::exists('SystemData')) {
 			SystemData::enable($old);
 		}
@@ -449,12 +466,9 @@ class SocialEdgeType extends DirectedEdgeType {
 	public static function check_admin_permissions($fromModel, $toModel, $member = null) {
 		$member = $member ?: Member::currentUser();
 		// check if current or guest member is in admin groups first (guest should never be though!)
-		if ($member->inGroups(static::admin_groups())) {
+		if ($member && $member->inGroups(static::admin_groups())) {
 			return true;
 		}
-
-		$fromModel = $fromModel ?: $member;
-
 		// get all the ADM type relationships for the models
 		$actions = static::get_for_models(
 			$fromModel,
@@ -508,11 +522,15 @@ class SocialEdgeType extends DirectedEdgeType {
 				// get the MemberOrganisationRelationship record with 'MCO'
 
 				if (!$requiredAction->ParentID) {
-					$requiredAction = static::get()->filter([
-						static::from_field_name()     => $fromModel->class,
-						static::to_field_name()  => $toModel->class,
-						self::ParentCodeFieldName => $requiredAction->Code,
-					])->first();
+					$filter = static::archtype(
+						$fromModel,
+						$toModel,
+						[],
+						[
+							self::parent_code_field_name() => $requiredAction->Code
+						]
+					);
+					$requiredAction = static::get()->filter($filter)->first();
 				}
 				// get the instance of the required relationship if it exists
 				$requiredRelationship = $requiredAction->checkRelationshipExists(

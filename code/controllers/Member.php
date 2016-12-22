@@ -2,13 +2,14 @@
 namespace Modular\Controllers\Social;
 
 use Application;
+use DataModel;
 use FieldList;
 use GroupedList;
 use Member;
-use Modular\Controllers\SocialModel;
+use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
 
-class Member_ extends SocialModel   {
+class MemberController extends SocialModelController {
 	private static $model_class = 'Member';
 
 	// type of approval needed to view.
@@ -21,8 +22,8 @@ class Member_ extends SocialModel   {
 		parent::init();
 	}
 
-	public function __construct($dataRecord = []) {
-		parent::__construct($dataRecord);
+	public function ActionCSSClass() {
+		xdebug_break();
 	}
 
 	/**
@@ -30,7 +31,7 @@ class Member_ extends SocialModel   {
 	 * new member registration form
 	 *
 	 **/
-	public function MemberCreate() {
+	public function MemberRegisterForm() {
 		return $this->CreateForm()->renderWith(array("MemberRegisterForm"));
 	}
 

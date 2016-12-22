@@ -6,6 +6,8 @@ use FieldList;
 use FormAction;
 use LiteralField;
 use Member;
+use Modular\Edges\SocialRelationship;
+use Modular\Exceptions\Social;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Forms\SocialForm;
 use Modular\Interfaces\SocialModel;
@@ -59,18 +61,18 @@ class Joinable extends SocialAction
 		if (!$currentMemberId = Member::currentUserID()) {
 			return $this()->httpError("You need to be logged in to join an organisation");
 		}
-		Edge::make(Member::currentUser(), $this(), self::ActionCode, $request->postVars());
+		SocialRelationship::make(Member::currentUser(), $this(), self::ActionCode, $request->postVars());
 
 		return $this()->redirectBack();
 	}
 
 	public function leave() {
-		Edge::remove(Member::currentUser(), $this(), self::ActionCode);
+		SocialRelationship::remove(Member::currentUser(), $this(), self::ActionCode);
 		return Controller::curr()->redirectBack();
 	}
 
 	public function isJoined() {
-		return Edge::exists_by_type(Member::currentUser(), $this(), self::ActionCode);
+		return SocialRelationship::latest(Member::currentUser(), $this(), self::ActionCode);
 	}
 
 	/**
@@ -80,12 +82,12 @@ class Joinable extends SocialAction
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 *
 	 * @return SocialModel|null
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		return parent::provideModelByID($modelClass, $id, $mode);
+	public function provideModel($modelClass, $id, $action) {
+		return parent::provideModelByID($modelClass, $id, $action);
 	}
 
 	/**
@@ -96,9 +98,9 @@ class Joinable extends SocialAction
 	 * @return SocialForm|null
 	 */
 	public function provideUIModal(SS_HTTPRequest $request) {
-		$mode = $request->param('Mode');
+		$action = $request->param('Mode');
 
-		if ($mode === $this->action()) {
+		if ($action === $this->action()) {
 
 		}
 	}

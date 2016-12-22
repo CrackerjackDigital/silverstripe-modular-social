@@ -3,11 +3,12 @@ namespace Modular\Controllers\Social;
 
 use Member;
 use Modular\Controllers\SocialModel;
+use Modular\Controllers\SocialModelController;
 use Modular\Forms\SocialForm;
 use Modular\Models\Social\PostReply;
 
-class Post_ extends SocialModel {
-	private static $model_class = 'Post';
+class PostController extends SocialModelController  {
+	private static $model_class = 'Modular\Models\Social\Post';
 
 	// type of approval needed to view.
 	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;

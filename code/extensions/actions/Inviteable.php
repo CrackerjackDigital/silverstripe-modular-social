@@ -7,16 +7,16 @@
  */
 namespace Modular\Actions;
 
+use Controller;
+use DataObject;
+use Member;
+use Modular\Edges\SocialRelationship;
 use \Modular\Extensions\Controller\SocialAction;
+use Modular\Interfaces\SocialModel;
 
 class Inviteable extends SocialAction {
     const ActionCode = 'IVT';
     const ActionName = 'invite';
-
-    private static $url_handlers = [
-        '$ID/invite' => 'invite',
-        '$ID/uninvite' => 'uninvite'
-    ];
 
     private static $allowed_actions = [
         'invite' => '->canInvite("action")',
@@ -48,21 +48,22 @@ class Inviteable extends SocialAction {
      * Member invites this->owner object, add a relationship from Member with type self::$actionTypeCode
      */
     public function invite() {
-        parent::makeRelationship(self::ActionCode);
+        parent::make(Member::currentUser(), $this(), self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
-    /**
-     * Member uninvites this->owner object, remove all self::$actionTypeCode relationships between them
-     * @param null $mmeberID
-     */
+	/**
+	 * Member uninvites this->owner object, remove all self::$actionTypeCode relationships between them
+	 *
+	 * @return bool|\SS_HTTPResponse
+	 */
     public function uninvite() {
-        parent::breakRelationship(self::ActionCode);
+        parent::remove(Member::currentUser(), $this(), self::ActionCode);
         return Controller::curr()->redirectBack();
     }
 
     public function isInvited() {
-        return parent::checkRelationship(self::ActionCode);
+        return SocialRelationship::latest(Member::currentUser(), $this(), self::ActionCode);
     }
     /**
      * Return a link appropriate for this object to be inviteed by logged in Member if can be inviteed.
@@ -83,17 +84,18 @@ class Inviteable extends SocialAction {
      * mode and if they match then a model will be returned, otherwise null. This method is called as an extend so
      * multiple extensions can provide models, however only one should 'win' when it's mode matches the passed mode.
      *
-     * @param $modelClass
+     * @param DataObject|string $modelClass
      * @param $id
-     * @param $mode
+     * @param $action
      *
-     * @return SocialModelInterface|null
+     * @return SocialModel|null
      */
-    public function provideModel($modelClass, $id, $mode)
+    public function provideModel($modelClass, $id, $action)
     {
-        if ($mode === $this->action()) {
+        if ($action === $this->action()) {
+	        $modelClass = static::derive_class_name($modelClass);
             if ($id) {
-                return DataObject::get($modelClass)->byID($id);
+                return $modelClass::get()->byID($id);
             }
         }
     }

@@ -212,47 +212,11 @@ class HasManyMany extends HasManyManyGridField {
 		if ($this()->isInDB()) {
 			/** @var SocialRelationship $relationshipClassName */
 			$relationshipClassName = static::relationship_class_name($this());
-			return $relationshipClassName::nodeAForAction($this(), $actionCodes);
+			return $relationshipClassName::graph($this(), $actionCodes);
 		}
 		return new ArrayList();
 	}
 
-	/**
-	 * Return an initialised SocialRelationship object suitable from the extended model to the RelatedClassName.
-	 * Does not write it (and so no relationship is really created yet).
-	 *
-	 * @param string|DataObject|int $action
-	 * @return SocialRelationship
-	 */
-	public function createRelationshipModel($toModelOrID, $action, $data = []) {
-		$toModelID = is_object($toModelOrID)
-			? $toModelOrID->ID
-			: $toModelOrID;
-
-		$actionID = is_object($action)
-			? $action->ID
-			: (is_numeric($action)
-				? $action
-				: SocialEdgeType::get_by_code($action));
-
-		/** @var string|SocialRelationship $relationshipClassName */
-		$relationshipClassName = static::relationship_class_name($this());
-
-		if ($toModelID && $actionID) {
-			return new $relationshipClassName(array_merge(
-				$data,
-				[
-					$relationshipClassName::from_field_name('ID')      => $this()->ID,
-					$relationshipClassName::to_field_name('ID')        => $toModelID,
-					$relationshipClassName::edge_type_field_name('ID') => $actionID,
-				]
-			));
-		} else {
-			$fromModelClass = get_class($this());
-			$toModelClass = static::relationship_class_name($this());
-			$this->debug_fail(new Exception("Failed to create relationship '$relationshipClassName' model from '$fromModelClass' to '$toModelClass' type ID '$actionID'"));
-		}
-	}
 
 	/**
 	 * Returns an array of the items considered to be favourites of the extended class. These are for multiple

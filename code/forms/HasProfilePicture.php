@@ -17,7 +17,7 @@ use RequiredFields;
  **/
 
 class HasProfilePictureForm extends SocialForm {
-	const Action = HasProfilePicture::Action;
+	const ActionName = HasProfilePicture::ActionName;
 
 	public function __construct($controller, $name, $id) {
 

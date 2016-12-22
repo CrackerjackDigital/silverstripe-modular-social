@@ -3,8 +3,8 @@ Name: modular-social-routes
 ---
 Director:
   rules:
-    'member': Modular\Controllers\SocialMember_Controller
-    'organisation': Modular\Controllers\SocialOrganisation_Controller
-    'forum': Modular\Controllers\SocialForum_Controller
-    'forumtopic': Modular\Controllers\SocialForumTopic_Controller
-    'post': Modular\Controllers\SocialPost_Controller
+    'member': Modular\Controllers\Social\MemberController
+    'organisation': Modular\Controllers\Social\OrganisationController
+    'forum': Modular\Controllers\Social\ForumController
+    'forumtopic': Modular\Controllers\Social\ForumTopicController
+    'post': Modular\Controllers\Social\PostController

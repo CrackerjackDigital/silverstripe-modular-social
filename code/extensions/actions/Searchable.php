@@ -7,6 +7,9 @@ namespace Modular\Actions;
  * that model will show in results and plumbing is 'automatic'.
  */
 
+use ArrayData;
+use ArrayList;
+use ClassInfo;
 use FieldList;
 use FormAction;
 use HiddenField;

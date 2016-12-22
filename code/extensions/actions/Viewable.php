@@ -7,7 +7,7 @@ use FieldList;
 use Form;
 use FormField;
 use HiddenField;
-use Modular\Controllers\SocialModel_Controller;
+use Modular\Controllers\SocialModelController;
 use Modular\Extensions\Controller\SocialAction;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Types\SocialEdgeType as SocialEdgeType;
@@ -18,10 +18,6 @@ use SS_HTTPResponse_Exception;
 class Viewable extends SocialAction  {
 	const ActionCode = 'VEW';
 	const ActionName = 'view';
-
-	private static $url_handlers = [
-		'$ID/view' => self::ActionName,
-	];
 
 	private static $allowed_actions = [
 		self::ActionName => '->canView("action")',
@@ -63,10 +59,10 @@ class Viewable extends SocialAction  {
 	 *
 	 * @param DataObject $model
 	 * @param $fields
-	 * @param $mode
+	 * @param $action
 	 */
-	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
-		if ($mode === self::ActionName) {
+	public function updateFieldsForMode(DataObject $model, FieldList $fields, $action, array &$requiredFields = []) {
+		if ($action === self::ActionName) {
 			if (!$fields->fieldByName('ID')) {
 				$fields->push(
 					new HiddenField('ID', '', $model->ID)
@@ -77,10 +73,10 @@ class Viewable extends SocialAction  {
 	 * If we are in view mode and can edit then adds an 'edit' button.
 	 *
 	 * @param FieldList $actions
-	 * @param $mode
+	 * @param $action
 	 */
-	public function updateActionsForMode(DataObject $model, FieldList $actions, $mode) {
-		if ($mode === self::ActionName) {
+	public function updateActionsForMode(DataObject $model, FieldList $actions, $action) {
+		if ($action === self::ActionName) {
 			$allowed = SocialEdgeType::check_permission(
 				SocialMember::current_or_guest(), $this()->getModelInstance(self::ActionName), Editable::ActionCode
 			);
@@ -111,14 +107,14 @@ class Viewable extends SocialAction  {
 	 * @returns Form|SS_HTTPResponse_Exception
 	 */
 	public function view(SS_HTTPRequest $request) {
-		$mode = self::ActionName;
-		/** @var SocialModel_Controller $controller */
+		$action = self::ActionName;
+		/** @var SocialModelController $controller */
 		$controller = $this();
 
 		$model = $controller->getModelInstance(self::ActionName);
 
 		if ($request->httpMethod() === 'GET') {
-			$responses = $controller->extend('beforeView', $request, $model, $mode);
+			$responses = $controller->extend('beforeView', $request, $model, $action);
 		} else {
 			$responses = $controller->httpError(405);
 		}
@@ -151,11 +147,11 @@ class Viewable extends SocialAction  {
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 * @return DataObject
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action()) {
 			return DataObject::get_by_id(
 				$modelClass,
 				$id
@@ -168,9 +164,9 @@ class Viewable extends SocialAction  {
 	 * - sets field values of date fields to be nice
 	 *
 	 * @param FieldList $fields
-	 * @param $mode - unused right now
+	 * @param $action - unused right now
 	 */
-	public function decorateFields(FieldList $fields, $mode) {
+	public function decorateFields(FieldList $fields, $action) {
 		/** @var FormField $field */
 		foreach ($fields as $field) {
 

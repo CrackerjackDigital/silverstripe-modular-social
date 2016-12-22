@@ -4,7 +4,7 @@ namespace Modular\Relationships\Social;
 use DataObject;
 use Image;
 use Modular\Actions\Uploadable;
-use Modular\Extensions\Model\SocialModel;
+use Modular\Extensions\Model\SocialModelExtension;
 use Modular\Forms\HasImagesForm;
 use SS_HTTPRequest;
 
@@ -15,8 +15,8 @@ use SS_HTTPRequest;
  * functionality.
  *
  */
-class HasImages extends SocialModel  {
-	const Action = 'images';
+class HasImages extends SocialModelExtension  {
+	const ActionName = 'images';
 	const RelationshipName = 'Images';
 	const ActionCode = Uploadable::ActionCode;
 
@@ -36,7 +36,7 @@ class HasImages extends SocialModel  {
 		return true;
 
 		// TODO: check this works as it should be this
-		// return $this()->getModelInstance(Uploadable::Action)->canDoIt(static::ActionCode);
+		// return $this()->getModelInstance(Uploadable::ActionName)->canDoIt(static::ActionCode);
 
 	}
 
@@ -58,7 +58,7 @@ class HasImages extends SocialModel  {
 	}
 
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return $this->HasImagesForm();
 		}
 	}

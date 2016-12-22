@@ -6,7 +6,19 @@
  */
 namespace Modular\Actions;
 
-use \Modular\Extensions\Controller\SocialAction;
+use ArrayData;
+use ArrayList;
+use DataObject;
+use Member;
+use Modular\Edges\MemberRssFeed;
+use Modular\Extensions\Controller\SocialAction;
+use Modular\Extensions\Model\SocialMember;
+use Modular\Forms\SocialForm;
+use RSSFeed;
+use SS_HTTPRequest;
+use SS_HTTPResponse;
+use ValidationException;
+use Modular\Exceptions\Social as Exception;
 
 class Preference extends SocialAction {
 	// Re-use the edit code here for permissions etc
@@ -15,7 +27,7 @@ class Preference extends SocialAction {
 	const ActionName = 'settings';
 
 	private static $url_handlers = [
-		'$ID/settings' => self::ActionName,
+		'$ID/settings'   => self::ActionName,
 		'interests-json' => "interests_json",
 	];
 	private static $allowed_actions = [
@@ -58,6 +70,7 @@ class Preference extends SocialAction {
 
 	/**
 	 * Return if an action of this actions code exists between the current member and the model.
+	 *
 	 * @return bool
 	 */
 	public function is_Action_ed() {
@@ -71,12 +84,12 @@ class Preference extends SocialAction {
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 *
 	 * @return SocialModelInterface|null
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($id && ($mode === $this->action())) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($id && ($action === $this->action())) {
 			return DataObject::get($modelClass)->byID($id);
 		}
 	}
@@ -88,12 +101,12 @@ class Preference extends SocialAction {
 		$model = $this()->getModelInstance(self::ActionName);
 
 		// need to this as extend takes a reference
-		$mode = self::ActionName;
+		$action = self::ActionName;
 
 		if ($request->isPOST()) {
-			$responses = $this()->extend('afterEdit', $request, $model, $mode);
+			$responses = $this()->extend('afterEdit', $request, $model, $action);
 		} else {
-			$responses = $this()->extend('beforeEdit', $request, $model, $mode);
+			$responses = $this()->extend('beforeEdit', $request, $model, $action);
 		}
 		// return the first non-falsish response, I don't think we can order them so may as well be first?
 		return array_reduce(
@@ -108,23 +121,23 @@ class Preference extends SocialAction {
 	 * Called on GET to show the model form via renderTemplates.
 	 *
 	 * @param SS_HTTPRequest $request
-	 * @param DataObject $model
-	 * @param string $mode
+	 * @param DataObject     $model
+	 * @param string         $action
 	 * @return mixed
 	 */
-	public function beforeEdit(SS_HTTPRequest $request, DataObject $model, $mode) {
-		return $this()->renderTemplates($mode);
+	public function beforeEdit(SS_HTTPRequest $request, DataObject $model, $action) {
+		return $this()->renderTemplates($action);
 	}
 
 	/**
 	 * Called on POST to update the model and write to database.
 	 *
 	 * @param SS_HTTPRequest $request
-	 * @param DataObject $model
-	 * @param string $mode
+	 * @param DataObject     $model
+	 * @param string         $action
 	 * @return SS_HTTPResponse
 	 */
-	public function afterEdit(SS_HTTPRequest $request, DataObject $model, $mode) {
+	public function afterEdit(SS_HTTPRequest $request, DataObject $model, $action) {
 		$formName = 'SocialModelForm_' . $this()->getFormName();
 
 		try {
@@ -134,15 +147,15 @@ class Preference extends SocialAction {
 
 			$member->Interests = $request->postVar('add_interest') ? $request->postVar('add_interest') : $member->Interests;
 
-			$member->isEmailPrivate = (bool)$request->postVar('privacy-email');
+			$member->isEmailPrivate = (bool) $request->postVar('privacy-email');
 
-			$member->isPhoneNumberPrivate = (bool)$request->postVar('privacy-phone');
+			$member->isPhoneNumberPrivate = (bool) $request->postVar('privacy-phone');
 
 			//Break all rss follow relationships
 			$relatedRss = $member->RelatedRssFeeds();
 			foreach ($relatedRss as $item) {
 				if ($rssInstance = RssFeed::get()->byID($item->ToModelID)) {
-					MemberRssFeedRelationship::remove(
+					MemberRssFeed::remove(
 						SocialMember::current_or_guest(),
 						$rssInstance,
 						"MFR"
@@ -154,7 +167,7 @@ class Preference extends SocialAction {
 			if ($selectedRSS) {
 				foreach ($selectedRSS as $rss) {
 					if ($rssInstance = RssFeed::get()->byID($rss)) {
-						MemberRssFeedRelationship::make(
+						MemberRssFeed::make(
 							SocialMember::current_or_guest(),
 							$rssInstance,
 							"MFR"
@@ -167,7 +180,7 @@ class Preference extends SocialAction {
 
 		} catch (ValidationException $e) {
 
-			SocialModelForm::set_message($e->getMessage(), 'error');
+			SocialForm::set_message($e->getMessage(), 'error');
 			return $this()->redirectBack();
 
 		} catch (Exception $e) {
@@ -177,7 +190,7 @@ class Preference extends SocialAction {
 		if ($request->isAjax()) {
 			return new SS_HTTPResponse(null, 200);
 		} else {
-			SocialModelForm::set_message('PreferencesSavedMessage', SocialModelForm::Good);
+			SocialForm::set_message('PreferencesSavedMessage', SocialForm::Good);
 			return $this()->redirectBack();
 //			return $this()->redirect($model->ActionLink(Viewable::SocialEdgeType));
 		}
@@ -205,11 +218,11 @@ class Preference extends SocialAction {
 				}
 			}
 			$output->push(ArrayData::create([
-				"ID" => $rss->ID,
-				"Title" => $rss->Title,
+				"ID"          => $rss->ID,
+				"Title"       => $rss->Title,
 				"Description" => $rss->Description,
-				"Checked" => $checked,
-			    "Logo" => $rss->Logo()
+				"Checked"     => $checked,
+				"Logo"        => $rss->Logo(),
 			]));
 		}
 
@@ -232,6 +245,7 @@ class Preference extends SocialAction {
 	/**
 	 *
 	 * get member interests json list
+	 *
 	 * @return JSON
 	 *
 	 **/
@@ -247,7 +261,7 @@ class Preference extends SocialAction {
 				foreach ($items as $key => $value) {
 					if (strtolower(substr($value, 0, strlen($query))) === $query) {
 						$InterestItems[] = [
-							"id" => $value,
+							"id"    => $value,
 							"label" => $value,
 							"value" => $value,
 						];

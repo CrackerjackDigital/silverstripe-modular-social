@@ -18,7 +18,7 @@ use ValidationResult;
 /**
  * Adds fields, relationships and functionality to the SilverStripe framework Member object.
  */
-class SocialMember extends SocialModel {
+class SocialMember extends SocialModelExtension {
 	const GuestMemberField = 'GuestMemberFlag';
 	const GuestMemberYes   = 1;
 
@@ -32,7 +32,7 @@ class SocialMember extends SocialModel {
 	];
 	private static $has_one = [
 		'ProfileImage'   => 'Image',
-		'MembershipType' => 'SocialMembershipType',
+		'MembershipType' => 'Modular\Types\Social\MembershipType',
 	];
 	private static $belongs_many_many = [
 		'NotifyRelationshipTypes' => '\Modular\Types\Social\Action',

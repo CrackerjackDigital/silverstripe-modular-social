@@ -10,7 +10,7 @@ use Modular\UI\Components\Social\OrganisationSubTypeChooser;
 use RequiredFields;
 
 class OrganisationCategoriesForm extends SocialForm  {
-	const Action = HasOrganisationCategories::Action;
+	const ActionName = HasOrganisationCategories::ActionName;
 
 	public function __construct($controller, $name, $id) {
 

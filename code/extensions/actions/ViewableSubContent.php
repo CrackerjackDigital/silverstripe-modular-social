@@ -2,13 +2,14 @@
 namespace Modular\Actions;
 
 use Form;
-use \Modular\Extensions\Controller\SocialAction;
+use Modular\Extensions\Controller\SocialAction;
 use SS_HTTPRequest;
 use SS_HTTPResponse_Exception;
 
 class ViewableSubContent extends SocialAction  {
 	const ActionCode = 'VEW';
 	const ExtraAction = "ExtraAction";
+	// we want to use 'view' action for most things
 	const Mode = "view";
 
 	private static $url_handlers = [
@@ -48,7 +49,7 @@ class ViewableSubContent extends SocialAction  {
 	 * @returns Form|SS_HTTPResponse_Exception
 	 */
 	public function ExtraAction(SS_HTTPRequest $request) {
-		$mode = self::Mode;
+		$action = self::Mode;
 		$controller = $this();
 
 		$model = $controller->getModelInstance(self::Mode);

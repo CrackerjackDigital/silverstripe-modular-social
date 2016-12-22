@@ -11,14 +11,14 @@ use SS_HTTPRequest;
  * Add Multiple Contact information functionality to a Model
  */
 class HasContactInfo extends HasMany {
-	const Action = 'ContactInfo';
+	const ActionName = 'ContactInfo';
 	const ActionCode = "CRT";
 
 	private static $url_handlers = [
-		'$ID/contactinfo' => self::Action,
+		'$ID/contactinfo' => self::ActionName,
 	];
 	private static $allowed_actions = [
-		self::Action => '->canEdit',
+		self::ActionName => '->canEdit',
 	];
 
 	public function ContactInfo(SS_HTTPRequest $request) {
@@ -84,7 +84,7 @@ class HasContactInfo extends HasMany {
 	 * @return mixed
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return $this->HasContactInfoForm();
 		}
 	}

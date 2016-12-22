@@ -9,7 +9,7 @@ use SS_HTTPRequest;
  * Add Gallery functionality to a Model
  */
 class HasGallery extends HasImages  {
-	const Action = 'uploadgallery';
+	const ActionName = 'uploadgallery';
 	const ActionCode = Uploadable::ActionCode;
 
 	private static $url_handlers = [
@@ -60,7 +60,7 @@ class HasGallery extends HasImages  {
 	 * @return mixed
 	 */
 	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === static::Action) {
+		if ($mode === static::ActionName) {
 			return $this->HasGalleryForm();
 		}
 	}

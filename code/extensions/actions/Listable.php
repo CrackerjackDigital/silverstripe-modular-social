@@ -4,7 +4,14 @@
  */
 namespace Modular\Actions;
 
-use \Modular\Extensions\Controller\SocialAction;
+use ArrayData;
+use DataObject;
+use Modular\Extensions\Controller\SocialAction;
+use Modular\Models\Social\ForumTopic;
+use PaginatedList;
+use SS_HTTPRequest;
+use SS_HTTPResponse;
+use SS_HTTPResponse_Exception;
 
 class Listable extends SocialAction  {
 	const ActionCode = 'VEW';
@@ -44,12 +51,12 @@ class Listable extends SocialAction  {
 	 */
 	public function dolist(SS_HTTPRequest $request) {
 		// extend takes references
-		$mode = self::ActionName;
+		$action = self::ActionName;
 
 		$model = $this()->getModelInstance(self::ActionName);
 
 		if ($request->httpMethod() === 'GET') {
-			$responses = $this()->extend('beforeList', $request, $model, $mode);
+			$responses = $this()->extend('beforeList', $request, $model, $action);
 		} else {
 			$responses = [new SS_HTTPResponse_Exception('', 405)];
 		}
@@ -75,18 +82,19 @@ class Listable extends SocialAction  {
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 * @return Object
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action()) {
 			return singleton($modelClass);
 		}
 	}
 
 	/**
 	 * Return all items of extended controllers model class. Templates can do with as they please.
-	 * @return PaginatedList
+	 *
+	 * @return \ArrayData
 	 */
 	public function ListView() {
 		$className = $this()->getModelClass();

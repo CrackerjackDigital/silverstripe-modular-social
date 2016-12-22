@@ -16,7 +16,7 @@ use RequiredFields;
  **/
 
 class HasImageForm extends SocialForm {
-	const Action = '';
+	const ActionName = '';
 	const FieldName = '';
 
 	public function __construct($controller, $name, $id) {

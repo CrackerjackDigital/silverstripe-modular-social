@@ -1,9 +1,22 @@
 <?php
 namespace Modular\Actions;
 
-use \Modular\Extensions\Controller\SocialAction;
+use DataObject;
+use FieldList;
+use File;
+use FormAction;
+use HiddenField;
+use Image;
+use Member;
+use Modular\Extensions\Controller\SocialAction;
+use Modular\Exceptions\Social as Exception;
+use Modular\Forms\SocialForm;
+use Session;
+use SS_HTTPRequest;
+use SS_HTTPResponse;
+use ValidationException;
 
-class Editable extends SocialAction  {
+class Editable extends SocialAction {
 	const ActionCode = 'EDT';
 	const ActionName = 'edit';
 
@@ -33,10 +46,10 @@ class Editable extends SocialAction  {
 
 	/**
 	 * Return a Form derived from SocialForm with namespace Modular\Actions;
-
-class name based on the model namespace Modular\Actions;
-
-class _Form. If not existing class
+	 *
+	 * class name based on the model namespace Modular\Actions;
+	 *
+	 * class _Form. If not existing class
 	 * then returns a SocialForm instance.
 	 *
 	 * In templates this can be used as $ModelForm or derived classes should have a Member <ModelClass>Form which can
@@ -54,11 +67,11 @@ class _Form. If not existing class
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 * @return DataObject
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action()) {
 
 			$model = null;
 			if ($id) {
@@ -87,12 +100,12 @@ class _Form. If not existing class
 		$model = $this()->getModelInstance(self::ActionName);
 
 		// need to this as extend takes a reference
-		$mode = self::ActionName;
+		$action = self::ActionName;
 
 		if ($request->httpMethod() === 'POST') {
-			$responses = $this()->extend('afterEdit', $request, $model, $mode);
+			$responses = $this()->extend('afterEdit', $request, $model, $action);
 		} else {
-			$responses = $this()->extend('beforeEdit', $request, $model, $mode);
+			$responses = $this()->extend('beforeEdit', $request, $model, $action);
 		}
 		// return the first non-falsish response, I don't think we can order them so may as well be first?
 		return array_reduce(
@@ -107,23 +120,23 @@ class _Form. If not existing class
 	 * Called on GET to show the model form via renderTemplates.
 	 *
 	 * @param SS_HTTPRequest $request
-	 * @param DataObject $model
-	 * @param string $mode
+	 * @param DataObject     $model
+	 * @param string         $action
 	 * @return mixed
 	 */
-	public function beforeEdit(SS_HTTPRequest $request, DataObject $model, $mode) {
-		return $this()->renderTemplates($mode);
+	public function beforeEdit(SS_HTTPRequest $request, DataObject $model, $action) {
+		return $this()->renderTemplates($action);
 	}
 
 	/**
 	 * Called on POST to update the model and write to database.
 	 *
 	 * @param SS_HTTPRequest $request
-	 * @param DataObject $model
-	 * @param string $mode
+	 * @param DataObject     $model
+	 * @param string         $action
 	 * @return SS_HTTPResponse
 	 */
-	public function afterEdit(SS_HTTPRequest $request, DataObject $model, $mode) {
+	public function afterEdit(SS_HTTPRequest $request, DataObject $model, $action) {
 		$formName = 'SocialModelForm_' . $this()->getFormName();
 
 		try {
@@ -133,8 +146,8 @@ class _Form. If not existing class
 			// the 'fieldsHandled' array will be added to by extensions to identify which fields are
 			// no longer required to be handled from the incoming post data as their values have
 			// been used in an extension.
-			$this()->extend('beforeModelWrite', $request, $model, $mode, $fieldsHandled);
-			$model->extend('beforeModelWrite', $request, $model, $mode, $fieldsHandled);
+			$this()->extend('beforeModelWrite', $request, $model, $action, $fieldsHandled);
+			$model->extend('beforeModelWrite', $request, $model, $action, $fieldsHandled);
 
 			$posted = $request->postVars();
 
@@ -192,8 +205,8 @@ class _Form. If not existing class
 
 			// handle any data manipulations to perform after model is succesfully written,
 			// e.g. update relationships.
-			$this()->extend('afterModelWrite', $request, $model, $mode);
-			$model->extend('afterModelWrite', $request, $model, $mode);
+			$this()->extend('afterModelWrite', $request, $model, $action);
+			$model->extend('afterModelWrite', $request, $model, $action);
 
 		} catch (ValidationException $e) {
 
@@ -217,12 +230,13 @@ class _Form. If not existing class
 
 	/**
 	 * Adds an ID field with model ID if not already in fields collection.
+	 *
 	 * @param DataObject $model
-	 * @param $fields
-	 * @param $mode
+	 * @param            $fields
+	 * @param            $action
 	 */
-	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
-		if ($mode === self::ActionName) {
+	public function updateFieldsForMode(DataObject $model, FieldList $fields, $action, array &$requiredFields = []) {
+		if ($action === self::ActionName) {
 			if (!$fields->fieldByName('ID')) {
 				$fields->push(
 					new HiddenField('ID', '', $model->ID)
@@ -235,14 +249,16 @@ class _Form. If not existing class
 			}
 		}
 	}
+
 	/**
 	 * Adds FormActions for this mode.
+	 *
 	 * @param $model
 	 * @param $actions
-	 * @param $mode
+	 * @param $action
 	 */
-	public function updateActionsForMode(DataObject $model, $actions, $mode) {
-		if ($mode === self::ActionName) {
+	public function updateActionsForMode(DataObject $model, $actions, $action) {
+		if ($action === self::ActionName) {
 			if ($this->canEdit()) {
 				$actions->push(new FormAction('Save', 'Save'));
 			}
@@ -251,12 +267,13 @@ class _Form. If not existing class
 
 	/**
 	 * For uploads as a post we need to provide the form which handles them, in this case for a 'post' request.
+	 *
 	 * @param SS_HTTPRequest $request
-	 * @param $mode
-	 * @return SocialModelForm
+	 * @param                $action
+	 * @return SocialForm
 	 */
-	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === self::ActionName) {
+	public function provideUploadFormForMode(SS_HTTPRequest $request, $action) {
+		if ($action === self::ActionName) {
 			return $this->EditForm();
 		}
 	}

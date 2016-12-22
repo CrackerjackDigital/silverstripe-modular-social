@@ -3,10 +3,6 @@ namespace Modular\Actions;
 
 use ArrayList;
 use CompositeField;
-use Controller;
-use DataObject;
-use FieldList;
-use LeftAndMain;
 use Modular\Application;
 use Modular\Edges\SocialRelationship;
 use Modular\emailer;
@@ -17,6 +13,11 @@ use Modular\notifies;
 use Modular\Types\SocialEdgeType as SocialEdgeType;
 use OptionsetField;
 
+/**
+ * Controller extension for Approveable handling controllers.
+ *
+ * @package Modular\Actions
+ */
 class Approveable extends SocialAction {
 	use emailer;
 	use enabler;
@@ -44,10 +45,6 @@ class Approveable extends SocialAction {
 		'decline' => '->canDoIt("APP", "action")',
 	];
 
-	private static $url_handlers = [
-		'$ID/approve' => 'approve',
-		'$ID/decline' => 'decline',
-	];
 	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalManual;
 
 	private static $enabled = true;
@@ -229,10 +226,11 @@ class Approveable extends SocialAction {
 
 		// first find the names of the SocialModel classes which link to the extended model, e.g. 'MemberOrganisationRelationship'
 		if ($relationshipClassNames = SocialRelationship::implementors($fromModelClass, $this()->ClassName)) {
+			/** @var SocialRelationship $relationshipClassName */
 			foreach ($relationshipClassNames as $relationshipClassName) {
 				// find the RelationshipTypes which deal with actions between the found relationships models
 				$relationshipTypes = SocialEdgeType::get_for_models(
-					$relationshipClassName::from_fie(),
+					$relationshipClassName::from_class_name(),
 					$relationshipClassName::to_class_name(),
 					$forActions
 				);
@@ -285,11 +283,6 @@ class Approveable extends SocialAction {
 	 * @return CompositeField
 	 */
 	public function ApproveableWidget() {
-		$permissionCode = SocialEdgeType::make_permission_code(
-			self::PermissionPrefix,
-			$this()
-		);
-
 		$composite = new CompositeField([
 			new OptionsetField('ApprovalStatus', 'Approval', [self::PendingValue, self::ApprovedValue, self::DeclinedValue]),
 		]);
@@ -301,30 +294,5 @@ class Approveable extends SocialAction {
 		return $composite;
 	}
 
-	/**
-	 * Adds ApproveableWidget to fields if current member has Approval Permission for current model and we're
-	 * in the CMS.
-	 *
-	 * - before owner.config.approveable_fields_before field name
-	 * - after owner.config.approveable_fields_after field name
-	 * - at end of fields
-	 *
-	 * @patam DataObject $model
-	 * @param FieldList $fields
-	 * @param           $mode
-	 * @param array     $requiredFields
-	 */
-	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
-		if (Controller::curr() instanceof LeftAndMain) {
-			if (SocialEdgeType::check_permission(SocialMember::current_or_guest(), $this->getModelClass(), 'APP')) {
-				// remove db and instance fields as will be replaced by ApprovableWidget. We also need to append
-				// 'ID' to has_one field names.
-
-				self::remove_own_fields($fields);
-
-				$fields->push($this->ApproveableWidget());
-			}
-		}
-	}
 
 }

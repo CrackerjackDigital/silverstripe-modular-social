@@ -148,11 +148,11 @@ class Postable extends SocialAction {
 	/**
 	 * For uploads as a post we need to provide the form which handles them, in this case for a 'post' request.
 	 * @param SS_HTTPRequest $request
-	 * @param $mode
+	 * @param $action
 	 * @return SocialForm
 	 */
-	public function provideUploadFormForMode(SS_HTTPRequest $request, $mode) {
-		if ($mode === self::ActionName) {
+	public function provideUploadFormForMode(SS_HTTPRequest $request, $action) {
+		if ($action === self::ActionName) {
 			return $this->PostableForm();
 		}
 	}
@@ -199,12 +199,12 @@ class Postable extends SocialAction {
 	 *
 	 * @param $modelClass
 	 * @param $id
-	 * @param $mode
+	 * @param $action
 	 *
 	 * @return SocialModel|null
 	 */
-	public function provideModel($modelClass, $id, $mode) {
-		if ($mode === $this->action()) {
+	public function provideModel($modelClass, $id, $action) {
+		if ($action === $this->action()) {
 			if ($id) {
 				return DataObject::get($modelClass)->byID($id);
 			}

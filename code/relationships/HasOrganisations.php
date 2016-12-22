@@ -1,5 +1,6 @@
 <?php
 namespace Modular\Relationships\Social;
+
 use DataList;
 use DataObject;
 use FieldList;

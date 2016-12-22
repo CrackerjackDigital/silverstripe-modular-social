@@ -17,7 +17,7 @@ use TextField;
  **/
 
 class HasContactInfoForm extends SocialForm {
-	const Action = HasContactInfo::Action;
+	const ActionName = HasContactInfo::ActionName;
 
 	public function __construct($controller, $name, $organisationId) {
 

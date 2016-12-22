@@ -15,7 +15,7 @@ use RequiredFields;
  * Provide a form to upload to the gallery added by the 'HasGallery' extension.
  */
 class HasGalleryForm extends SocialForm {
-	const Action = HasGallery::Action;
+	const ActionName = HasGallery::ActionName;
 
 	public function __construct($controller, $name, $id) {
 		$fields = FieldList::create(

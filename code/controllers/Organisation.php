@@ -67,11 +67,11 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 		if ($currenUserOrganisation) {
 			$memberOrgID = $currenUserOrganisation->OrgModel->ID;
 			if (!Application::isMobile()) {
-				if ($this->getModelID() == $memberOrgID) {
+				if ($this->modelID() == $memberOrgID) {
 					return $this->redirect("/member/#tab_organisationTab");
 				}
 			} else {
-				return $this->redirect("organisation/" . $this->getModelID() . "/view");
+				return $this->redirect("organisation/" . $this->modelID() . "/view");
 			}
 		}
 
@@ -102,7 +102,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 			);
 		}
 
-		return $this->redirect($this->getModelInstance($mode)->ActionLink('view'));
+		return $this->redirect($this->model($mode)->ActionLink('view'));
 	}
 
 	/**
@@ -124,7 +124,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 		if ($field = $fields->fieldByName('Title')) {
 			$field->setAttribute('placeholder', _t('SocialOrganisation.TitlePlaceholder', 'SocialOrganisation/Company name'));
 		}
-		if ($field = $fields->fieldByName('Description')) {
+		if ($field = $fields->fieldByName('Synopsis')) {
 			$field->setAttribute("data-ballon-show", "true")
 				->setAttribute("title", "Describe your company - who you are, what you do, how you can help etc.");
 		}
@@ -186,7 +186,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 
 	public function RemoveLocation() {
 		$contactid = (int) $this->request->Param('LocationID');
-		$id = $this->getModelID();
+		$id = $this->modelID();
 		if ($contactid == 0) {
 			return $this->redirectBack();
 		}
@@ -210,12 +210,12 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 	 */
 	public function SetCoverImage() {
 		$image_id = (int) $this->request->Param('ImageID');
-		$id = $this->getModelID();
+		$id = $this->modelID();
 		if ($image_id == 0) {
 			return $this->redirectBack();
 		}
 
-		$id = $this->getModelID();
+		$id = $this->modelID();
 		$model = Organisation::get()->byID($id);
 		$model->CoverImageID = $image_id;
 		$model->write();
@@ -243,7 +243,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 
 		$yCordinate = $y1;
 		$xCordinate = $x1;
-		$id = $this->getModelID();
+		$id = $this->modelID();
 		$model = Organisation::get()->byID($id);
 
 		if ($model->CoverImageID) {
@@ -272,12 +272,12 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 	 */
 	public function SetFeaturedImage() {
 		$image_id = (int) $this->request->Param('ImageID');
-		$id = $this->getModelID();
+		$id = $this->modelID();
 		if ($image_id == 0) {
 			return $this->redirectBack();
 		}
 
-		$id = $this->getModelID();
+		$id = $this->modelID();
 		$model = Organisation::get()->byID($id);
 		$model->FeaturedImageID = $image_id;
 		$model->write();
@@ -293,7 +293,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 	 */
 	public function RemoveOrganisationType() {
 		$type_id = (int) $this->request->Param('TypeID');
-		$id = $this->getModelID();
+		$id = $this->modelID();
 		if ($type_id == 0) {
 			return $this->redirectBack();
 		}
@@ -301,7 +301,7 @@ class SocialOrganisation_Controller extends SocialModel_Controller {
 		$orgSubType = SocialOrganisationSubType::get()->byID($type_id);
 
 		if ($orgSubType) {
-			$id = $this->getModelID();
+			$id = $this->modelID();
 			$model = Organisation::get()->byID($id);
 			$model->OrganisationSubTypes()->remove($orgSubType);
 			$model->write();

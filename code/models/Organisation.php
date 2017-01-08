@@ -1,9 +1,9 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
 
 use ArrayData;
-use CompaniesEntityDetails;
 use Member;
+use Modular\Models\SocialModel;
 use Modular\Types\SocialOrganisationSubType;
 use Modular\Types\SocialOrganisationType;
 use Permission;
@@ -15,7 +15,7 @@ use ValidationResult;
  * @method SocialOrganisationSubType OrganisationSubType()
  * @method \SS_List OrganisationSubTypes()
  */
-class SocialOrganisation extends SocialModel {
+class Organisation extends SocialModel {
 	private static $db = [
 		'Street'                 => 'Varchar(255)',
 		'Suburb'                 => 'Varchar(255)',
@@ -57,7 +57,7 @@ class SocialOrganisation extends SocialModel {
 			'Title'       => true,
 			'Logo'        => 'FileAttachmentField',
 			'Website'     => false,
-			'Description' => 'TextAreaField',
+			'Synopsis' => 'TextAreaField',
 		],
 		\Modular\Actions\Editable::Action     => [
 			'Title'               => true,
@@ -65,21 +65,21 @@ class SocialOrganisation extends SocialModel {
 			'MobilePhoneNumber'   => true,
 			'Website'             => false,
 			'Email'               => true,
-			'Description'         => 'TextAreaField',
+			'Synopsis'         => 'TextAreaField',
 			'ProductsAndServices' => false,
 		],
 		\Modular\Actions\Viewable::Action     => [
 			'Title'                 => true,
 			'Logo'                  => 'ImageField',
 			'Website'               => false,
-			'Description'           => true,
+			'Synopsis'           => true,
 			'OrganisationSubTypeID' => true,
 		],
 		\Modular\Actions\Listable::Action     => [
 			'Images'      => 'HasImagesField',
 			'Logo'        => 'ImageField',
 			'Title'       => true,
-			'Description' => false,
+			'Synopsis' => false,
 		],
 		\Modular\Actions\Searchable::Action   => [
 			'Title'                 => ['TextField', false, 'Organisation Title'],
@@ -241,7 +241,7 @@ class SocialOrganisation extends SocialModel {
 			return false;
 		}
 
-		// $checkAction_Edit = SocialAction::check_permission("EDT", $this);
+		// $checkAction_Edit = SocialActionType::check_permission("EDT", $this);
 
 		$relatedMembers = $this->relatedMembers();
 		if ($relatedMembers->count() > 0) {
@@ -266,7 +266,7 @@ class SocialOrganisation extends SocialModel {
 		return "organisation/" . $this->ID . "/view";
 	}
 
-	public function getModelId() {
+	public function modelID() {
 		return $this->ID;
 	}
 

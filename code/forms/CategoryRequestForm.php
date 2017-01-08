@@ -24,7 +24,7 @@ class CategoryRequestForm extends \Modular\Forms\SocialForm {
 
 		$validator = new RequiredFields("CategoryName");
 		parent::__construct($controller, $name, $fields, $actions, $validator);
-		if ($model = $controller->getModelInstance(Editable::Action)) {
+		if ($model = $controller->model(Editable::Action)) {
 			$this->setFormAction($model->ActionLink("category-request"));
 		}
 	}

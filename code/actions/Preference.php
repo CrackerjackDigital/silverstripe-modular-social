@@ -207,7 +207,7 @@ class Preference extends SocialAction {
 			$output->push(ArrayData::create([
 				"ID" => $rss->ID,
 				"Title" => $rss->Title,
-				"Description" => $rss->Description,
+				"Synopsis" => $rss->Description,
 				"Checked" => $checked,
 			    "Logo" => $rss->Logo()
 			]));

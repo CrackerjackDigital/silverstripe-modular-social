@@ -1,10 +1,12 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
+
+use Modular\Models\SocialModel;
 
 /**
  * A forum public model.
  */
-class SocialForum extends SocialModel {
+class Forum extends SocialModel {
 	private static $singular_name = 'Forum';
 
 	private static $route_part = 'forum';
@@ -27,11 +29,11 @@ class SocialForum extends SocialModel {
 		],
 		\Modular\Actions\Editable::Action => [
 			'Title' => true,
-			'Description' => true,
+			'Synopsis' => true,
 		],
 		\Modular\Actions\Createable::Action => [
 			'Title' => true,
-			'Description' => true,
+			'Synopsis' => true,
 		],
 	];
 

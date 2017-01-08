@@ -9,7 +9,7 @@ use Modular\Extensions\Controller\SocialAction;
 use SS_HTTPRequest;
 
 class Confirmable extends SocialAction  {
-	use \Modular\enabler;
+	use \Modular\Traits\enabler;
 
 	const Action                     = 'confirm';
 	const ConfirmedFieldName         = 'ConfirmedFlag';

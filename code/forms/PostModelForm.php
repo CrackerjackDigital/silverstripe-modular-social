@@ -26,7 +26,7 @@ class PostForm extends SocialForm {
 			);
 		}
 
-		if ($model = $controller->getModelInstance(Editable::Action)) {
+		if ($model = $controller->model(Editable::Action)) {
 
 			if ($model->ForumTopicID == 0) {
 				$fields->push(FileAttachmentField::create("AttachImages", 'Add more images')

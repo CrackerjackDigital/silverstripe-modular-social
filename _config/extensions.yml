@@ -22,6 +22,7 @@ Modular\Models\SocialModel:
     - Modular\Extensions\UI\SocialActionButtons
     - Modular\Extensions\Model\Historical
 
+# types
 Modular\Types\SocialType:
   extensions:
     - Modular\Extensions\Model\Historical
@@ -54,14 +55,11 @@ Modular\Controllers\SocialModel_Controller:
     - Modular\Actions\ViewableExtension
     - Modular\Actions\EditableExtension
 
-Modular\Edges\Social:
-  extensions:
-    - Modular\Extensions\Model\SocialModel
-    - Modular\Extensions\Model\Historical
-
-Modular\Types\SocialAction:
+Modular\Types\SocialActionType:
   extensions:
     - Modular\Extensions\Model\Historical
+    - Modular\Extensions\Model\NotificationMembers
+    - Modular\Extensions\Model\NotificationGroups
 
 Modular\Controllers\SocialOrganisation_Controller:
   extensions:

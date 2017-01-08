@@ -8,17 +8,17 @@ interface SocialModel {
 	/**
 	 * @return string
 	 */
-	public function getModelClass();
+	public function modelClassName();
 
 	/**
 	 * @return int|null
 	 */
-	public function getModelID();
+	public function modelID();
 
 	/**
 	 * @return SocialModel|null
 	 */
-	public function getModelInstance();
+	public function model();
     /**
      * Return the endpoint (url path) for talking with this model without leading
      * or trailing slashes.

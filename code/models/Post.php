@@ -1,13 +1,13 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
 
-use DOMDocument;
 use DOMXPath;
 use FeedMeFeedInterface;
 use MakeItLink;
 use Member;
+use Modular\Models\SocialModel;
 
-class SocialPost extends SocialModel implements \FeedMeItemModelInterface {
+class Post extends SocialModel implements \FeedMeItemModelInterface {
 	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalAutomatic;
 
 	private static $db = [

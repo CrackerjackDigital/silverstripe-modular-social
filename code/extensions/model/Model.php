@@ -14,15 +14,15 @@ use Modular\Actions\Editable;
 use Modular\Actions\Listable;
 use Modular\Actions\Registerable;
 use Modular\Actions\Viewable;
-use Modular\debugging;
-use Modular\enabler;
+use Modular\Traits\debugging;
+use Modular\Traits\enabler;
 use Modular\Exceptions\Exception;
 use Modular\Forms\SocialForm;
 use Modular\Forms\SocialForm as SocialModelForm;
 use Modular\Interfaces\SocialModel as SocialModelInterface;
 use Modular\ModelExtension;
-use Modular\reflection;
-use Modular\Types\SocialAction;
+use Modular\Traits\reflection;
+use Modular\Types\SocialActionType;
 use RequiredFields;
 use UploadField;
 
@@ -44,7 +44,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	/**
 	 * Checks:
 	 *  -   The current user is the model's Creator
-	 *  -   via SocialAction.check_permission if we can perform the requested action.
+	 *  -   via SocialActionType.check_permission if we can perform the requested action.
 	 *
 	 * @param        $actionCodes
 	 * @param string $source where call is being made from, e.g. a controller will set this to 'action' on checking allowed_actions
@@ -54,9 +54,9 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	public function canDoIt($actionCodes, $source = '') {
 		$source = $source ?: \Member::currentUser();
 
-		$canDoIt = SocialAction::check_permission(
+		$canDoIt = SocialActionType::check_permission(
 			$actionCodes,
-			$this->getModelInstance()
+			$this->model()
 		);
 		if ($source && !$canDoIt) {
 			if ($source == 'action') {
@@ -121,7 +121,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		return $this->formForMode(Editable::Action);
 	}
 
-	public function getModelID() {
+	public function modelID() {
 		return $this()->ID;
 	}
 
@@ -130,7 +130,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 *
 	 * @return mixed
 	 */
-	public function getModelInstance() {
+	public function model() {
 		return $this();
 	}
 
@@ -139,7 +139,7 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 	 *
 	 * @return string
 	 */
-	public function getModelClass() {
+	public function modelClassName() {
 		return $this()->ClassName;
 	}
 
@@ -621,9 +621,9 @@ class SocialModel extends ModelExtension implements SocialModelInterface  {
 		if ($otherModelOrClassName instanceof DataObject) {
 			$otherModelOrClassName = $otherModelOrClassName->class;
 		}
-		/** @var SocialAction $Action */
-		$Action = SocialAction::get_heirarchy(
-			$this->getModelClass(),
+		/** @var SocialActionType $Action */
+		$Action = SocialActionType::get_heirarchy(
+			$this->modelClassName(),
 			$otherModelOrClassName,
 			$actionCode
 		)->first();

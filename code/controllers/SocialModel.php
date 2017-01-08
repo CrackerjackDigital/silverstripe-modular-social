@@ -8,7 +8,7 @@ use FieldList;
 use Member;
 use Modular\Forms\SocialForm;
 use Modular\Interfaces\SocialModelController;
-use Modular\json;
+use Modular\Traits\json;
 use RequiredFields;
 use Requirements;
 use Session;
@@ -16,7 +16,7 @@ use Session;
 /**
  * Base controller for SocialModel derived classes.
  *
- * SocialAction methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
+ * SocialActionType methods are dual-purpose depending on HTTP method, GET will present a view/form, POST will save the data.
  */
 class SocialModel_Controller extends GraphNode_Controller implements SocialModelController , \MosaicFormControllerInterface {
 	use json;
@@ -94,7 +94,7 @@ JS
 		$formClassName = $this->getFormName();
 
 		/** @var DataObject $model */
-		if ($model = $this->getModelInstance($mode)) {
+		if ($model = $this->model($mode)) {
 
 			$this->setDataModel($model);
 			list($fields, $requiredFields) = $this->getFieldsForMode($mode);
@@ -173,7 +173,7 @@ JS
 	 * @return string
 	 */
 	public function getFormName($className = null) {
-		return ($className ?: $this->getModelClass()) . "Form";
+		return ($className ?: $this->modelClassName()) . "Form";
 	}
 
 	/**
@@ -183,7 +183,7 @@ JS
 	 */
 	public function getFieldsForMode($mode) {
 		/** @var SocialModelController $model */
-		if ($model = $this->getModelInstance($mode)) {
+		if ($model = $this->model($mode)) {
 			list($fields, $requiredFields) = $model->getFieldsForMode($mode);
 
 			// controller extensions can add fields (model.getFieldsForMode has already called updateFieldsForMode
@@ -213,7 +213,7 @@ JS
 	 */
 	public function getActionsForMode($mode) {
 		$actions = new FieldList();
-		$model = $this->getModelInstance($mode);
+		$model = $this->model($mode);
 
 		// controller extensions can add their actions
 		$this()->extend('updateActionsForMode', $model, $actions, $mode);
@@ -256,7 +256,7 @@ JS
 	 *
 	 * @return int|null
 	 */
-	public function getModelID() {
+	public function modelID() {
 		$request = $this->getRequest();
 		return $request->isGET() ? $request->param('ID') : $request->postVar('ID');
 	}
@@ -268,13 +268,13 @@ JS
 	 * @param $mode - one of the ModeXXX constants.
 	 * @return DataObject|null
 	 */
-	public function getModelInstance($mode = '') {
+	public function model($mode = '') {
 		/** @var DataObject $modelInstance */
 		static $modelInstance;
 
 		if (!$modelInstance || ($modelInstance && !$modelInstance->exists())) {
-			$modelClass = $this->getModelClass();
-			$id = $this->getModelID();
+			$modelClass = $this->modelClassName();
+			$id = $this->modelID();
 
 			$possibleInstances = $this->extend('provideModel', $modelClass, $id, $mode);
 
@@ -294,7 +294,7 @@ JS
 	 *
 	 * @return string
 	 */
-	public function getModelClass() {
+	public function modelClassName() {
 		return static::config()->get('model_class') ?: substr($this->class, 0, strpos($this->class, '_'));
 	}
 
@@ -302,7 +302,7 @@ JS
 	 * Return name of a template for a given action.
 	 */
 	public function getTemplateName($action) {
-		return $this->getModelClass() . "_$action";
+		return $this->modelClassName() . "_$action";
 	}
 
 	/**
@@ -342,7 +342,7 @@ JS
 	public function renderTemplates($mode, array $extraData = []) {
 		$templates = $this->getTemplates($mode);
 
-		$model = $this->getModelInstance($mode);
+		$model = $this->model($mode);
 
 		return $this->renderWith(
 			$templates,
@@ -362,7 +362,7 @@ JS
 	 * @return mixed
 	 */
 	public function ActionLink($action, $includeID = true) {
-		return $this->getModelInstance($action)->ActionLink($action, $includeID);
+		return $this->model($action)->ActionLink($action, $includeID);
 	}
 
 	/**
@@ -370,7 +370,7 @@ JS
 	 * @return string|null
 	 */
 	public function endpoint() {
-		return Config::inst()->get($this->getModelClass(), 'route_part');
+		return Config::inst()->get($this->modelClassName(), 'route_part');
 	}
 
 	/**

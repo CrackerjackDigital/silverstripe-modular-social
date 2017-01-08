@@ -42,7 +42,7 @@ class SocialForum_Controller extends SocialModel_Controller {
 		return new ArrayData([
 			'Title'     => singleton('ForumTopic')->plural_name(),
 			'ListItems' => SocialForumTopic::get()->filter([
-				'ForumID' => $this()->getModelID(),
+				                                               'ForumID' => $this()->modelID(),
 			]),
 		]);
 	}

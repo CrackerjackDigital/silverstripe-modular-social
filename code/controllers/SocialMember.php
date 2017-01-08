@@ -47,11 +47,11 @@ class SocialMember_Controller extends SocialModel_Controller  {
 	public function ViewRedirect() {
 
 		if (!Application::isMobile()) {
-			if ($this->getModelID() == Member::currentUserID()) {
+			if ($this->modelID() == Member::currentUserID()) {
 				return $this->redirect("/member/#tab_myPersonalProfileTab");
 			}
 		} else {
-			return $this->redirect("member/" . $this->getModelID() . "/view");
+			return $this->redirect("member/" . $this->modelID() . "/view");
 		}
 
 	}

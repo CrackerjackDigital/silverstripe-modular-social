@@ -23,7 +23,7 @@ class ForumTopicForm extends SocialForm {
 		$fields = FieldList::create(
 
 			TextField::create('Title', 'Title')->setAttribute('placeholder', 'Forum Topic Title'),
-			TextareaField::create('Description', 'Description')->setAttribute('placeholder', 'Description'),
+			TextareaField::create('Synopsis', 'Synopsis')->setAttribute('placeholder', 'Synopsis'),
 			Select2Field::create("ForumID", "Forum")
 				->setSource(Forum::get()->map("ID", "Title"))
 				->setEmptyString("Please select Forum"),
@@ -38,7 +38,7 @@ class ForumTopicForm extends SocialForm {
 			FormAction::create('doSave')->setTitle("Save")->addExtraClass("btn btn-green")
 		);
 
-		$validator = new RequiredFields('Title', 'Description', 'ForumID');
+		$validator = new RequiredFields('Title', 'Synopsis', 'ForumID');
 		parent::__construct($controller, $name, $fields, $actions, $validator);
 	}
 // var_dump($request);exit();

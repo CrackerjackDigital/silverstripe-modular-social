@@ -6,7 +6,7 @@ use DataObject;
 use Modular\Actions\Createable;
 use Modular\Extensions\Controller\SocialController;
 use Modular\Extensions\Model\SocialMember;
-use Modular\Types\SocialAction;
+use Modular\Types\SocialActionType;
 
 /**
  * Base class for menus which display a list of available and permitted actions such as Like, Follow, Edit etc
@@ -22,7 +22,7 @@ abstract class SocialActionMenu extends SocialController  {
 		$member = SocialMember::current_or_guest();
 
 		// get the list of all possible actions between the two objects (no permission checks)
-		$possibleActions = SocialAction::get_possible_actions(
+		$possibleActions = SocialActionType::get_possible_actions(
 			$member,
 			$model,
 			$restrictTo
@@ -31,14 +31,14 @@ abstract class SocialActionMenu extends SocialController  {
 		]);
 
 		$actions = new ArrayList();
-		/** @var SocialAction $actionRelationshipType */
+		/** @var SocialActionType $actionRelationshipType */
 		foreach ($possibleActions as $actionRelationshipType) {
 			// for each possible action check we can apply it against the model instance.
 			// so e.g. for action 'EDT' we can only do if current member has action 'CRT' or 'EDT' (or admin) or
 			// action 'FOL'
 			$requirementTally = [];
 
-			$createRelationshipType = SocialAction::get_heirarchy(
+			$createRelationshipType = SocialActionType::get_heirarchy(
 				$member,
 				$model,
 				Createable::ActionCode
@@ -60,13 +60,13 @@ abstract class SocialActionMenu extends SocialController  {
 				}
 			}
 
-			if (SocialAction::check_permission($actionRelationshipType->Code, $model, $member)) {
+			if (SocialActionType::check_permission($actionRelationshipType->Code, $model, $member)) {
 
 				// if the model was created by the currently logged in person then don't show the action
 
 				// now check a previous relationship of this type exists or not to figure out if
 				// action or reverse action
-				$previous = $previous = $actionRelationshipType->checkRelationshipExists(
+				$previous = $previous = $actionRelationshipType->findRelationship(
 					$member->ID,
 					$model->ID
 				);

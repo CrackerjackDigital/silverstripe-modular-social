@@ -99,7 +99,7 @@ class NewsFeed extends SocialAction  {
 			],
 			[
 				'ID'    => 'organisationTab',
-				'Title' => _t('NewsFeed.MyOrganisationTabLabel', 'My SocialOrganisation Profile'),
+				'Title' => _t('NewsFeed.MyOrganisationTabLabel', 'My Organisation Profile'),
 			],
 			[
 				'ID'    => 'myPersonalProfileTab',

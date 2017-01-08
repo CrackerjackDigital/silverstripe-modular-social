@@ -18,7 +18,7 @@ Member:
 # edges
 Modular\Edges\Social:
   extensions:
-    - Modular\Fields\Description
+    - Modular\Fields\Synopsis
     - Modular\Fields\HiddenSort
     - Modular\Fields\ModelTag
 
@@ -26,7 +26,7 @@ Modular\Edges\Social:
 Modular\Models\SocialModel:
   extensions:
     - Modular\Fields\Title
-    - Modular\Fields\Description
+    - Modular\Fields\Synopsis
     - Modular\Fields\HiddenSort
 
 # base types
@@ -34,7 +34,7 @@ Modular\Types\SocialType:
   extensions:
     - Modular\Fields\Title
     - Modular\Fields\Code
-    - Modular\Fields\Description
+    - Modular\Fields\Synopsis
     - Modular\Fields\ModelTag
     - Modular\Fields\SystemData
     - Modular\Fields\HiddenSort

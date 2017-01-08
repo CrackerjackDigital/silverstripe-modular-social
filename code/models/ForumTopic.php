@@ -1,10 +1,10 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
 
 /**
  * A Forum Topic public model.
  */
-class SocialForumTopic extends SocialModel
+class ForumTopic extends SocialModel
 {
 	private static $singular_name = 'Forum Topic';
 
@@ -39,13 +39,13 @@ class SocialForumTopic extends SocialModel
 		],
 		'edit' => [
 			'Title'       => true,
-			'Description' => 'TextareaField',
+			'Synopsis' => 'TextareaField',
 			'ForumID'     => ['Select2Field', true],
 			'FileList'    => 'FileListField',
 		],
 		'new'  => [
 			'Title'       => true,
-			'Description' => 'TextareaField',
+			'Synopsis' => 'TextareaField',
 			'ForumID'     => ['Select2Field', true],
 			'Files'       => 'FileAttachmentField',
 		],

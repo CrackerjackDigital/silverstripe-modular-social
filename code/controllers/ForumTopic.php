@@ -40,8 +40,8 @@ class SocialForumTopic_Controller extends SocialModel_Controller {
 
 	public function RelatedItems() {
 		return new ArrayData([
-			'Title'     => 'Topics',
-			'ListItems' => Post::get()->filter('ForumTopicID', $this->getModelID()),
+			                     'Title'     => 'Topics',
+			                     'ListItems' => Post::get()->filter('ForumTopicID', $this->modelID()),
 		]);
 	}
 
@@ -71,7 +71,7 @@ class SocialForumTopic_Controller extends SocialModel_Controller {
 	public function ForumPostableForm() {
 		$form = $this->PostableForm();
 		if ($form) {
-			$form->Fields()->push(HiddenField::create('ForumTopicID', '', $this->getModelID()));
+			$form->Fields()->push(HiddenField::create('ForumTopicID', '', $this->modelID()));
 			$form->Fields()->removeByName('Images');
 		}
 		return $form;

@@ -300,7 +300,7 @@ class SocialMember extends SocialModel  {
 	}
 
 	public function getFieldsForMode($mode) {
-		return \Modular\Module::get_config_setting('fields_for_mode', $mode, __CLASS__);
+		return \Modular\Module::get_config_setting('fields_for_mode', $mode, get_called_class());
 	}
 
 	public function endpoint() {

@@ -12,7 +12,7 @@ class HasImagesForm extends SocialForm {
 	public function __construct($controller, $name = 'HasImagesForm', $fields = null, $actions = null) {
 		$actionName = HasImages::RelationshipName;
 
-		if ($model = $controller->getModelInstance()) {
+		if ($model = $controller->model()) {
 			$images = $model->$actionName();
 		} else {
 			$images = new ArrayList();

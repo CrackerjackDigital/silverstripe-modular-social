@@ -56,7 +56,7 @@ interface SocialModelController extends SocialModel {
 	 * @param string $mode e.g. 'edit' a controller could provide a different model depending on mode.
 	 * @return SocialModel|null
 	 */
-	public function getModelInstance($mode = '');
+	public function model($mode = '');
 
 	/**
      * Returns valid actions for this controller and current model in a particular mode.

@@ -7,7 +7,23 @@
  */
 namespace Modular\Actions;
 
+use Controller;
+use DataObject;
+use DropdownField;
+use FieldList;
+use FormAction;
+use Image;
+use Member;
+use Modular\Application;
+use Modular\Edges\SocialRelationship;
 use \Modular\Extensions\Controller\SocialAction;
+use Modular\Forms\SocialForm;
+use Modular\Interfaces\SocialModel;
+use Modular\Models\Social\Post;
+use RequiredFields;
+use Session;
+use SS_HTTPRequest;
+use TextareaField;
 
 class Postable extends SocialAction {
 	const ActionCode = 'POS';
@@ -51,7 +67,7 @@ class Postable extends SocialAction {
 
 			$uploadField->setFolderName(Member::currentUser()->ActionLink(self::Action));
 
-			$form = new SocialModelForm($this(), 'PostableForm', $fieldList, $actionList, $validator);
+			$form = new SocialForm($this(), 'PostableForm', $fieldList, $actionList, $validator);
 
 			// we want to post to the full url with id etc and action 'post'
 
@@ -123,7 +139,7 @@ class Postable extends SocialAction {
 
 		$this()->setSessionMessage("New post created successfully.");
 
-		if (Application::device_mode() == 'mobile') {
+		if ('mobile' == Application::device_mode()) {
 			return $this()->redirect("/");
 		}
 		return $this()->redirectBack();
@@ -140,10 +156,11 @@ class Postable extends SocialAction {
 			return $this->PostableForm();
 		}
 	}
-
+	
 	/**
 	 * Member unposts this->owner object, remove all self::$actionTypeCode relationships between them
-	 * @param null $mmeberID
+	 *
+	 * @return
 	 */
 	public function unpost() {
 		// parent::breakRelationship(self::ActionCode);
@@ -184,7 +201,7 @@ class Postable extends SocialAction {
 	 * @param $id
 	 * @param $mode
 	 *
-	 * @return SocialModelInterface|null
+	 * @return SocialModel|null
 	 */
 	public function provideModel($modelClass, $id, $mode) {
 		if ($mode === static::Action) {

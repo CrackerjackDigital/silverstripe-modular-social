@@ -12,12 +12,11 @@ use LeftAndMain;
 use Member;
 use Modular\Application;
 use Modular\Edges\SocialRelationship;
-use Modular\emailer;
-use Modular\enabler;
+use Modular\Traits\emailer;
+use Modular\Traits\enabler;
 use Modular\Extensions\Model\SocialMember;
 use Modular\Extensions\Model\SocialModel;
-use Modular\notifies;
-use Modular\Types\SocialAction;
+use Modular\Types\SocialActionType;
 use OptionsetField;
 use Permission;
 use SQLQuery;
@@ -238,7 +237,7 @@ class Approveable extends SocialModel {
 		// get the last 'CRT' action that was performed on the extended model
 		if (!$initiator = $this()->LastActor('CRT')) {
 			// otherwise we send to approvers with a hint that couldn't find the 'real' person to notify
-			$initiator = Application::admin_email();
+			$initiator = Application::member(Application::Admin);
 			$subject = "Problem sending approval response for: $subject";
 			$message = "No initiator could be identified to send this message to: $message";
 			$this->debug_error("Failed to find initiator to send approval response to, sending to admin instead");
@@ -273,18 +272,18 @@ class Approveable extends SocialModel {
 		$fromModelClass = is_object($fromModelClass) ? get_class($fromModelClass) : $fromModelClass;
 
 		$approvers = new ArrayList();
-		/** @var string|SocialAction $relationshipClassName */
+		/** @var string|SocialActionType $relationshipClassName */
 
 		// first find the names of the SocialModel classes which link to the extended model, e.g. 'MemberOrganisationRelationship'
 		if ($relationshipClassNames = SocialRelationship::implementors($fromModelClass, $this()->ClassName)) {
 			foreach ($relationshipClassNames as $relationshipClassName) {
 				// find the RelationshipTypes which deal with actions between the found relationships models
-				$relationshipTypes = SocialAction::get_by_edge_type_code(
+				$relationshipTypes = SocialActionType::get_by_edge_type_code(
 					$relationshipClassName::from_class_name(),
 					$relationshipClassName::to_class_name(),
 					$forActions
 				);
-				/** @var SocialAction $relationshipType */
+				/** @var SocialActionType $relationshipType */
 				foreach ($relationshipTypes as $relationshipType) {
 					$approvers->merge($relationshipType->NotificationRecipients());
 				}
@@ -333,7 +332,7 @@ class Approveable extends SocialModel {
 	 * @return CompositeField
 	 */
 	public function ApproveableWidget() {
-		$permissionCode = SocialAction::make_permission_code(
+		$permissionCode = SocialActionType::make_permission_code(
 			self::PermissionPrefix,
 			$this()
 		);
@@ -353,7 +352,7 @@ class Approveable extends SocialModel {
 			'ApproveableApproved',
 			new OptionsetField('ApproveableApproved', 'Approved', [self::ApprovedValue, self::DeclinedValue])
 		);
-		if (!SocialAction::check_permission(self::ActionCode, $this())) {
+		if (!SocialActionType::check_permission(self::ActionCode, $this())) {
 			$composite = $composite->performReadonlyTransformation();
 		}
 		$composite->addExtraClass('approveable-widget');
@@ -375,7 +374,7 @@ class Approveable extends SocialModel {
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, array &$requiredFields = []) {
 		if (Controller::curr() instanceof LeftAndMain) {
-			if (SocialAction::check_permission('APP', $this->getModelClass())) {
+			if (SocialActionType::check_permission('APP', $this->modelClassName())) {
 				// remove db and instance fields as will be replaced by ApprovableWidget. We also need to append
 				// 'ID' to has_one field names.
 

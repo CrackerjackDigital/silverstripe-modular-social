@@ -1,7 +1,8 @@
 <?php
-namespace Modular\Models;
+namespace Modular\Models\Social;
 
-use FeedMeFeedModelExtension as FeedMeFeedModel;
+use FeedMeFeedModelInterface;
+use Modular\Models\SocialModel;
 
 /**
  * @property string RssURL
@@ -10,7 +11,7 @@ use FeedMeFeedModelExtension as FeedMeFeedModel;
  * @method MemberRssFeed RelatedMembers()
  * @method Post[] Posts() returns an array of PostModels
  */
-class SocialRssFeed extends SocialModel implements \FeedMeFeedModelInterface  {
+class RssFeed extends SocialModel implements FeedMeFeedModelInterface  {
 
 	private static $singular_name = 'RSS Feed';
 

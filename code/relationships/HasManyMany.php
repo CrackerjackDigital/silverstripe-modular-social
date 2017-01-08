@@ -8,11 +8,12 @@ use DataObject;
 use FieldList;
 use FormField;
 use Modular\Edges\SocialRelationship;
-use Modular\Extensions\Model\SocialModel;
 use Modular\Fields\HasManyManyGridField;
-use Modular\Interfaces\GraphEdgeType;
+use Modular\Interfaces\Graph\Edge;
+use Modular\Interfaces\Graph\EdgeType;
+use Modular\Interfaces\Graph\Node;
 use Modular\Object;
-use Modular\Types\SocialAction;
+use Modular\Types\SocialActionType;
 use Modular\UI\Component;
 use SS_List;
 
@@ -34,7 +35,7 @@ use SS_List;
  *
  *
  */
-class SocialHasManyMany extends HasManyManyGridField {
+class SocialHasManyMany extends HasManyManyGridField implements Edge {
 	const RelatedClassName    = '';
 	const ChooserClassName    = '';            # 'OrganisationChooserField'
 	const GridFieldConfigName = 'Modular\GridField\Configs\SocialModelGridFieldConfig';
@@ -96,7 +97,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 		}
 		return $listItems;
 	}
-
+	
 	/**
 	 * Update action fields by adding a chooser field which is found by:
 	 * - existence of class static::ChooserClassName
@@ -104,8 +105,10 @@ class SocialHasManyMany extends HasManyManyGridField {
 	 * - owner having method $this->to_class_name() . 'Chooser' e.g. PostChooser()
 	 * - just use the parent GridField as per Modular\HasManyManyGridField
 	 *
-	 * @param FieldList $fields
-	 * @param           $mode
+	 * @param \DataObject $model
+	 * @param FieldList   $fields
+	 * @param             $mode
+	 * @param array       $requiredFields
 	 */
 	public function updateFieldsForMode(DataObject $model, FieldList $fields, $mode, &$requiredFields = []) {
 		$chooser = null;
@@ -217,13 +220,16 @@ class SocialHasManyMany extends HasManyManyGridField {
 		}
 		return new ArrayList();
 	}
-
+	
 	/**
-	 * Return an initialised SocialRelationship object suitable from the extended model to the RelatedClassName.
+	 * Return an initialised SocialRelationship object suitable from the extended model to the toModel.
 	 * Does not write it (and so no relationship is really created yet).
 	 *
+	 * @param                       $toModelOrID
 	 * @param string|DataObject|int $action
-	 * @return SocialRelationship
+	 * @param array                 $data
+	 * @return \Modular\Edges\SocialRelationship
+	 * @throws \Modular\Exceptions\Exception
 	 */
 	public function createRelationshipModel($toModelOrID, $action, $data = []) {
 		$toModelID = is_object($toModelOrID)
@@ -234,7 +240,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 			? $action->ID
 			: (is_numeric($action)
 				? $action
-				: SocialAction::get_by_code($action));
+				: SocialActionType::get_by_code($action));
 
 		/** @var string|SocialRelationship $relationshipClassName */
 		$relationshipClassName = static::relationship_class_name($this());
@@ -274,7 +280,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 				: [$this->relationship_name()];
 
 			// get action type records which are children of the passed in code.
-			$actionTypeIDs = SocialAction::get_by_parent($parentActionCodes)->column('ID');
+			$actionTypeIDs = SocialActionType::get_by_parent($parentActionCodes)->column('ID');
 
 			// for each of the action names append records which match the current action type
 			foreach ($relationshipNames as $relationshipName) {
@@ -305,10 +311,10 @@ class SocialHasManyMany extends HasManyManyGridField {
 	 * Return relationship types which can be created from this model to any other model
 	 *
 	 * @param string $actionCode e.g. 'CRT', 'REG'
-	 * @return GraphEdgeType|SocialAction|DataObject
+	 * @return GraphEdgeType|SocialActionType|DataObject
 	 */
 	protected function action_for_code($actionCode) {
-		return SocialAction::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();
+		return SocialActionType::get_heirarchy($this(), static::related_class_name(), $actionCode)->first();
 	}
 
 	/**
@@ -346,7 +352,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 	/**
 	 * Relate a model to the extended model by supplied action.
 	 *
-	 * Creates a action class object if Model and SocialAction records
+	 * Creates a action class object if Model and SocialActionType records
 	 * exist for supplied parameters and adds it to the action collection.
 	 *
 	 * @param int    $modelOrID
@@ -364,7 +370,7 @@ class SocialHasManyMany extends HasManyManyGridField {
 				: DataObject::get_by_id($relatedClassName, $modelOrID);
 
 			if ($model) {
-				// get the first action (e.g. SocialAction) allowed between the extended model
+				// get the first action (e.g. SocialActionType) allowed between the extended model
 				// and the related model with the supplied action code
 				$action = static::action_for_code($actionCode);
 
@@ -438,5 +444,42 @@ class SocialHasManyMany extends HasManyManyGridField {
 		}
 		$this->addRelated($modelID, $actionCode);
 	}
-
-}
+	
+	/**
+	 * Do whatever it takes to get this edge out of the system.
+	 *
+	 * @return bool true if pruned successfully, false otherwise
+	 */
+	public function prune() {
+		// TODO: Implement prune() method.
+	}
+	
+	/**
+	 * Set the 'A' node.
+	 *
+	 * @param Node|\DataObject|int $nodeA
+	 * @return $this
+	 */
+	public function setNodeA($nodeA) {
+		// TODO: Implement setNodeA() method.
+	}
+	
+	/**
+	 * Set the 'B' node.
+	 *
+	 * @param Node|\DataObject|int $nodeB
+	 * @return $this
+	 */
+	public function setNodeB($nodeB) {
+		// TODO: Implement setNodeB() method.
+	}
+	
+	/**
+	 * Set the edge type reference and also any additional data on the Edge itself.
+	 *
+	 * @param EdgeType $edgeType
+	 * @return $this
+	 */
+	public function setEdgeType($edgeType) {
+		// TODO: Implement setEdgeType() method.
+	}}

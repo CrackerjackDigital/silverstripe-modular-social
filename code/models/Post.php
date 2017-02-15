@@ -14,9 +14,9 @@ class Post extends SocialModel implements \FeedMeItemModelInterface {
 	private static $db = [
 		'Body'                       => 'Text',
 		'PostAs'                     => 'Enum("Individual,SocialOrganisation","Individual")',
-		\FeedMeItemModelInterface::ExternalIDFieldName    => \FeedMeItemModelInterface::ExternalIDFieldType,
-		\FeedMeItemModelInterface::LastPublishedFieldName => \FeedMeItemModelInterface::LastPublishedFieldType,
-		\FeedMeItemModelInterface::LinkFieldName          => \FeedMeItemModelInterface::LinkFieldType,
+		\FeedMeInterface::ExternalIDFieldName    => \FeedMeInterface::ExternalIDFieldType,
+		\FeedMeInterface::LastPublishedFieldName => \FeedMeInterface::LastPublishedFieldType,
+		\FeedMeInterface::LinkFieldName          => \FeedMeInterface::LinkFieldType,
 		"PostContentLink"            => "Text",
 		"PostContentLinkTitle"       => "Varchar(200)",
 		"PostContentLinkText"        => "Text",

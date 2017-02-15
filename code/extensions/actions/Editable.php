@@ -124,7 +124,7 @@ class Editable extends SocialAction {
 	 * @param string         $action
 	 * @return mixed
 	 */
-	public function beforeEdit(SS_HTTPRequest $request, DataObject $model, $action) {
+	public function beforeEdit(SS_HTTPRequest $request, $model, $action) {
 		return $this()->renderTemplates($action);
 	}
 

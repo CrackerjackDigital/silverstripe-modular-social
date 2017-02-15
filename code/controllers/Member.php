@@ -22,10 +22,6 @@ class MemberController extends SocialModelController {
 		parent::init();
 	}
 
-	public function ActionCSSClass() {
-		xdebug_break();
-	}
-
 	/**
 	 *
 	 * new member registration form

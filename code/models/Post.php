@@ -9,14 +9,27 @@ use Member;
 use Modular\Models\SocialModel;
 
 class Post extends SocialModel implements \FeedMeItemModelInterface {
+	const TitleFieldName = 'FeedMeTitle';
+	const TitleFieldType = 'Varchar(255)';
+
+	// fields added by FeedMe extension
+	const ExternalIDFieldName = 'FeedMeExternalID';
+	const ExternalIDFieldType = 'Varchar(64)';
+
+	const LinkFieldName = 'FeedMeLink';
+	const LinkFieldType = 'Text';
+
+	const LastPublishedFieldName = 'FeedMeLastPublished';
+	const LastPublishedFieldType = 'Varchar(64)';
+	
 	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalAutomatic;
 
 	private static $db = [
 		'Body'                       => 'Text',
 		'PostAs'                     => 'Enum("Individual,SocialOrganisation","Individual")',
-		\FeedMeInterface::ExternalIDFieldName    => \FeedMeInterface::ExternalIDFieldType,
-		\FeedMeInterface::LastPublishedFieldName => \FeedMeInterface::LastPublishedFieldType,
-		\FeedMeInterface::LinkFieldName          => \FeedMeInterface::LinkFieldType,
+		self::ExternalIDFieldName    => self::ExternalIDFieldType,
+		self::LastPublishedFieldName => self::LastPublishedFieldType,
+		self::LinkFieldName          => self::LinkFieldType,
 		"PostContentLink"            => "Text",
 		"PostContentLinkTitle"       => "Varchar(200)",
 		"PostContentLinkText"        => "Text",

@@ -21,7 +21,7 @@ class Post extends SocialModel implements \FeedMeItemModelInterface {
 
 	const LastPublishedFieldName = 'FeedMeLastPublished';
 	const LastPublishedFieldType = 'Varchar(64)';
-	
+
 	private static $approveable_mode = \Modular\Actions\Approveable::ApprovalAutomatic;
 
 	private static $db = [
